@@ -1,4 +1,6 @@
 # Ferdi TODO
+Ignore this everyone else - this is such that I don't forget what I decide to do immediately after...
+
 ## Team1Robot
 I will try to make a robot class for controlling the robot.
 | Deadline        | Description                                                   |
