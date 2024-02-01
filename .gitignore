@@ -1,3 +1,7 @@
+## Ignore catkin_make build files/directories
+build/
+devel/
+
 # Prerequisites
 *.d
 
