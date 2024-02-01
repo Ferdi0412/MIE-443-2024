@@ -1,18 +1,40 @@
 # MIE-443-2024
-Project for Thursday Team 1 for MIE443 in Winter 2023/2024
+Project for Thursday Team 1 for MIE443 in Winter 2023/2024. This assumes you are using Ubuntu 16.04, and ROS-Kinetic, with course-provided dependencies installed.
 
 ## Setup
 Treat this as the ***catkin_ws*** directory from class. When first installed, ensure that the root directory is set up, and run catkin_make.
 ```shell
-REPOSITORY_ROOT="~/catkin_ws"
-cd $REPOSITORY_ROOT/
-catkin_make
-```
+## == DIRECTORY SETUP ==
+## If the repository folder not created, start from here...
+cd ~
+mkdir catkin_ws
+cd catkin_ws
+REPOSITORY_ROOT="~/catkin_ws" # NOTE that anywhere you see $REPOSITORY_ROOT, it can be replaced with the actual directory of your clone of this repository...
 
-To be able to launch the project, you may have to run the following:
-```shell
-cd $REPOSITORY_ROOT/
+## == GIT SETUP ==
+## If you have not setup git, start from here...
+cd $REPOSITORY_ROOT
+# TODO: Add git SSH setup, and additional...
+cd src
+catkin_init_workspace
+
+## == CATKIN BUILD ==
+## To build the project, run the following:
+cd $REPOSITORY_ROOT
+catkin_make
+
+## == SOURCE PROJECT ==
+## To be able to launch project programs, you may have to do the following:
+cd $REPOSITORY_ROOT
 source devel/setup.sh
+
+## == RESET BUILD ==
+## In case of strange errors, this may sometimes fix them:
+cd $REPOSITORY_ROOT
+sudo rm -rf build     # Remove all build files created by catkin_make
+sudo rm -rf devel     # Remove all devel files created by catkin_make
+catkin_make           # Re-build projecct
+source devel/setup.sh # re-source
 ```
 
 # Contest 1
@@ -39,3 +61,6 @@ robot.rotate( 45 );
 
 robot.waitMovement();
 ```
+
+## Wall-following
+Add details here...
