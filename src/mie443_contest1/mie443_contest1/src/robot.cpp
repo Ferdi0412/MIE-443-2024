@@ -97,6 +97,14 @@ namespace Team1 {
             void sleepROS( void ) { _read_rate.sleep(); }
 
             /**
+             * stopMotion will stop the last motion command published
+            */
+            void stopMotion( void ) {
+                geometry_msgs::Twist new_motion;
+                vel_pub.publish(new_motion);
+            }
+
+            /**
              * Robot constructor
              *
              * @param node_handler object used to configure subscriptions/publish topics for ROS
