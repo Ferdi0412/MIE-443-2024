@@ -4,6 +4,7 @@ devel/
 
 ## Ignore file generated through catkin_init_workspace
 src/CMakeLists.txt
+.catkin_workspace
 
 # Prerequisites
 *.d

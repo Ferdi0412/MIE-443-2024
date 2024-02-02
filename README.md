@@ -34,8 +34,6 @@ git config --global user.email "my.name@gmail.com"
 git config --list
 git clone git@github.com:Ferdi0412/MIE-443-2024.git . # Clone the repository to current directory (should be $REPOSITORY_ROOT)
 cd src
-catkin_init_workspace
-
 ## == GIT OPERATIONS ==
 ## To update your local clone of the repository:
 git pull
@@ -51,6 +49,10 @@ git commit -m "Short Message" -m  "Long Message" # For short AND long message
 ## To push local revision history to remote
 git push
 
+## == CATKIN SETUP ==
+## Before running catkin_make, ensure the source is initialized
+cd $REPOSITORY_ROOT/src
+catkin_init_workspace
 
 ## == CATKIN BUILD ==
 ## To build the project, run the following:
