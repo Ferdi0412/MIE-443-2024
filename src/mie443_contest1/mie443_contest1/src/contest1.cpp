@@ -42,6 +42,8 @@ static std::chrono::time_point<std::chrono::system_clock> program_start;
 
 static const unsigned long long program_duration = 10;
 
+#define SPEED_HIGH 0.2
+// #define ROT_HIGH 0.2
 
 
 /**
@@ -71,6 +73,9 @@ int main ( int argc, char **argv ) {
 
     printf("About to while...\n");
 
+    robot.spinOnceROS();
+    robot.jogForwards(SPEED_HIGH);
+
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
         robot.spinOnceROS();
         ROS_INFO("Position: %2f\n", robot.getX());
@@ -78,6 +83,7 @@ int main ( int argc, char **argv ) {
     }
 
     ROS_INFO("Time ran out!\n");
+    robot.stopMotion();
 }
 
 

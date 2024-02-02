@@ -3,7 +3,8 @@
 #include <ros/console.h>
 #include "ros/ros.h"
 
-#include <stdio.h>
+#include <exception>
+// #include <stdio.h>
 
 #ifndef BUMPER_TOPIC
 #define BUMPER_TOPIC "mobile_base/events/bumper"
@@ -20,6 +21,14 @@
 #ifndef VEL_COMMAND_TOPIC
 #define VEL_COMMAND_TOPIC "cmd_vel_mux/input/teleop"
 #endif
+
+namespace MotionExceptions {
+
+    /**
+     * BumperException is thrown in certain motion methods, when a bumper is pressed in the direction of travel
+    */
+    class BumperException : public std::exception {};
+}
 
 namespace Team1 {
     class Robot {
@@ -102,6 +111,56 @@ namespace Team1 {
             void stopMotion( void ) {
                 geometry_msgs::Twist new_motion;
                 vel_pub.publish(new_motion);
+            }
+
+            /**
+             * jogForwards will start moving the robot forwards by a given speed for an indefinite distance
+             *
+             * @param velocity linear velocity [try find units...]
+            */
+            void jogForwards( double velocity ) {
+                geometry_msgs::Twist new_motion;
+                new_motion.linear.x = velocity;
+                vel_pub.publish(new_motion);
+            }
+
+            /**
+             * jogForwardsSafe will first check if any of the bumpers are pressed
+             *
+             * @param velocity linear velocity [try find units..]
+             *
+             * @throws MotionExceptions::BumperException when going to move forwards, but a bumper is triggered
+            */
+            void jogForwardsSafe( double velocity ) {
+                if ( (velocity > 0) && getBumperAny() )
+                    throw MotionExceptions::BumperException();
+                jogForwards( velocity );
+            }
+
+            /**
+             * jogClockwise will start rotating the robot clockwise by a given speed for an indefinite angle of rotation
+             *
+             * @param velocity angular velocity [try find units...]
+            */
+            void jogClockwise( double velocity ) {
+                geometry_msgs::Twist new_motion;
+                new_motion.angular.z = velocity;
+                vel_pub.publish(new_motion);
+            }
+
+            /**
+             * jogClockwiseSafe will first check if the bumper in the direction of rotation is pressed
+             *
+             * @param velocity angular velocity [try find units...]
+             *
+             * @throws MotionExceptions::BumperException when bumper on side of rotation is pressed
+            */
+            void jogClockwiseSafe( double velocity ) {
+                if ( (velocity > 0) && getBumperRight() )
+                    throw MotionExceptions::BumperException();
+                else if ( (velocity < 0) && getBumperLeft() )
+                    throw MotionExceptions::BumperException();
+                jogClockwise( velocity );
             }
 
             /**
