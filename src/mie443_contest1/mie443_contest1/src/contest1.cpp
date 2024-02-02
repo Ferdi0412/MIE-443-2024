@@ -84,6 +84,7 @@ int main ( int argc, char **argv ) {
 
     ROS_INFO("Time ran out!\n");
     robot.stopMotion();
+    ROS_INFO("Stopping robot!\n");
 }
 
 
