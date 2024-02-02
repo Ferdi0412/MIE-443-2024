@@ -1,163 +1,103 @@
-/* Team1Robot class defined here... */
-#ifndef TEAM_1_ROBOT
-#define TEAM_1_ROBOT
+#include <nav_msgs/Odometry.h>
+#include <kobuki_msgs/BumperEvent.h>
 
-#include <vector>
+#ifndef BUMPER_TOPIC
+#define BUMPER_TOPIC "mobile_base/events/bumper"
+#endif
 
-class Team1Robot {
-    private:
-        ros::Subscriber bumper_sub;
-        ros::Subscriber laser_sub;
-        ros::Subscriber odom_sub;
-        ros::Subscriber vel_sub;
+#ifndef SCAN_TOPIC
+#define SCAN_TOPIC "scan"
+#endif
 
-        ros::Publisher  vel_pub;
+#ifndef ODOM_TOPIC
+#define ODOM_TOPIC "odom"
+#endif
 
-        /* == ODOMETRY == */
-        void odomCallback ( const nav_msgs::Odometry::ConstPtr& msg ) {
-            // Update position and velocities
-        }
+#ifndef VEL_COMMAND_TOPIC
+#define VEL_COMMAND_TOPIC "cmd_vel_mux/input/teleop"
+#endif
 
-        /* == ROBOT-VELOCITY == */
-        void _velCallback ( const void * msg ) { };
+namespace Team1 {
+    class Robot {
+        private:
+            ros::Subscriber bumper_sub, laser_sub, odom_sub; // vel_sub?
+            ros::Publisher  vel_pub; // To move robot
 
-        /* == WORLD POSITION ==*/
-        double _x, _y, _theta;
+            double _pos_x, _pos_y, _pos_theta;
+            double _vel_x, _vel_y, _vel_theta;
+            bool   _bumper_right, _bumper_left, _bumper_center;
 
-        /* == ROBOT VELOCITY == */
-        double _dx, _dy, _dtheta, _dforward;
+            void (*_spin_once)(void);
 
-        /* == BUMPERS == */
-        bool _bumper_right, _bumper_left, _bumper_center;
-        void bumperCallback( const kobuki_msgs::BumperEvent::ConstPtr& msg ) {
-            // stuff...
-        }
+            /**
+             * odomCallback runs on the /odom topic subscription, updating the values in the robot object to the current state
+             *
+             * @param msg the incoming message
+            */
+            void odomCallback( const nav_msgs::Odometry::ConstPtr& msg ) {
+                _pos_x =     msg->pose.pose.position.x;
+                _pos_y =     msg->pose.pose.position.y;
+                _pos_theta = msg->pose.pose.orientation.z;
 
-        /* == LASER-SCAN == */
-        void scanCallback( const sensor_msgs::LaserScan::ConstPtr& msg ) {
-            // Update laser_scan object...
-        }
+                _vel_x =     msg->twist.twist.linear.x;
+                _vel_y =     msg->twist.twist.linear.y;
+                _vel_theta = msg->twist.twist.angular.z;
+            }
 
-    public:
-        /* == WORLD POSITION == */
-        double getX()     { return _x; }
-        double getY()     { return _y; }
-        double getTheta() { return _theta; }
+            /**
+             * bumperCallback runs on the /mobile_base/events/bumper topic, updating to reflect state of bumpers
+            */
+            void bumperCallback( const kobuki_msgs::BumperEvent::ConstPtr& msg ) {
+                switch (msg->bumper) {
+                    case kobuki_msgs::BumperEvent::LEFT:
+                        _bumper_left = msg->state; break;
 
-        /* == ROBOT VELOCITY */
-        double getVelX()       { return _dx; }
-        double getVelY()       { return _dy; }
-        double getVelTheta()   { return _dtheta; }
-        double getVelForward() { return _dforward; }
+                    case kobuki_msgs::BumperEvent::CENTER:
+                        _bumper_center = msg->state; break;
 
-        /* == BUMPERS == */
-        bool checkBumperRight()  { return _bumper_right; }
-        bool checkBumperLeft()   { return _bumper_left; }
-        bool checkBumperCenter() { return _bumper_center; }
-        /* == LASER-SCAN == */
-        // TODO: Check which fields of the sensor_msgs/LaserScan msg are important
-        std::vector<double> laser_scan;
+                    case kobuki_msgs::BumperEvent::RIGHT:
+                        _bumper_right = msg->state; break;
 
-        /* == CYCLE ROS MESSAGES == */
-        void spinOnceROS ( ) {
-            // TODO: Check feesibility of this...
-            ros::spinOnce();
-        }
+                    case default:
+                        ROS_WARNING("[Team1Robot->bumperCallback] {msg->bumper} not recognized: %d := %d\n", msg->bumper, msg->state); break;
+                }
+            }
 
-        /* == CONSTRUCTOR == */
-        Team1Robot ( ros::NodeHandle node_handler ) {
-            bumper_sub = node_handler.subscribe("mobile_base/events/bumper", 1, &bumperCallback);
-            laser_sub  = node_handler.subscribe("scan", 1, &scanCallback);
-            // vel_sub    = node_handler
+        public:
+            /**
+             * "getter" functions
+            */
+            double getX() { return _pos_x; }
+            double getY() { return _pos_y; }
+            double getTheta() { return _pos_theta; }
 
-            vel_pub    = node_handler.advertise<geometry_msgs::Twist>("cmd_vel_mux/input/teleop", 1);
-        }
+            double getVelX() { return _vel_x; }
+            double getVelY() { return _vel_y; }
+            double getVelTheta() { return _vel_theta; }
 
-        /**
-         * facePoint will send message to turn robot to rotate to face a point
-         * BLOCKING
-         *
-         * @param x target x-coordinate
-         * @param y target y-coordinate
-        */
-        void facePoint( float x, float y ) {
-            // angleToPoint();
-        }
+            bool getBumperLeft() { return _bumper_left; }
+            bool getBumperCenter() { return _bumper_center; }
+            bool getBumperRight() { return _bumper_right; }
+            bool getBumperAny() { return _bumper_left || _bumper_center || _bumper_right; }
 
-        /**
-         * rotateDegrees will send message to turn a desired angle
-         * BLOCKING
-         *
-         * @param angle the angle to rotate by (clockwise)
-        */
-        void rotateDegrees( float angle ) {
-            // jogRotate(...)
-            // while ( not_at_desired_angle ) { wait... }
-        }
+            /**
+             * spinOnceROS will update subscriptions and values in object...
+            */
+            void spinOnceROS( void ) { _spin_once(); }
 
-        /**
-         * jogRotate will start an unspecified duration of rotation
-         * NON-BLOCKING
-         *
-         * @param speed the speed at which to rotate (clockwise)
-        */
-        void jogRotate( float speed ) {
+            /**
+             * Robot constructor
+             *
+             * @param node_handler object used to configure subscriptions/publish topics for ROS
+             * @param read_interval a Rate object used to define read intervals in BLOCKING calls
+             * @param spin_once_function function that takes no parameters, used to update subscriptions in BLOCKING calls
+            */
+            Robot( ros::NodeHandle node_handler, ros::Rate read_interval, void (*spin_once_function)(void) ) {
+                bumper_sub = node_handler.subscribe(BUMPER_TOPIC, 10, &bumperCallback);
+                // laser_sub  = node_handler.subscribe(LASER_TOPIC, 1, &laserCallback);
+                odom_sub   = node_handler.subscribe(ODOM_TOPIC, 1, &odomCallback);
 
-        }
-
-        /**
-         * angleToPoint returns the angle to turn to face a point.
-         *
-         * @param x target x-coordinate
-         * @param y target y-coordinate
-        */
-        float angleToPoint( float x, float y ) {
-
-        }
-
-        /**
-         * moveForwards will travel forwards at at desired speed for a desired distance.
-         * NON-BLOCKING
-         *
-         * @param distance distance to travel
-         * @param speed    desired speed
-        */
-        void moveForwards( float distance, float speed ) {
-
-        }
-
-        /**
-         * moveForwards will travel forwards a desired distance
-         * BLOCKING
-         *
-         * @param distance distance to travel
-        */
-        void moveForwards( float distance ) {
-            // jogForwards(...);
-            // while ( not_at_destination ) { wait... }
-        }
-
-        /**
-         * jogForwards will start forwards motion, and return...
-         * NON-BLOCKING
-         *
-         * @param speed speed to travel at
-        */
-        void jogForwards( float speed ) {
-
-        }
-
-        /**
-         * distanceToPoint returns the distance from current position to a point.
-         *
-         * @param x target x-coordinate
-         * @param y target y-coordinate
-        */
-        float distanceToPoint( float x, float y ) {
-
-        }
-
-};
-
-
-#endif // ~TEAM_1_ROBOT
+                vel_pub    = node_handler.advertise<geometry_msgs::Twist(VEL_COMMAND_TOPIC, 1);
+            };
+    };
+}
