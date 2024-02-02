@@ -11,10 +11,28 @@ mkdir catkin_ws
 cd catkin_ws
 REPOSITORY_ROOT="~/catkin_ws" # NOTE that anywhere you see $REPOSITORY_ROOT, it can be replaced with the actual directory of your clone of this repository...
 
+## == SSH KEYGEN ==
+## If you need to setup git, you need an SSH certificate, follow the following to create one:
+ssh-keygen -t ed25519
+## Follow setup steps
+## Make note of where file is stored
+## Typically under directory /home/<user>/.ssh/id_ed25519
+cd ~/.ssh          # If in default directory
+cat id_ed25519.pub # Print the public certificate key
+## Add the SSH key to your github "SSH and GPG keys" under settings
+
+
 ## == GIT SETUP ==
 ## If you have not setup git, start from here...
 cd $REPOSITORY_ROOT
-# TODO: Add git SSH setup, and additional...
+## Check that git is installed
+git --version   # Should print something like "git version x.x.x"
+## Configure git settings
+git config --global user.name "My Name"
+git config --global user.email "my.name@gmail.com"
+## Check config is correctly set
+git config --list
+git clone .     # Clone the repository to current directory (should be $REPOSITORY_ROOT)
 cd src
 catkin_init_workspace
 
