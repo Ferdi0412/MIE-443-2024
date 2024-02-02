@@ -3,6 +3,8 @@
 #include <ros/console.h>
 #include "ros/ros.h"
 
+#include <stdio.h>
+
 #ifndef BUMPER_TOPIC
 #define BUMPER_TOPIC "mobile_base/events/bumper"
 #endif
@@ -30,6 +32,7 @@ namespace Team1 {
             bool   _bumper_right, _bumper_left, _bumper_center;
 
             void (*_spin_once)(void);
+            ros::Rate _read_rate;
 
             /**
              * odomCallback runs on the /odom topic subscription, updating the values in the robot object to the current state
@@ -89,18 +92,23 @@ namespace Team1 {
             void spinOnceROS( void ) { _spin_once(); }
 
             /**
+             * sleepROS will sleep for the rest of the read_interval
+            */
+            void sleepROS( void ) { _read_rate.sleep(); }
+
+            /**
              * Robot constructor
              *
              * @param node_handler object used to configure subscriptions/publish topics for ROS
              * @param read_interval a Rate object used to define read intervals in BLOCKING calls
              * @param spin_once_function function that takes no parameters, used to update subscriptions in BLOCKING calls
             */
-            Robot( ros::NodeHandle node_handler, ros::Rate read_interval, void (*spin_once_function)(void) ) {
+            Robot( ros::NodeHandle node_handler, ros::Rate& read_rate_object, void (*spin_once_function)(void) ) : _read_rate(read_rate_object) {
                 bumper_sub = node_handler.subscribe(BUMPER_TOPIC, 10, &Team1::Robot::bumperCallback, this);
                 // laser_sub  = node_handler.subscribe(LASER_TOPIC, 1, &laserCallback);
                 odom_sub   = node_handler.subscribe(ODOM_TOPIC, 1, &Team1::Robot::odomCallback, this);
-
                 vel_pub    = node_handler.advertise<geometry_msgs::Twist>(VEL_COMMAND_TOPIC, 1);
+                _spin_once = spin_once_function;
             };
     };
 }

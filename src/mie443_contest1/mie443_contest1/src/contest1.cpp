@@ -3,6 +3,7 @@
 #include <cmath>
 #include <chrono>
 #include <stdint.h>
+#include <stdio.h>
 
 // ROS imports
 #include <ros/console.h>
@@ -39,7 +40,7 @@ uint16_t secondsElapsed(void);
 */
 static std::chrono::time_point<std::chrono::system_clock> program_start;
 
-static const unsigned long long program_duration = 480;
+static const unsigned long long program_duration = 10;
 
 
 
@@ -58,7 +59,7 @@ int main ( int argc, char **argv ) {
     ROS_INFO("Starting up...\n");
 
     ros::NodeHandle nh;
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(2);
 
     ROS_INFO("Creating Robot");
 
@@ -68,11 +69,15 @@ int main ( int argc, char **argv ) {
     // GLOBAL params setup
     program_start = std::chrono::system_clock::now();
 
+    printf("About to while...\n");
+
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
         robot.spinOnceROS();
-
         ROS_INFO("Position: %2f\n", robot.getX());
+        robot.sleepROS();
     }
+
+    ROS_INFO("Time ran out!\n");
 }
 
 
