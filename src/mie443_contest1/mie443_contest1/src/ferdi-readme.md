@@ -13,7 +13,7 @@ I will try to make a robot class for controlling the robot.
 
 ### TODO:
 - [ ] Bumper subscription and getters
-- [ ] Odometry subscription and getters
+- [x] Odometry subscription and getters
 - [ ] Laser scan subscription and getters
 - [ ] Velocity setters and publishers
 - [ ] Blocking travel (with errors on collisions) setters and publishers
