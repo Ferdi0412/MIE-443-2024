@@ -26,15 +26,31 @@ cat id_ed25519.pub # Print the public certificate key
 ## If you have not setup git, start from here...
 cd $REPOSITORY_ROOT
 ## Check that git is installed
-git --version   # Should print something like "git version x.x.x"
+git --version                                         # Should print something like "git version x.x.x"
 ## Configure git settings
 git config --global user.name "My Name"
 git config --global user.email "my.name@gmail.com"
 ## Check config is correctly set
 git config --list
-git clone .     # Clone the repository to current directory (should be $REPOSITORY_ROOT)
+git clone git@github.com:Ferdi0412/MIE-443-2024.git . # Clone the repository to current directory (should be $REPOSITORY_ROOT)
 cd src
 catkin_init_workspace
+
+## == GIT OPERATIONS ==
+## To update your local clone of the repository:
+git pull
+## To check what changes you have made locally
+git status
+## To compare your version with GitHub version (eg. if you are unsure of other's changes)
+git fetch
+git status
+## To commit file src/README.md to local revision history
+git add src/README.md
+git commit -m "Short Message"                    # For short message only
+git commit -m "Short Message" -m  "Long Message" # For short AND long message
+## To push local revision history to remote
+git push
+
 
 ## == CATKIN BUILD ==
 ## To build the project, run the following:
