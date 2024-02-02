@@ -1,59 +1,87 @@
+// STD imports
+#include <vector>
+#include <cmath>
+#include <chrono>
+#include <stdint.h>
+
+// ROS imports
 #include <ros/console.h>
 #include "ros/ros.h"
+
 #include <geometry_msgs/Twist.h>
 #include <kobuki_msgs/BumperEvent.h>
 #include <sensor_msgs/LaserScan.h>
 
-#include <stdio.h>
-#include <cmath>
-
-#include <chrono>
+// Team1::Robot import
+#include "robot.cpp"
 
 
-void bumperCallback(const kobuki_msgs::BumperEvent::ConstPtr& msg)
-{
-	//fill with your code
-}
 
-void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
-{
-	//fill with your code
-}
+/**
+ * ==============================
+ * === FUNCTIONS DECLARATIONS ===
+ * ==============================
+*/
 
-int main(int argc, char **argv)
-{
-    ros::init(argc, argv, "image_listener");
+/**
+ * secondsElapsed
+ *
+ * @returns number of seconds from program_start
+*/
+uint16_t secondsElapsed(void);
+
+
+
+/**
+ * =====================
+ * === GLOBAL params ===
+ * =====================
+*/
+static std::chrono::time_point<std::chrono::system_clock> program_start;
+
+static const unsigned long long program_duration = 480;
+
+
+
+/**
+ * ============
+ * === MAIN ===
+ * ============
+ *
+ * @param argc number of params used in starting program (ignore but keep)
+ * @param argv string params used when starting program  (ignore but keep)
+*/
+int main ( int argc, char **argv ) {
+    // ROS setup
+    ros::init(argc, argv, "contest1");
+
+    ROS_INFO("Starting up...\n");
+
     ros::NodeHandle nh;
-
-    ros::Subscriber bumper_sub = nh.subscribe("mobile_base/events/bumper", 10, &bumperCallback);
-    ros::Subscriber laser_sub = nh.subscribe("scan", 10, &laserCallback);
-
-    ros::Publisher vel_pub = nh.advertise<geometry_msgs::Twist>("cmd_vel_mux/input/teleop", 1);
-
     ros::Rate loop_rate(10);
 
-    geometry_msgs::Twist vel;
+    ROS_INFO("Creating Robot");
 
-    // contest count down timer
-    std::chrono::time_point<std::chrono::system_clock> start;
-    start = std::chrono::system_clock::now();
-    uint64_t secondsElapsed = 0;
+    // Robot object setup
+    Team1::Robot robot( nh, loop_rate, &(ros::spinOnce) );
 
-    float angular = 0.0;
-    float linear = 0.0;
+    // GLOBAL params setup
+    program_start = std::chrono::system_clock::now();
 
-    while(ros::ok() && secondsElapsed <= 480) {
-        ros::spinOnce();
-        //fill with your code
+    while ( ros::ok() && secondsElapsed() <= program_duration ) {
+        robot.spinOnceROS();
 
-        vel.angular.z = angular;
-        vel.linear.x = linear;
-        vel_pub.publish(vel);
-
-        // The last thing to do is to update the timer.
-        secondsElapsed = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now()-start).count();
-        loop_rate.sleep();
+        ROS_INFO("Position: %2f\n", robot.getX());
     }
+}
 
-    return 0;
+
+
+/**
+ * =================================
+ * === FUNCTIONS IMPLEMENTATIONS ===
+ * =================================
+*/
+uint16_t secondsElapsed( void ) {
+    return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - program_start).count();
 }

@@ -1,5 +1,7 @@
 #include <nav_msgs/Odometry.h>
 #include <kobuki_msgs/BumperEvent.h>
+#include <ros/console.h>
+#include "ros/ros.h"
 
 #ifndef BUMPER_TOPIC
 #define BUMPER_TOPIC "mobile_base/events/bumper"
@@ -58,8 +60,9 @@ namespace Team1 {
                     case kobuki_msgs::BumperEvent::RIGHT:
                         _bumper_right = msg->state; break;
 
-                    case default:
-                        ROS_WARNING("[Team1Robot->bumperCallback] {msg->bumper} not recognized: %d := %d\n", msg->bumper, msg->state); break;
+                    default:
+                        // OS_WARNING("[Team1Robot->bumperCallback] {msg->bumper} not recognized: %d := %d\n", msg->bumper, msg->state);
+                        break;
                 }
             }
 
@@ -93,11 +96,11 @@ namespace Team1 {
              * @param spin_once_function function that takes no parameters, used to update subscriptions in BLOCKING calls
             */
             Robot( ros::NodeHandle node_handler, ros::Rate read_interval, void (*spin_once_function)(void) ) {
-                bumper_sub = node_handler.subscribe(BUMPER_TOPIC, 10, &bumperCallback);
+                bumper_sub = node_handler.subscribe(BUMPER_TOPIC, 10, &Team1::Robot::bumperCallback, this);
                 // laser_sub  = node_handler.subscribe(LASER_TOPIC, 1, &laserCallback);
-                odom_sub   = node_handler.subscribe(ODOM_TOPIC, 1, &odomCallback);
+                odom_sub   = node_handler.subscribe(ODOM_TOPIC, 1, &Team1::Robot::odomCallback, this);
 
-                vel_pub    = node_handler.advertise<geometry_msgs::Twist(VEL_COMMAND_TOPIC, 1);
+                vel_pub    = node_handler.advertise<geometry_msgs::Twist>(VEL_COMMAND_TOPIC, 1);
             };
     };
 }
