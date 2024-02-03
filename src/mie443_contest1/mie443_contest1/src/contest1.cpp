@@ -67,18 +67,20 @@ int main ( int argc, char **argv ) {
 
     // Robot object setup
     Team1::Robot robot( nh, loop_rate, &(ros::spinOnce) );
+    robot.spinOnceROS();
+    ros::Duration(0.5).sleep(); // Sleep to ensure is initialized correctly
 
     // GLOBAL params setup
     program_start = std::chrono::system_clock::now();
 
-    printf("About to while...\n");
+    // robot.rotateClockwise(0.9);
+    // ros::Duration(2).sleep();
 
-    robot.spinOnceROS();
-    robot.jogForwards(SPEED_HIGH);
+    robot.moveForwards(0.2);
 
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
         robot.spinOnceROS();
-        ROS_INFO("Position: %2f\n", robot.getX());
+        ROS_INFO("Position: %.2f\nSpeed: %.2f\n", robot.getX(), robot.getVelX());
         robot.sleepROS();
     }
 

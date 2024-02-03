@@ -109,8 +109,11 @@ namespace Team1 {
              * stopMotion will stop the last motion command published
             */
             void stopMotion( void ) {
-                geometry_msgs::Twist new_motion;
-                vel_pub.publish(new_motion);
+                geometry_msgs::Twist stop_motion;
+                stop_motion.angular.z = 0;
+                stop_motion.linear.x  = 0;
+                vel_pub.publish(stop_motion);
+                spinOnceROS();
             }
 
             /**
@@ -119,9 +122,11 @@ namespace Team1 {
              * @param velocity linear velocity [try find units...]
             */
             void jogForwards( double velocity ) {
-                geometry_msgs::Twist new_motion;
-                new_motion.linear.x = velocity;
-                vel_pub.publish(new_motion);
+                geometry_msgs::Twist fwd_motion;
+                fwd_motion.angular.z = 0;
+                fwd_motion.linear.x  = velocity;
+                vel_pub.publish(fwd_motion);
+                spinOnceROS();
             }
 
             /**
@@ -143,9 +148,11 @@ namespace Team1 {
              * @param velocity angular velocity [try find units...]
             */
             void jogClockwise( double velocity ) {
-                geometry_msgs::Twist new_motion;
-                new_motion.angular.z = velocity;
-                vel_pub.publish(new_motion);
+                geometry_msgs::Twist clock_motion;
+                clock_motion.angular.z = velocity;
+                clock_motion.linear.x  = 0;
+                vel_pub.publish(clock_motion);
+                spinOnceROS();
             }
 
             /**
