@@ -9,6 +9,9 @@ Treat this as the ***catkin_ws*** directory from class. When first installed, en
 ## In case of any errors, run the following lines
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F42ED6FBAB17C654
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key EB3E94ADBE1229CF
+## You may also need to run:
+sudo apt update
+sudo apt-get update
 ## For more details, the following link may help: https://askubuntu.com/questions/140246/how-do-i-resolve-unmet-dependencies-after-adding-a-ppa
 
 ## == GAZEBO FIX ==
