@@ -41,7 +41,7 @@ namespace Team1 {
         private:
             /* === PRIVATE VARIABLES === */
             ros::Subscriber bumper_sub, laser_sub, odom_sub, vel_sub;
-            ros::Publisher  vel_sub;
+            ros::Publisher  vel_pub;
 
             double pos_x, pos_y, pos_theta;
             double vel_x, vel_y, vel_theta;
@@ -141,6 +141,13 @@ namespace Team1 {
                 ros::spinOnce();
             }
 
+            /**
+             * sleepOnce will sleep for the rest of a "cycle" -> defined by the spin_rate
+            */
+            void sleepOnce( void ) {
+                spin_rate.sleep();
+            }
+
             /* === MOTION CONTROL === */
             /**
              * setMotion will set and publish the velocity components relative to the turtlebot base
@@ -174,6 +181,7 @@ namespace Team1 {
              * jogForwardsSafe will start a forwards motion, and check if bumpers are triggered in the forwards direction
              *
              * @param velocity linear velocity [m/s]
+             * @throws BumperException
             */
             void jogForwardsSafe( double velocity ) {
                 if ( (velocity > 0) && getBumperAny() )
@@ -194,6 +202,7 @@ namespace Team1 {
              * jogClockwiseSafe will start a clockwise rotation, and check if bumpers in that direction are triggered
              *
              * @param velocity rotational velocity [rad/s]
+             * @throws BumperException
             */
             void jogClockwiseSafe( double velocity ) {
                 if ( getBumperCenter() )                  throw BumperException();
@@ -230,7 +239,7 @@ namespace Team1 {
                 // Configure publisher
                 vel_pub    = node_handler.advertise<geometry_msgs::Twist>(VEL_COMMAND_TOPIC, 1);
             }
-    }
+    };
 }
 
 #endif

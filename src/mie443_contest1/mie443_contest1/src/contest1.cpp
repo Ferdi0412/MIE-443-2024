@@ -73,15 +73,14 @@ int main ( int argc, char **argv ) {
     // GLOBAL params setup
     program_start = std::chrono::system_clock::now();
 
-    // robot.rotateClockwise(0.9);
-    // ros::Duration(2).sleep();
 
-    robot.moveForwards(0.2);
+    robot.jogForwards(0.2);
 
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
+        robot.checkBumpers();
         robot.spinOnce();
         ROS_INFO("Position: %.2f\nSpeed: %.2f\n", robot.getX(), robot.getVelX());
-        robot.sleepROS();
+        robot.sleepOnce();
     }
 
     ROS_INFO("Time ran out!\n");
