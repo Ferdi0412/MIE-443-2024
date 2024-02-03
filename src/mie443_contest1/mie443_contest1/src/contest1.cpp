@@ -14,7 +14,7 @@
 #include <sensor_msgs/LaserScan.h>
 
 // Team1::Robot import
-#include "robot_v2.cpp"
+#include "robot.cpp"
 
 
 
@@ -74,7 +74,7 @@ int main ( int argc, char **argv ) {
     program_start = std::chrono::system_clock::now();
 
 
-    robot.jogForwards(0.2);
+    robot.moveForwards(0.2, 0.5);
 
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
         robot.checkBumpers();

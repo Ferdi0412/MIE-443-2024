@@ -13,6 +13,7 @@
 #include "ros/ros.h"
 
 #include <exception>
+#include <stdexcept>
 #include <math.h>
 // #include <stdio.h>
 
@@ -214,13 +215,17 @@ namespace Team1 {
              * @throws std::invalid_argument -> If the distance is less than 0
             */
             void moveForwards( double velocity, double distance ) {
-                double start_x = pos_x, start_y = pos_y;
-                if ( distance < 0 ) throw std::invalid_argument;
+                double start_x, start_y;
+                spinOnce(); // Update the current x and y coordinates
+                start_x = pos_x;
+                start_y = pos_y;
+                if ( distance < 0 ) throw std::invalid_argument("[Robot::moveForwards] distance must be greater than distance!\n");
                 jogForwardsSafe( velocity );
                 while ( getEuclideanDistance(start_x, start_y, pos_x, pos_y) < distance ) {
                     checkBumpers(); // Stop and throw BumperException if bumpers triggered
                     spinOnce();     // Update pos_x and pos_y
                 }
+                stopMotion();
             }
 
             /**

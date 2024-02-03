@@ -76,6 +76,26 @@ source devel/setup.sh # re-source
 # Contest 1
 For contest 1, we will start off using a wall-following strategy. If time permits, we will look into frontier-search to find unexplored areas from the **gmapping** node.
 
+## Startup
+If you want to simulate, us GAZEBO, otherwise use ROBOT to connect to the physical turtlebot.
+```shell
+# Build            -> Before running
+cd ~/catkin_ws
+catkin_make
+# GAZEBO           -> Terminal 1
+roslaunch mie443_contest1 turtlebot_world.launch world:=1
+# ROBOT            -> Terminal 1
+...
+# Script           -> Terminal 2
+rosrun mie443_contest1 contest1
+# GMAPPING         -> Termianl 3
+roslaunch mie443_contest1 gmapping.launch
+# RVIZ [OPTIONAL ] -> Terminal 4
+roslaunch turtlebot_rviz_launchers view_navigation.launch 
+# SAVE MAP         -> After running
+rosrun map_server map_saver -f your_map_name
+```
+
 ## Team1Robot
 This is a class for controlling the robot movements, and will wrap the topic calls, for simplicity sake.
 
