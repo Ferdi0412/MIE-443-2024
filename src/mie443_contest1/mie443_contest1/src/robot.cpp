@@ -15,6 +15,7 @@
 
 #include <exception>
 #include <stdexcept>
+#include <cmath>
 #include <math.h>
 // #include <stdio.h>
 
@@ -138,7 +139,7 @@ namespace Team1 {
              * @returns angle between            [rad]
             */
             double getAngleBetween( double theta1, double theta2 ) {
-                return (theta2 - theta1) % (2 * M_PI);
+                return fmod(theta2 - theta1, 2 * M_PI);
             }
 
         public:
