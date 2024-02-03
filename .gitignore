@@ -6,6 +6,9 @@ devel/
 src/CMakeLists.txt
 .catkin_workspace
 
+## Ignore .vscode directory
+.vscode/
+
 # Prerequisites
 *.d
 
