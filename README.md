@@ -15,8 +15,11 @@ sudo apt-get update
 ## For more details, the following link may help: https://askubuntu.com/questions/140246/how-do-i-resolve-unmet-dependencies-after-adding-a-ppa
 
 ## == GAZEBO FIX ==
-## In case of issues running Gazebo with the setup/dependencies provided in the course, run the following:
-
+## In case of issues running Gazebo with the setup/dependencies provided in the course, run the following (taken from course PIAZZA post note@19)
+sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
+wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+sduo apt update
+sudo apt upgrade
 
 
 ## == DIRECTORY SETUP ==
