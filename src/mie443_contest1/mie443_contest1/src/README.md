@@ -139,9 +139,6 @@ if ( !robot.getBumperAny() ) {
     stopMotion();
 
 }
-robot.jogForwards(0.2);
-
-while ( robot.get)
 ```
 
 ### Rotation
