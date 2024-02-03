@@ -1,6 +1,17 @@
 # MIE-443-2024
 Project for Thursday Team 1 for MIE443 in Winter 2023/2024. This assumes you are using Ubuntu 16.04, and ROS-Kinetic, with course-provided dependencies installed.
 
+## Deadlines
+| Date         | Item |
+| :--:         | :--: |
+| Feb 6 (tues) | Individual navigation/exploration |
+| Feb 7 (wed)  | Extra lab                         |
+
+## Initial Navigation Strategies
+- Wall-following
+- Open-spaces
+- Biased random-walk
+
 ## Setup
 Treat this as the ***catkin_ws*** directory from class. When first installed, ensure that the root directory is set up, and run catkin_make.
 ```shell
