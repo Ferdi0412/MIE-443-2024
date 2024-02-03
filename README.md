@@ -4,6 +4,20 @@ Project for Thursday Team 1 for MIE443 in Winter 2023/2024. This assumes you are
 ## Setup
 Treat this as the ***catkin_ws*** directory from class. When first installed, ensure that the root directory is set up, and run catkin_make.
 ```shell
+## == DEPENDENCY SETUP ==
+## First install all required software through the script provided by the course
+## In case of any errors, run the following lines
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F42ED6FBAB17C654
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key EB3E94ADBE1229CF
+sudo apt-key update
+sudo apt-key upgrade
+## For more details, the following link may help: https://askubuntu.com/questions/140246/how-do-i-resolve-unmet-dependencies-after-adding-a-ppa
+
+## == GAZEBO FIX ==
+## In case of issues running Gazebo with the setup/dependencies provided in the course, run the following:
+
+
+
 ## == DIRECTORY SETUP ==
 ## If the repository folder not created, start from here...
 cd ~
