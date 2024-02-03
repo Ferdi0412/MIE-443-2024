@@ -8,6 +8,7 @@
 #define ROBOT_V2_CPP
 
 #include <nav_msgs/Odometry.h>
+#include <tf/transform_datatypes.h>
 #include <kobuki_msgs/BumperEvent.h>
 #include <ros/console.h>
 #include "ros/ros.h"
@@ -31,6 +32,14 @@
 
 #ifndef VEL_COMMAND_TOPIC
 #define VEL_COMMAND_TOPIC "cmd_vel_mux/input/teleop"
+#endif
+
+#ifndef RAD2DEG
+#define RAD2DEG(rad) ((rad) * 180. / M_PI)
+#endif
+
+#ifndef DEG2RAD
+#define DEG2RAD(deg) ((deg) * M_PI / 180.)
 #endif
 
 /**
@@ -67,7 +76,7 @@ namespace Team1 {
             void odomCallback( const nav_msgs::Odometry::ConstPtr& msg ) {
                 pos_x     = msg->pose.pose.position.x;
                 pos_y     = msg->pose.pose.position.y;
-                pos_theta = msg->pose.pose.orientation.z;
+                pos_theta = tf::getYaw(msg->pose.pose.orientation);
 
                 vel_x     = msg->twist.twist.linear.x;
                 vel_y     = msg->twist.twist.linear.y;
@@ -114,10 +123,22 @@ namespace Team1 {
              * @param y1 y-coordinate of position 1
              * @param x2 x-coordinate of position 2
              * @param y2 y-coordinate of position 2
+             * @returns  euclidean distance
             */
             double getEuclideanDistance( double x1, double y1, double x2, double y2 ) {
                 double dist = pow( x2 - x1, 2 ) + pow( y2 - y1, 2 );
                 return sqrt(dist);
+            }
+
+            /**
+             * getAngleBetween computes the angle between two orientations
+             *
+             * @param theta1 initial orientation [rad]
+             * @param theta2 target orientation  [rad]
+             * @returns angle between            [rad]
+            */
+            double getAngleBetween( double theta1, double theta2 ) {
+                return (theta2 - theta1) % (2 * M_PI);
             }
 
         public:
@@ -259,6 +280,18 @@ namespace Team1 {
                 if ( (velocity < 0) && getBumperLeft() )  throw BumperException();
                 // If no problems with bumpers...
                 setMotion( 0, velocity );
+            }
+
+            /**
+             * rotateClockwiseTo will rotate the robot clockwise (or counter-clockwise) until it reaches a given angle
+             * BLOCKING -> will not return until rotation has completed
+             *
+             * @param velocity angular velocity [rad/s]
+             * @param angle    target angle     [rad]
+             * @throws BumperException
+            */
+            void rotateClockwiseTo( double velocity, double angle ) {
+                // To be implemented...
             }
 
             /**
