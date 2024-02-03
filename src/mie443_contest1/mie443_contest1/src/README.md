@@ -15,11 +15,8 @@ To include the robot.cpp file, and expose the robot class, you need to include t
 // You need a node handle to handle topic publishing/subscribing
 ros::NodeHandle nh;
 
-// You also need a rate object for blocking calls/sleep method
-ros::Rate loop_rate( 2 );
-
-// You will pass these, and a reference to the ros::spinOnce function to the robot instance
-Team1::Robot robot( node_handle, loop_rate, &(ros::spinOnce) );
+// You must pass a node_handle and set the frequency (here 50 Hz)
+Team1::Robot robot( node_handle, 50 );
 ```
 
 ## Getting  values
