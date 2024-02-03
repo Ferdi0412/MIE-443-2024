@@ -14,7 +14,7 @@
 #include <sensor_msgs/LaserScan.h>
 
 // Team1::Robot import
-#include "robot.cpp"
+#include "robot_v2.cpp"
 
 
 
@@ -66,8 +66,8 @@ int main ( int argc, char **argv ) {
     ROS_INFO("Creating Robot");
 
     // Robot object setup
-    Team1::Robot robot( nh, loop_rate, &(ros::spinOnce) );
-    robot.spinOnceROS();
+    Team1::Robot robot( nh, 2);
+    robot.spinOnce();
     ros::Duration(0.5).sleep(); // Sleep to ensure is initialized correctly
 
     // GLOBAL params setup
@@ -79,7 +79,7 @@ int main ( int argc, char **argv ) {
     robot.moveForwards(0.2);
 
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
-        robot.spinOnceROS();
+        robot.spinOnce();
         ROS_INFO("Position: %.2f\nSpeed: %.2f\n", robot.getX(), robot.getVelX());
         robot.sleepROS();
     }
