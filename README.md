@@ -11,6 +11,12 @@ mkdir catkin_ws
 cd catkin_ws
 REPOSITORY_ROOT="~/catkin_ws" # NOTE that anywhere you see $REPOSITORY_ROOT, it can be replaced with the actual directory of your clone of this repository...
 
+## == DIRECTORY CLEANUP ==
+## If you need to clone the git repository, your repository directory must be empty
+## If there are files here, you can use the following:
+sudo rm -rf $REPOSITORY_ROOT # -rf means RECURSIVE, FORCED -> all sub-files and directories are deleted
+mkdir $REPOSITORY_ROOT       # Re-create the directory without any files
+
 ## == SSH KEYGEN ==
 ## If you need to setup git, you need an SSH certificate, follow the following to create one:
 ssh-keygen -t ed25519
@@ -20,7 +26,6 @@ ssh-keygen -t ed25519
 cd ~/.ssh          # If in default directory
 cat id_ed25519.pub # Print the public certificate key
 ## Add the SSH key to your github "SSH and GPG keys" under settings
-
 
 ## == GIT SETUP ==
 ## If you have not setup git, start from here...
@@ -34,6 +39,7 @@ git config --global user.email "my.name@gmail.com"
 git config --list
 git clone git@github.com:Ferdi0412/MIE-443-2024.git . # Clone the repository to current directory (should be $REPOSITORY_ROOT)
 cd src
+
 ## == GIT OPERATIONS ==
 ## To update your local clone of the repository:
 git pull
@@ -91,7 +97,7 @@ rosrun mie443_contest1 contest1
 # GMAPPING         -> Termianl 3
 roslaunch mie443_contest1 gmapping.launch
 # RVIZ [OPTIONAL ] -> Terminal 4
-roslaunch turtlebot_rviz_launchers view_navigation.launch 
+roslaunch turtlebot_rviz_launchers view_navigation.launch
 # SAVE MAP         -> After running
 rosrun map_server map_saver -f your_map_name
 ```
