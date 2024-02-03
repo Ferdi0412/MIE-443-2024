@@ -118,6 +118,13 @@ namespace Team1 {
 
             /* === AUXILLIARY FUNCTIONS === */
             /**
+             * publishVelocity will publish the velocity control topic
+            */
+            void publishVelocity( void ) {
+                vel_pub.publish( motion_set );
+            }
+
+            /**
              * getEuclideanDistance computes the euclidean distance between two points (NOTE: no overflow checking)
              *
              * @param x1 x-coordinate of position 1
@@ -165,13 +172,6 @@ namespace Team1 {
 
             /* === ROS METHODS === */
             /**
-             * publishVelocity will publish the velocity control topic
-            */
-            void publishVelocity( void ) {
-                vel_pub.publish( motion_set );
-            }
-
-            /**
              * spinOnceROS will update class values with any topic changes/messages (and publish topics)
             */
             void spinOnce( void ) {
@@ -184,6 +184,15 @@ namespace Team1 {
             */
             void sleepOnce( void ) {
                 spin_rate.sleep();
+            }
+
+            /**
+             * sleepFor will sleep for a given duration
+             *
+             * @param duration [s]
+            */
+            void sleepFor( double duration ) {
+                ros::Duration(duration).sleep();
             }
 
             /* === MOTION CONTROL === */
