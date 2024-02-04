@@ -16,9 +16,9 @@ I will try to make a robot class for controlling the robot.
 - [x] Bumper subscription and getters
 - [x] Odometry subscription and getters
 - [ ] Laser scan subscription and getters
-- [ ] Linear velocity setters and publishers
+- [x] Linear velocity setters and publishers
 - [x] Rotational velocity setters and publishers
-- [ ] Blocking linear travel (with errors on collisions) setters and publishers
+- [x] Blocking linear travel (with errors on collisions) setters and publishers
 - [ ] Blocking rotational travel (with errors on collisions) setters and publishers
 - [x] Bumper error class
 - [x] ~~Setup header-file, and CMakeLists.txt for easier use~~
