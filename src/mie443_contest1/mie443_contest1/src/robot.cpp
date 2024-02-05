@@ -98,7 +98,7 @@ namespace Team1 {
                 n_lasers = (angle_min - angle_max) / angle_increment;
 
                 // ranges apparently implemented as a vector...
-                cout << msg->ranges.size();
+                std::cout << "INCOMING ranges: " << msg->ranges.size() << "\n";
                 ranges.assign(msg->ranges.begin(), msg->ranges.end());
                 // ranges.assign(msg->ranges, msg->ranges + n_lasers);
                 // Ignore this field - constantly empty...
@@ -480,8 +480,9 @@ namespace Team1 {
             Robot( ros::NodeHandle node_handler, double spin_frequency ) : spin_rate(spin_frequency) {
                 // Configure subscribers
                 bumper_sub = node_handler.subscribe(BUMPER_TOPIC, 10, &Team1::Robot::bumperCallback, this);
-                // laser_sub  = node_handler.subscribe(LASER_TOPIC, 1, &laserCallback);
+                laser_sub  = node_handler.subscribe(SCAN_TOPIC, 1, &Team1::Robot::laserCallback, this);
                 odom_sub   = node_handler.subscribe(ODOM_TOPIC, 1, &Team1::Robot::odomCallback, this);
+                
                 // Configure publisher
                 vel_pub    = node_handler.advertise<geometry_msgs::Twist>(VEL_COMMAND_TOPIC, 1);
             }
