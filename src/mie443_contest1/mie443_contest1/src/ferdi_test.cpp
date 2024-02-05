@@ -18,7 +18,7 @@
 
 // Temp imports
 #include <cmath>
-
+#include <iostream>
 #include <vector>
 
 
@@ -35,8 +35,10 @@
 */
 uint16_t secondsElapsed(void);
 
-////**
-
+/**
+ * printVectorFloats prints each float in a vector
+*/
+void printVectorFloats( const std::vector<float>& the_vector );
 
 /**
  * =====================
@@ -85,6 +87,11 @@ int main ( int argc, char **argv ) {
     // robot.moveForwards(0.2, 0.5);
 
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
+        std::cout << "Ranges:\n"
+        printVectorFloats( robot.getRanges() );
+        std::cout << "Intensities:\n";
+        printVectorFloats( robot.getIntensities() );
+        std::cout << "N Lasers: " << robot.getNLasers() << "\n";
         robot.checkBumpers();
         robot.spinOnce();
         ROS_INFO("Position: %.2f\nSpeed: %.2f\n", robot.getTheta(), robot.getVelTheta());
@@ -105,4 +112,10 @@ int main ( int argc, char **argv ) {
 */
 uint16_t secondsElapsed( void ) {
     return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - program_start).count();
+}
+
+void printVectorFloats( const std::vector<float>& the_vector ) {
+    for ( const float& val : the_vector )
+        std::cout << val << "; ";
+    std::cout << "\n";
 }
