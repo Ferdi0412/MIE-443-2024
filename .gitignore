@@ -9,6 +9,9 @@ src/CMakeLists.txt
 ## Ignore .vscode directory
 .vscode/
 
+## 'priv-' prefix to create private files
+priv-*
+
 # Prerequisites
 *.d
 
