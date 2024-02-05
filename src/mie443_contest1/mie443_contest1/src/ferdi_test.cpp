@@ -84,6 +84,11 @@ int main ( int argc, char **argv ) {
 
     robot.rotateClockwiseTo(-10, -50);
 
+    ROS_INFO("Angle from 10 degrees: %.2f", robot.getAngleTo(10));
+    ROS_INFO("Angle from -90 degrees: %.2f", robot.getAngleTo(-90));
+    ROS_INFO("Angle to relative point 10, 10: %.2f", robot.getAngleToRelativePoint(10, 10));
+    ROS_INFO("Angle to abs point 10, 10: %.2f", robot.getAngleToPoint(10, 10));
+
     // robot.moveForwards(0.2, 0.5);
 
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
