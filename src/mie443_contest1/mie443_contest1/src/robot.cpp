@@ -11,8 +11,10 @@
 #define ROBOT_V2_CPP
 
 #include <nav_msgs/Odometry.h>
+#include <geometry_msgs/Twist.h>
 #include <tf/transform_datatypes.h>
 #include <kobuki_msgs/BumperEvent.h>
+#include <sensor_msgs/LaserScan.h>
 #include <ros/console.h>
 #include "ros/ros.h"
 
