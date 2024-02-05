@@ -9,10 +9,6 @@
 #include <ros/console.h>
 #include "ros/ros.h"
 
-#include <geometry_msgs/Twist.h>
-#include <kobuki_msgs/BumperEvent.h>
-#include <sensor_msgs/LaserScan.h>
-
 // Team1::Robot import
 #include "robot.cpp"
 
@@ -31,7 +27,19 @@
 */
 uint16_t secondsElapsed(void);
 
+/**
+ * moveAndScan
+ *
+ * An example function for how to move and scan the robot.
+*/
+void moveAndScan( Team1::Robot robot );
 
+/**
+ * cleanup
+ *
+ * Should run after everything else
+*/
+void cleanup( void );
 
 /**
  * =====================
@@ -41,9 +49,6 @@ uint16_t secondsElapsed(void);
 static std::chrono::time_point<std::chrono::system_clock> program_start;
 
 static const unsigned long long program_duration = 10;
-
-#define SPEED_HIGH 0.2
-// #define ROT_HIGH 0.2
 
 
 /**
@@ -55,37 +60,28 @@ static const unsigned long long program_duration = 10;
  * @param argv string params used when starting program  (ignore but keep)
 */
 int main ( int argc, char **argv ) {
-    // ROS setup
-    ros::init(argc, argv, "contest1");
+    // === SETUP ===
+    ROS_INFO("SETUP...\n");
 
-    ROS_INFO("Starting up...\n");
+    ros::init(argc, argv, "contest1");
 
     ros::NodeHandle nh;
     ros::Rate loop_rate(2);
-
-    ROS_INFO("Creating Robot");
-
-    // Robot object setup
     Team1::Robot robot( nh, 2);
-    robot.spinOnce();
-    ros::Duration(0.5).sleep(); // Sleep to ensure is initialized correctly
 
-    // GLOBAL params setup
+    ros::Duration(0.5).sleep(); // Sleep to ensure is initialized correctly
+    robot.spinOnce();
+
     program_start = std::chrono::system_clock::now();
 
 
-    robot.moveForwards(0.2, 0.5);
+    // === MAIN ===
 
-    while ( ros::ok() && secondsElapsed() <= program_duration ) {
-        robot.checkBumpers();
-        robot.spinOnce();
-        ROS_INFO("Position: %.2f\nSpeed: %.2f\n", robot.getX(), robot.getVelX());
-        robot.sleepOnce();
-    }
 
-    ROS_INFO("Time ran out!\n");
+
+    // === PROGRAM END ===
     robot.stopMotion();
-    ROS_INFO("Stopping robot!\n");
+    ROS_INFO("ENDED...\n");
 }
 
 
@@ -98,3 +94,33 @@ int main ( int argc, char **argv ) {
 uint16_t secondsElapsed( void ) {
     return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - program_start).count();
 }
+
+void moveAndScan( Team1::Robot robot ) {
+    double start_x = robot.getX(), start_y = robot.getY();
+    robot.jogForwardsSafe( 0.2 ); // Start moving at 0.2 [m/s]
+
+    // Check distance from robot to starting position, until 2 [m] has been travelled
+    while ( robot.distanceToPoint( start_x, start_y ) < 2 ) {
+        // Update values in robot from subscriptions
+        robot.spinOnce();
+
+        // If any bumper has been triggered, robot has collided with a wall...
+        // Stop the motion of the robot, and return
+        if ( robot.getBumperAny() ) {
+            robot.stopMotion();
+            return;
+        }
+
+        // Do something with the scan data
+        std::vector<float> scan_distances = robot.getRanges();
+        // ...
+    }
+
+    // Once enough distance travelled...
+    robot.stopMotion();
+}
+
+void cleanup( void ) {
+
+}
+
