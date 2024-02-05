@@ -98,7 +98,9 @@ int main ( int argc, char **argv ) {
     // === MAIN ===
     // loop until program_duration [seconds] is reached
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
+        // Main stuff here...
 
+        robot.sleepOnce();
     }
 
 
@@ -134,6 +136,8 @@ void moveAndScan_example( Team1::Robot robot, double distance ) {
         // Do something with the scan data
         std::vector<float> scan_distances = robot.getRanges();
         // ...
+
+        robot.sleepOnce();
     }
 
     // Once enough distance travelled...
