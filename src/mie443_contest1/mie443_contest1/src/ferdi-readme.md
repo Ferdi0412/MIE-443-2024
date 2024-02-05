@@ -22,8 +22,8 @@ I will try to make a robot class for controlling the robot.
 - [x] Blocking rotational travel (with errors on collisions) setters and publishers
 - [x] Bumper error class
 - [x] ~~Setup header-file, and CMakeLists.txt for easier use~~
-- [ ] Implement angleClockwiseTo(double orientation) -> clockwise angle between 2 points (similar to distanceToPoint())
-- [ ] Implement angleClockwiseToPoint( double target_x, double target_y );
+- [x] Implement angleClockwiseTo(double orientation) -> clockwise angle between 2 points (similar to distanceToPoint())
+- [x] Implement angleClockwiseToPoint( double target_x, double target_y );
 - [ ] Add some subscription_online methods???
 - [ ] Get laser scan from angle x to angle y function (0 as center)
 - [ ] Figure out/understand how NaN appears in laser scan data

@@ -20,13 +20,7 @@
  * ==============================
 */
 
-/**
- * secondsElapsed
- *
- * @returns number of seconds from program_start
-*/
-uint16_t secondsElapsed(void);
-
+// ========= EDIT THE FOLLOWING DEFINITION BELOW =========
 /**
  * moveAndScan_example
  *
@@ -37,14 +31,32 @@ uint16_t secondsElapsed(void);
 */
 void moveAndScan_example( Team1::Robot robot, double distance );
 
+
+// ========= AUXILLIARY =========
 /**
- * rotateClockwise_example
+ * secondsElapsed
  *
- * Rotate robot clockwise by <angle> degrees
- * @param robot the robot object
- * @param angle [degrees]
+ * @returns number of seconds from program_start
 */
-void rotateClockwise_example( Team1::Robot robot, double angle );
+uint16_t secondsElapsed(void);
+
+/**
+ * exitIfTimeRunOut
+ *
+ * Will terminate the program (exit/return) if the program has completed
+*/
+void exitIfTimeRunOut( void );
+
+/**
+ * exitIfTimeRunOut [OVERLOAD]
+ *
+ * Will terminate the program (exit/return) with exit_code if the program has completed
+ *
+ * @param exit_code 0 means no error, any other value means program ended with an error (C-standard)
+*/
+void exitIfTimeRunOut( unsigned int exit_code );
+
+
 
 /**
  * =====================
@@ -84,7 +96,10 @@ int main ( int argc, char **argv ) {
 
 
     // === MAIN ===
+    // loop until program_duration [seconds] is reached
+    while ( ros::ok() && secondsElapsed() <= program_duration ) {
 
+    }
 
 
     // === PROGRAM END ===
@@ -99,16 +114,13 @@ int main ( int argc, char **argv ) {
  * === FUNCTIONS IMPLEMENTATIONS ===
  * =================================
 */
-uint16_t secondsElapsed( void ) {
-    return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - program_start).count();
-}
-
+// ========= EDIT THE FOLLOWING DEFINITION BELOW =========
 void moveAndScan_example( Team1::Robot robot, double distance ) {
     double start_x = robot.getX(), start_y = robot.getY();
     robot.jogForwardsSafe( 0.2 ); // Start moving at 0.2 [m/s]
 
     // Check distance from robot to starting position, until distance (in units of [m]) has been travelled
-    while ( robot.distanceToPoint( start_x, start_y ) < distance ) {
+    while ( (secondsElapsed() << program_duration) && (robot.distanceToPoint( start_x, start_y ) < distance) ) {
         // Update values in robot from subscriptions
         robot.spinOnce();
 
@@ -128,6 +140,16 @@ void moveAndScan_example( Team1::Robot robot, double distance ) {
     robot.stopMotion();
 }
 
-void rotateClockwise_example( Team1::Robot robot, double angle ) {
-    // TBD
+
+// ========= AUXILLIARY =========
+uint16_t secondsElapsed( void ) {
+    return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - program_start).count();
+}
+
+void exitIfTimeRunOut( void ) {
+    if ( secondsElapsed() > program_duration ) exit(0);
+}
+
+void exitIfTimeRunOut( unsigned int exit_code ) {
+    if ( secondsElapsed() > program_duration ) exit( exit_code );
 }
