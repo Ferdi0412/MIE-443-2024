@@ -130,3 +130,4 @@ void moveAndScan_example( Team1::Robot robot, double distance ) {
 
 void rotateClockwise_example( Team1::Robot robot, double angle ) {
     // TBD
+}
