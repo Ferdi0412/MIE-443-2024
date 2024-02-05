@@ -506,6 +506,30 @@ namespace Team1 {
             }
 
             /**
+             * makeClockwise will translate an angle such that it is greater than 0
+             *
+             * @param angle   in range [-180, 180]
+             * @returns angle in range [0, 360]
+            */
+            double makeClockwise( double angle ) {
+                if ( angle < 0 )
+                    return 360 + angle;
+                return angle;
+            }
+
+            /**
+             * makeCounterClockwise will translate an angle such that it is less than 0
+             *
+             * @param angle   in range [-180, 180]
+             * @returns angle in range [-360, 0]
+            */
+            double makeCounterClockwise( double angle ) {
+                if ( angle > 0 )
+                    return -360 + angle;
+                return angle;
+            }
+
+            /**
              * checkBumpers will read the bumper states, and stop motion if any are triggered
              *
              * @throws BumperException
