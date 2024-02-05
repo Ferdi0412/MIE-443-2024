@@ -50,6 +50,8 @@
 // T1_ROBOT_ANGLE_BUFFER is used in checking for rootaattion "overflow"
 #define T1_ROBOT_ANGLE_BUFFER 0.2
 
+// std::numeric_limits<float>::infinity()
+
 /**
  * BumperException is thrown when bumper is pressed when travelling.
 */
@@ -62,19 +64,19 @@ namespace Team1 {
             ros::Subscriber bumper_sub, laser_sub, odom_sub, vel_sub;
             ros::Publisher  vel_pub;
 
-            double pos_x, pos_y, pos_theta;
-            double vel_x, vel_y, vel_theta;
+            double pos_x = 0, pos_y = 0, pos_theta = 0;
+            double vel_x = 0, vel_y = 0, vel_theta = 0;
 
-            double vel_fwd_act, vel_clock_act; // Internal state from robot
+            double vel_fwd_act = 0, vel_clock_act = 0; // Internal state from robot
             geometry_msgs::Twist motion_set;   // Set/command to send to robot
 
-            bool   bumper_right, bumper_left, bumper_center;
+            bool   bumper_right = 0, bumper_left = 0, bumper_center = 0;
 
             // void (*spin_once_ros)(void); // Try use ros::spinOnce(); instead of a callback
             ros::Rate spin_rate;
 
             int32_t n_lasers;
-            float angle_min, angle_max, angle_increment, range_min, range_max;
+            float angle_min = 0, angle_max = 0, angle_increment = 0, range_min = 0, range_max = 0;
             std::vector<float> ranges, intensities;
 
 
