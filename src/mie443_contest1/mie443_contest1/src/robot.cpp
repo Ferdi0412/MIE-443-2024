@@ -3,6 +3,9 @@
  *
  * Implements methods to control the kobuki robot base... See documentation at:
  * http://wiki.ros.org/kobuki/Tutorials/Kobuki%27s%20Control%20System#How_it_works
+ * 
+ * From testing:
+ * 1. Angle (yaw) is in range [-M_PI, M_PI] rad or [180, 180] deg
 */
 #ifndef ROBOT_V2_CPP
 #define ROBOT_V2_CPP
@@ -139,14 +142,99 @@ namespace Team1 {
             }
 
             /**
-             * getAngleBetween computes the angle between two orientations
+             * clampAngle applies the range restrictions [-180, 180] on the input angle
+             * 
+             * @param angle the angle to clamp
+            */
+            double clampAngle( double angle ) {
+                angle = fmod(angle, 360);
+                if ( angle > 180. )
+                    return angle - 360;
+                return angle;
+            }
+
+            /**
+             * unclampAngle shifts the range restrictions [-180, 180] to an easier to work with range [0, 360]
+             * 
+             * @param angle the angle to unclamp
+            */
+            double unclampAngle( double angle ) {
+                angle = fmod(angle, 360);
+                if ( angle < 0. )
+                    return angle + 360;
+                return angle;
+            }
+
+            /**
+             * getAngleBetween computes the (shortest) clockwise positive angle between two orientations
              *
-             * @param theta1 initial orientation [rad]
-             * @param theta2 target orientation  [rad]
-             * @returns angle between            [rad]
+             * @param theta1 initial orientation [deg]
+             * @param theta2 target orientation  [deg]
+             * @returns angle between            [deg]
             */
             double getAngleBetween( double theta1, double theta2 ) {
-                return fmod(theta2 - theta1, 2 * M_PI);
+                return fmod(unclampAngle(theta2) - unclampAngle(theta1), 360);
+            }
+
+            /**
+             * rotateClockwiseUpTo rotates robot clockwise to target_angle when target_angle > pos_theta (don't pass 180 degrees)
+             * 
+             * @throws BumperException
+             * @throws std::invalid_argument
+            */
+            void rotateClockwiseUpTo( double velocity, double target_angle ) {
+                double start_angle;
+                if ( pos_theta <= clampAngle(target_angle) ) throw std::invalid_argument("[Robot::rotateClockwiseUpTo] -> wrong rotateXxTo(...) function.\n");
+                start_angle = pos_theta;
+                target_angle = unclampAngle( target_angle );
+                jogClockwiseSafe( fabs(velocity) );
+                while ( target_angle > unclampAngle(pos_theta) ) {
+                    checkBumpers();
+                    spinOnce();
+                }
+                // Stuff...
+            }
+
+            /**
+             * rotateClockwiseDownTo rotates robot clockwise to target_angle when target_angle < pos_theta (pass 180 degrees)
+             * 
+             * @throws BumperException
+             * @throws std::invalid_argument
+            */
+            void rotateClockwiseDownTo( double velocity, double target_angle ) {
+                double start_angle;
+                if ( pos_theta >= clampAngle(target_angle) ) throw std::invalid_argument("[Robot::rotateClockwiseDownTo] -> wrong rotateXxTo(...) function.\n");
+                start_angle = pos_theta;
+                target_angle = unclampAngle( target_angle );
+                jogClockwiseSafe( fabs(velocity) );
+                while ( target_angle < pos_theta ) {
+                    checkBumpes();
+                    if ( pos_theta < start_angle )
+                        target_angle = clampAngle( target_angle );
+                    spinOnce();
+                }
+                stopMotion();
+            }
+
+            /**
+             * rotateCounterclockwiseUpTo rotates the robot counter-clockwise to target_angle when target_angle > pos_theta (pass 180 degrees)
+             * 
+             * @throws BumperException
+             * @throws std::invalid_argument
+            */
+            void rotateCounterclockwiseUpTo( double velocity, double target_angle ) {
+                if ( pos_theta <= target_angle ) throw std::invalid_argument("[Robot::rotateCounterclockwiseUpTo] -> wrong rotateXxTo(...) function.\n");
+                jogClockwiseSafe( -fabs(velocity) );
+            }
+
+            /**
+             * rotateCounterclockwiseDownTo rotates the robot counter-clockwise to target_angle when target_angle < pos_theta (don't pass 180 degrees)
+             * 
+             * @throws BumperException
+             * @throws std::invalid_argument
+            */
+            void rotateCounterclockwiseDownTo( double velocity, double target_angle ) {
+                jogClockwiseSafe( -fabs(velocity) );
             }
 
         public:
@@ -247,10 +335,11 @@ namespace Team1 {
             */
             void moveForwards( double velocity, double distance ) {
                 double start_x, start_y;
+                if ( (velocity == 0) || (distance == 0) ) return;
                 spinOnce(); // Update the current x and y coordinates
                 start_x = pos_x;
                 start_y = pos_y;
-                if ( distance < 0 ) throw std::invalid_argument("[Robot::moveForwards] distance must be greater than distance!\n");
+                if ( distance < 0 ) throw std::invalid_argument("[Robot::moveForwards] distance must be greater than zero!\n");
                 jogForwardsSafe( velocity );
                 while ( getEuclideanDistance(start_x, start_y, pos_x, pos_y) < distance ) {
                     checkBumpers(); // Stop and throw BumperException if bumpers triggered
@@ -275,13 +364,12 @@ namespace Team1 {
              * @param velocity rotational velocity [deg/s]
             */
             void jogClockwise( double velocity ) {
-
                 setMotion( 0, DEG2RAD(velocity) );
             }
 
             /**
              * jogClockwiseSafe will start a clockwise rotation, and check if bumpers in that direction are triggered
-             *
+             *DEG2RAD
              * @param velocity rotational velocity [deg/s]
              * @throws BumperException
             */
@@ -297,13 +385,35 @@ namespace Team1 {
              * rotateClockwiseTo will rotate the robot clockwise (or counter-clockwise) until it reaches a given angle
              * BLOCKING -> will not return until rotation has completed
              *
-             * @param velocity angular velocity [deg/s]
-             * @param angle    target angle     [deg]
+             * @param velocity     angular velocity (velocity <0 for counter-clockwise) [deg/s]
+             * @param target_angle target angle                                         [deg]
              * @throws BumperException
+             * @throws std::invalid_argument -> something has gone wrong internally - let Ferdi know
             */
-            void rotateClockwiseTo( double velocity, double angle ) {
-                // To be implemented...
-                // DEG2RAD(velocity);
+            void rotateClockwiseTo( double velocity, double target_angle ) {
+                if ( (velocity == 0) || (pos_theta == target_angle) ) return;
+                else if ( (velocity > 0) && (pos_theta >= target_angle) ) rotateClockwiseDownTo( velocity, target_angle );
+                else if ( (velocity > 0) && (pos_theta < target_angle) )  rotateClockwiseUpTo( velocity, target_angle );
+                else if ( (velocity < 0) &&  (pos_theta >= target_angle) ) rotateCounterclockwiseDownTo( velocity, target_angle );
+                else if ( (velocity < 0) &&  (pos_theta < target_angle) )  rotateCounterclockwiseUpTo( velocity, target_angle );
+            }
+
+            /**
+             * rotateClockwiseBy will rotate the robot clockwise (or counter-clockwise) by a given angle
+             * BLOCKING -> it will not return until rotation has been completed
+             * 
+             * @param velocity angular velocity (always >0)                      [deg/s]
+             * @param angle    angle to rotate  (negative for counter-clockwise) [deg]
+             * @throws BumperException
+             * @throws std::invalid_argument -> if velocity param is less than 0
+            */
+            void rotateClockwiseBy( double velocity, double angle ) {
+                if ( velocity < 0 ) throw std::invalid_argument("[Robot::rotateClockwiseBy] velocity must be greater than zero!\n");
+                spinOnce(); // Update pos_theta
+                if ( angle > 0 )
+                    rotateClockwiseTo( velocity, pos_theta + angle );
+                else
+                    rotateClockwiseTo( -velocity, post_theta + angle );
             }
 
             /**

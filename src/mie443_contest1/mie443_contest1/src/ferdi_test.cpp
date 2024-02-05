@@ -16,6 +16,9 @@
 // Team1::Robot import
 #include "robot.cpp"
 
+// Temp imports
+#include <cmath>
+
 
 
 /**
@@ -40,7 +43,7 @@ uint16_t secondsElapsed(void);
 */
 static std::chrono::time_point<std::chrono::system_clock> program_start;
 
-static const unsigned long long program_duration = 10;
+static const unsigned long long program_duration = 100;
 
 #define SPEED_HIGH 0.2
 // #define ROT_HIGH 0.2
@@ -58,6 +61,8 @@ int main ( int argc, char **argv ) {
     // ROS setup
     ros::init(argc, argv, "contest1");
 
+    ROS_INFO("fmod(-180, 360): %.2f\n", fmod(-180, 360));
+
     ROS_INFO("Starting up...\n");
 
     ros::NodeHandle nh;
@@ -73,7 +78,7 @@ int main ( int argc, char **argv ) {
     // GLOBAL params setup
     program_start = std::chrono::system_clock::now();
 
-    robot.jogClockwise(1);
+    robot.jogClockwise(10);
 
     // robot.moveForwards(0.2, 0.5);
 
