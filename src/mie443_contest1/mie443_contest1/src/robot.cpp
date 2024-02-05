@@ -201,14 +201,19 @@ namespace Team1 {
             }
 
             /**
-             * getAngleBetween computes the (shortest) clockwise positive angle between two orientations
+             * getAngleBetween computes the (shortest) clockwise-positive angle between two orientations
              *
              * @param theta1 initial orientation [deg]
              * @param theta2 target orientation  [deg]
              * @returns angle between            [deg]
             */
             double getAngleBetween( double theta1, double theta2 ) {
-                return fmod(unclampAngle(theta2) - unclampAngle(theta1), 360);
+                double diff_theta = clampAngle(theta2) - clampAngle(theta1);
+                if ( diff_theta > 180 )
+                    return -360 + diff_theta;
+                else if ( diff_theta < -180 )
+                    return 360 + diff_theta;
+                return diff_theta;
             }
 
             /**
