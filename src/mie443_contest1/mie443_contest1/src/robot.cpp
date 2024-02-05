@@ -3,7 +3,7 @@
  *
  * Implements methods to control the kobuki robot base... See documentation at:
  * http://wiki.ros.org/kobuki/Tutorials/Kobuki%27s%20Control%20System#How_it_works
- * 
+ *
  * From testing:
  * 1. Angle (yaw) is in range [-M_PI, M_PI] rad or [180, 180] deg
 */
@@ -20,6 +20,7 @@
 #include <stdexcept>
 #include <cmath>
 #include <math.h>
+#include <vector>
 // #include <stdio.h>
 
 #ifndef BUMPER_TOPIC
@@ -46,7 +47,7 @@
 #define DEG2RAD(deg) ((deg) * M_PI / 180.)
 #endif
 
-// T1_ROBOT_ANGLE_BUFFER is used in checking for rootaattion "overflow" 
+// T1_ROBOT_ANGLE_BUFFER is used in checking for rootaattion "overflow"
 #define T1_ROBOT_ANGLE_BUFFER 0.2
 
 /**
@@ -72,7 +73,31 @@ namespace Team1 {
             // void (*spin_once_ros)(void); // Try use ros::spinOnce(); instead of a callback
             ros::Rate spin_rate;
 
+            int32_t n_lasers;
+            float angle_min, angle_max, angle_increment, range_min, range_max;
+            std::vector<float> ranges, intensities;
+
+
             /* === SUBSCRIPTION CALLBACKS === */
+            /**
+             * laserCallback runs per laser update on the /scan topic
+             *
+             * @param msg the incoming LaserScan message
+            */
+            void laserCallback( const sensor_msgs::LaserScan::ConstPtr& msg ) {
+                angle_increment = msg->angle_increment;
+                angle_min = msg->angle_min;
+                angle_max = msg->angle_max;
+                range_min = msg->range_min;
+                range_max = msg->range_max;
+
+                // Calculate number of laser points in scan
+                n_lasers = (angle_min - angle_max) / angle_increment;
+
+                ranges.assign(msg->ranges, msg->ranges + n_lasers);
+                intensities.assign(msg->intensities, msg->intensities + n_lasers);
+            }
+
             /**
              * odomCallback runs per cycle on the /odom topic
              *
@@ -146,7 +171,7 @@ namespace Team1 {
 
             /**
              * clampAngle applies the range restrictions [-180, 180] on the input angle
-             * 
+             *
              * @param angle the angle to clamp
             */
             double clampAngle( double angle ) {
@@ -158,7 +183,7 @@ namespace Team1 {
 
             /**
              * unclampAngle shifts the range restrictions [-180, 180] to an easier to work with range [0, 360]
-             * 
+             *
              * @param angle the angle to unclamp
             */
             double unclampAngle( double angle ) {
@@ -181,7 +206,7 @@ namespace Team1 {
 
             /**
              * rotateClockwiseToPrivate
-             * 
+             *
              * @param velocity     [deg/s]
              * @param target_angle [deg]   must be greater than pos_theta, add 360 to it if necessary
             */
@@ -203,7 +228,7 @@ namespace Team1 {
 
             /**
              * rotateCounterClockwiseToPrivate
-             * 
+             *
              * @param velocity     [deg/s]
              * @param target_angle [deg]   must be less than pos_theta, subtract 360 from it if necessary
             */
@@ -243,6 +268,29 @@ namespace Team1 {
             bool getBumperCenter() { return bumper_center; }
             bool getBumperRight()  { return bumper_right; }
             bool getBumperAny()    { return bumper_left || bumper_center || bumper_right; }
+
+            float getAngleMin()       { return RAD2DEG(angle_min); }
+            float getAngleMax()       { return RAD2DEG(angle_max); }
+            float getAngleIncrement() { return RAD2DEG(angle_increment); }
+
+            float getRangeMin()       { return RAD2DEG(range_min); }
+            float getRangeMax()       { return RAD2DEG(range_max); }
+
+            uint32_t getNLasers() [ return n_lasers; ]
+
+            const std::vector<float>& getRanges()      { return ranges; }
+            const std::vector<float>& getIntensities() { return intensities; }
+
+            /* === LASER METHODS === */
+            /**
+             * getDesiredLaserCount
+             *
+             * @param desired_angle for which to calculate laser points required
+             * @returns number of lasers needed to get said angle
+            */
+            uint32_t getDesiredNLasers( float desired_angle ) {
+                return desired_angle / getAngleIncrement();
+            }
 
             /* === ROS METHODS === */
             /**
@@ -388,7 +436,7 @@ namespace Team1 {
             /**
              * rotateClockwiseBy will rotate the robot clockwise (or counter-clockwise) by a given angle
              * BLOCKING -> it will not return until rotation has been completed
-             * 
+             *
              * @param velocity angular velocity (always >0)                      [deg/s]
              * @param angle    angle to rotate  (negative for counter-clockwise) [deg]
              * @throws BumperException
