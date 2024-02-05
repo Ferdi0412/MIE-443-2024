@@ -77,11 +77,11 @@ namespace Team1 {
             void odomCallback( const nav_msgs::Odometry::ConstPtr& msg ) {
                 pos_x     = msg->pose.pose.position.x;
                 pos_y     = msg->pose.pose.position.y;
-                pos_theta = tf::getYaw(msg->pose.pose.orientation);
+                pos_theta = RAD2DEG( tf::getYaw(msg->pose.pose.orientation) );
 
                 vel_x     = msg->twist.twist.linear.x;
                 vel_y     = msg->twist.twist.linear.y;
-                vel_theta = msg->twist.twist.angular.z;
+                vel_theta = RAD2DEG( msg->twist.twist.angular.z );
             }
 
             /**
@@ -272,16 +272,17 @@ namespace Team1 {
             /**
              * jogClockwise will start a clockwise rotation, and check if bumpers in that direction are triggered
              *
-             * @param velocity rotational velocity [rad/s]
+             * @param velocity rotational velocity [deg/s]
             */
             void jogClockwise( double velocity ) {
-                setMotion( 0, velocity );
+
+                setMotion( 0, DEG2RAD(velocity) );
             }
 
             /**
              * jogClockwiseSafe will start a clockwise rotation, and check if bumpers in that direction are triggered
              *
-             * @param velocity rotational velocity [rad/s]
+             * @param velocity rotational velocity [deg/s]
              * @throws BumperException
             */
             void jogClockwiseSafe( double velocity ) {
@@ -289,19 +290,20 @@ namespace Team1 {
                 if ( (velocity > 0) && getBumperRight() ) throw BumperException();
                 if ( (velocity < 0) && getBumperLeft() )  throw BumperException();
                 // If no problems with bumpers...
-                setMotion( 0, velocity );
+                setMotion( 0, DEG2RAD(velocity) );
             }
 
             /**
              * rotateClockwiseTo will rotate the robot clockwise (or counter-clockwise) until it reaches a given angle
              * BLOCKING -> will not return until rotation has completed
              *
-             * @param velocity angular velocity [rad/s]
-             * @param angle    target angle     [rad]
+             * @param velocity angular velocity [deg/s]
+             * @param angle    target angle     [deg]
              * @throws BumperException
             */
             void rotateClockwiseTo( double velocity, double angle ) {
                 // To be implemented...
+                // DEG2RAD(velocity);
             }
 
             /**
