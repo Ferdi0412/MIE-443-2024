@@ -154,3 +154,11 @@ try {
 
 // TODO: Add a distance of rotation...
 ```
+
+## Potentially interesting
+### Nodes
+1. /bumper2pointcloud
+
+### Topics
+1. /camera/depth/points
+2. /camera/depth/image_raw

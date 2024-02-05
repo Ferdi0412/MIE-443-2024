@@ -77,7 +77,7 @@ namespace Team1 {
 
             int32_t n_lasers;
             float angle_min = 0, angle_max = 0, angle_increment = 0, range_min = 0, range_max = 0;
-            std::vector<float> ranges, intensities;
+            std::vector<float> ranges; //, intensities;
 
 
             /* === SUBSCRIPTION CALLBACKS === */
@@ -96,11 +96,11 @@ namespace Team1 {
                 // Calculate number of laser points in scan
                 n_lasers = (angle_min - angle_max) / angle_increment;
 
-                // ranges and intensities apparently implemented as a vector...
+                // ranges apparently implemented as a vector...
                 ranges.assign(msg->ranges.begin(), msg->ranges.end());
-                intensities.assign(msg->intensities.begin(), msg->intensities.end());
                 // ranges.assign(msg->ranges, msg->ranges + n_lasers);
-                // intensities.assign(msg->intensities, msg->intensities + n_lasers);
+                // Ignore this field - constantly empty...
+                // intensities.assign(msg->intensities.begin(), msg->intensities.end()); // intensities.assign(msg->intensities, msg->intensities + n_lasers);
             }
 
             /**
@@ -284,7 +284,7 @@ namespace Team1 {
             uint32_t getNLasers() { return n_lasers; }
 
             const std::vector<float>& getRanges()      { return ranges; }
-            const std::vector<float>& getIntensities() { return intensities; }
+            // const std::vector<float>& getIntensities() { return intensities; }
 
             /* === LASER METHODS === */
             /**
