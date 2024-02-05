@@ -78,7 +78,7 @@ int main ( int argc, char **argv ) {
     // GLOBAL params setup
     program_start = std::chrono::system_clock::now();
 
-    robot.rotateClockwiseTo(10, -40);
+    robot.rotateClockwiseTo(-10, -50);
 
     // robot.moveForwards(0.2, 0.5);
 
