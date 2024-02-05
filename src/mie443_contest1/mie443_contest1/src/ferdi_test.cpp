@@ -73,13 +73,14 @@ int main ( int argc, char **argv ) {
     // GLOBAL params setup
     program_start = std::chrono::system_clock::now();
 
+    robot.jogClockwise(1);
 
-    robot.moveForwards(0.2, 0.5);
+    // robot.moveForwards(0.2, 0.5);
 
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
         robot.checkBumpers();
         robot.spinOnce();
-        ROS_INFO("Position: %.2f\nSpeed: %.2f\n", robot.getX(), robot.getVelX());
+        ROS_INFO("Position: %.2f\nSpeed: %.2f\n", robot.getTheta(), robot.getVelTheta());
         robot.sleepOnce();
     }
 
