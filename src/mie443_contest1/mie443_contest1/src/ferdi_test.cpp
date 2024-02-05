@@ -43,7 +43,7 @@ uint16_t secondsElapsed(void);
 */
 static std::chrono::time_point<std::chrono::system_clock> program_start;
 
-static const unsigned long long program_duration = 100;
+static const unsigned long long program_duration = 10;
 
 #define SPEED_HIGH 0.2
 // #define ROT_HIGH 0.2
@@ -78,7 +78,7 @@ int main ( int argc, char **argv ) {
     // GLOBAL params setup
     program_start = std::chrono::system_clock::now();
 
-    robot.jogClockwise(10);
+    robot.rotateClockwiseTo(10, -40);
 
     // robot.moveForwards(0.2, 0.5);
 

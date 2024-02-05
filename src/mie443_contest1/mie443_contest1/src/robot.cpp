@@ -46,6 +46,9 @@
 #define DEG2RAD(deg) ((deg) * M_PI / 180.)
 #endif
 
+// T1_ROBOT_ANGLE_BUFFER is used in checking for rootaattion "overflow" 
+#define T1_ROBOT_ANGLE_BUFFER 0.2
+
 /**
  * BumperException is thrown when bumper is pressed when travelling.
 */
@@ -177,64 +180,47 @@ namespace Team1 {
             }
 
             /**
-             * rotateClockwiseUpTo rotates robot clockwise to target_angle when target_angle > pos_theta (don't pass 180 degrees)
+             * rotateClockwiseToPrivate
              * 
-             * @throws BumperException
-             * @throws std::invalid_argument
+             * @param velocity     [deg/s]
+             * @param target_angle [deg]   must be greater than pos_theta, add 360 to it if necessary
             */
-            void rotateClockwiseUpTo( double velocity, double target_angle ) {
-                double start_angle;
-                if ( pos_theta <= clampAngle(target_angle) ) throw std::invalid_argument("[Robot::rotateClockwiseUpTo] -> wrong rotateXxTo(...) function.\n");
-                start_angle = pos_theta;
-                target_angle = unclampAngle( target_angle );
+            void rotateClockwiseToPrivate( double velocity, double target_angle ) {
+                double initial_difference;
+                if ( pos_theta >= target_angle ) throw std::invalid_argument("[Robot::rotateClockwiseToPrivate] -> target_angle must be greater than current angle!\n");
+                if ( velocity == 0 ) throw std::invalid_argument("[Robot::rotateCounterClockwiseToPrivate] -> velocity cannot be zero");
+                initial_difference = target_angle - pos_theta;
                 jogClockwiseSafe( fabs(velocity) );
-                while ( target_angle > unclampAngle(pos_theta) ) {
+                while ( target_angle > pos_theta ) {
                     checkBumpers();
                     spinOnce();
-                }
-                // Stuff...
-            }
-
-            /**
-             * rotateClockwiseDownTo rotates robot clockwise to target_angle when target_angle < pos_theta (pass 180 degrees)
-             * 
-             * @throws BumperException
-             * @throws std::invalid_argument
-            */
-            void rotateClockwiseDownTo( double velocity, double target_angle ) {
-                double start_angle;
-                if ( pos_theta >= clampAngle(target_angle) ) throw std::invalid_argument("[Robot::rotateClockwiseDownTo] -> wrong rotateXxTo(...) function.\n");
-                start_angle = pos_theta;
-                target_angle = unclampAngle( target_angle );
-                jogClockwiseSafe( fabs(velocity) );
-                while ( target_angle < pos_theta ) {
-                    checkBumpes();
-                    if ( pos_theta < start_angle )
-                        target_angle = clampAngle( target_angle );
-                    spinOnce();
+                    // If difference between current and target has increased, assume angle rotated past 180. degrees
+                    if ( (target_angle - pos_theta) > (initial_difference + T1_ROBOT_ANGLE_BUFFER) )
+                        target_angle -= 360.;
                 }
                 stopMotion();
             }
 
             /**
-             * rotateCounterclockwiseUpTo rotates the robot counter-clockwise to target_angle when target_angle > pos_theta (pass 180 degrees)
+             * rotateCounterClockwiseToPrivate
              * 
-             * @throws BumperException
-             * @throws std::invalid_argument
+             * @param velocity     [deg/s]
+             * @param target_angle [deg]   must be less than pos_theta, subtract 360 from it if necessary
             */
-            void rotateCounterclockwiseUpTo( double velocity, double target_angle ) {
-                if ( pos_theta <= target_angle ) throw std::invalid_argument("[Robot::rotateCounterclockwiseUpTo] -> wrong rotateXxTo(...) function.\n");
+            void rotateCounterClockwiseToPrivate( double velocity, double target_angle ) {
+                double initial_difference;
+                if ( pos_theta <= target_angle ) throw std::invalid_argument("[Robot::rotateCounterClockwiseToPrivate] -> target_angle must be less than current angle!\n");
+                if ( velocity == 0 ) throw std::invalid_argument("[Robot::rotateCounterClockwiseToPrivate] -> velocity cannot be zero");
+                initial_difference = target_angle - pos_theta;
                 jogClockwiseSafe( -fabs(velocity) );
-            }
-
-            /**
-             * rotateCounterclockwiseDownTo rotates the robot counter-clockwise to target_angle when target_angle < pos_theta (don't pass 180 degrees)
-             * 
-             * @throws BumperException
-             * @throws std::invalid_argument
-            */
-            void rotateCounterclockwiseDownTo( double velocity, double target_angle ) {
-                jogClockwiseSafe( -fabs(velocity) );
+                while ( target_angle < pos_theta ) {
+                    checkBumpers();
+                    spinOnce();
+                    // If difference between current and target has decreased, assume angle rotated past -180. degrees
+                    if ( (target_angle - pos_theta) < (initial_difference - T1_ROBOT_ANGLE_BUFFER) )
+                        target_angle += 360.;
+                }
+                stopMotion();
             }
 
         public:
@@ -391,11 +377,12 @@ namespace Team1 {
              * @throws std::invalid_argument -> something has gone wrong internally - let Ferdi know
             */
             void rotateClockwiseTo( double velocity, double target_angle ) {
+                target_angle = clampAngle(target_angle);
                 if ( (velocity == 0) || (pos_theta == target_angle) ) return;
-                else if ( (velocity > 0) && (pos_theta >= target_angle) ) rotateClockwiseDownTo( velocity, target_angle );
-                else if ( (velocity > 0) && (pos_theta < target_angle) )  rotateClockwiseUpTo( velocity, target_angle );
-                else if ( (velocity < 0) &&  (pos_theta >= target_angle) ) rotateCounterclockwiseDownTo( velocity, target_angle );
-                else if ( (velocity < 0) &&  (pos_theta < target_angle) )  rotateCounterclockwiseUpTo( velocity, target_angle );
+                else if ( (velocity > 0) && (pos_theta > target_angle) ) rotateClockwiseToPrivate( velocity, target_angle + 360 );
+                else if ( (velocity > 0) && (pos_theta < target_angle) ) rotateClockwiseToPrivate( velocity, target_angle );
+                else if ( (velocity < 0) && (pos_theta > target_angle) ) rotateCounterClockwiseToPrivate( velocity, target_angle );
+                else if ( (velocity < 0) && (pos_theta < target_angle) ) rotateCounterClockwiseToPrivate( velocity, target_angle - 360 );
             }
 
             /**
@@ -413,7 +400,7 @@ namespace Team1 {
                 if ( angle > 0 )
                     rotateClockwiseTo( velocity, pos_theta + angle );
                 else
-                    rotateClockwiseTo( -velocity, post_theta + angle );
+                    rotateClockwiseTo( -velocity, pos_theta + angle );
             }
 
             /**
