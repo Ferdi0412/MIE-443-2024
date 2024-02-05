@@ -444,18 +444,17 @@ namespace Team1 {
              * rotateClockwiseBy will rotate the robot clockwise (or counter-clockwise) by a given angle
              * BLOCKING -> it will not return until rotation has been completed
              *
-             * @param velocity angular velocity (always >0)                      [deg/s]
+             * @param velocity angular velocity (always > 0)                     [deg/s]
              * @param angle    angle to rotate  (negative for counter-clockwise) [deg]
              * @throws BumperException
-             * @throws std::invalid_argument -> if velocity param is less than 0
             */
             void rotateClockwiseBy( double velocity, double angle ) {
-                if ( velocity < 0 ) throw std::invalid_argument("[Robot::rotateClockwiseBy] velocity must be greater than zero!\n");
                 spinOnce(); // Update pos_theta
+                if ( angle == 0 ) return;
                 if ( angle > 0 )
-                    rotateClockwiseTo( velocity, pos_theta + angle );
+                    rotateClockwiseTo( fabs(velocity), pos_theta + angle );
                 else
-                    rotateClockwiseTo( -velocity, pos_theta + angle );
+                    rotateClockwiseTo( -fabs(velocity), pos_theta + angle );
             }
 
             /**
@@ -482,7 +481,7 @@ namespace Team1 {
                 bumper_sub = node_handler.subscribe(BUMPER_TOPIC, 10, &Team1::Robot::bumperCallback, this);
                 laser_sub  = node_handler.subscribe(SCAN_TOPIC, 1, &Team1::Robot::laserCallback, this);
                 odom_sub   = node_handler.subscribe(ODOM_TOPIC, 1, &Team1::Robot::odomCallback, this);
-                
+
                 // Configure publisher
                 vel_pub    = node_handler.advertise<geometry_msgs::Twist>(VEL_COMMAND_TOPIC, 1);
             }
