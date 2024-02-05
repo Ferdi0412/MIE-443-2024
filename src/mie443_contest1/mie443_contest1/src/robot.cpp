@@ -94,8 +94,11 @@ namespace Team1 {
                 // Calculate number of laser points in scan
                 n_lasers = (angle_min - angle_max) / angle_increment;
 
-                ranges.assign(msg->ranges, msg->ranges + n_lasers);
-                intensities.assign(msg->intensities, msg->intensities + n_lasers);
+                // ranges and intensities apparently implemented as a vector...
+                ranges.assign(msg->ranges.begin(), msg->ranges.end());
+                intensities.assign(msg->intensities.begin(), msg->intensities.end());
+                // ranges.assign(msg->ranges, msg->ranges + n_lasers);
+                // intensities.assign(msg->intensities, msg->intensities + n_lasers);
             }
 
             /**
@@ -276,7 +279,7 @@ namespace Team1 {
             float getRangeMin()       { return RAD2DEG(range_min); }
             float getRangeMax()       { return RAD2DEG(range_max); }
 
-            uint32_t getNLasers() [ return n_lasers; ]
+            uint32_t getNLasers() { return n_lasers; }
 
             const std::vector<float>& getRanges()      { return ranges; }
             const std::vector<float>& getIntensities() { return intensities; }
