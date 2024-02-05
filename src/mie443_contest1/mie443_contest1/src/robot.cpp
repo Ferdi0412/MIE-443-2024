@@ -217,6 +217,17 @@ namespace Team1 {
             }
 
             /**
+             * getAngleToFromNormal returns the angle of a point, from normal
+             * NOTE: Normal is currently defined with the x-axis defined as orientation 0
+             *
+             * @param delta_x the x-offset
+             * @param delta_y the y-offset
+            */
+            double getAngleToFromNormal( double delta_x, double delta_y ) {
+                return atan2( delta_y, delta_x );
+            }
+
+            /**
              * rotateClockwiseToPrivate
              *
              * @param velocity     [deg/s]
@@ -460,6 +471,38 @@ namespace Team1 {
                     rotateClockwiseTo( fabs(velocity), pos_theta + angle );
                 else
                     rotateClockwiseTo( -fabs(velocity), pos_theta + angle );
+            }
+
+            /**
+             * getAngleTo will calculate smallest clockwise-positive angle to rotate to align the robot with a given orientation
+             *
+             * @param target_orientation the target angle
+            */
+            double getAngleTo( double target_orientation ) {
+                return getAngleBetween( pos_theta, target_orientation );
+            }
+
+            /**
+             * getAngleToPoint will calculate smallest clockwise-positive angle to rotate to face a point
+             * NOTE: assumes that pos_theta := 0 when the robot is aligned with the x-axis
+             * NOTE: No overflow handling is done...
+             *
+             * @param target_x target x-coordinate
+             * @param target_y target y-coordinate
+            */
+            double getAngleToPoint( double target_x, double target_y ) {
+                return getAngleToRelativePoint( (target_x - pos_x), (target_y - pos_y) );
+            }
+
+            /**
+             * getAngleToRelativePoint will calculate the smallest clockwise-positive to rotate to face a point at dist_x and dist_y from the current position
+             * NOTE: No overflow handling is done...
+             *
+             * @param dist_x distance along x-axis to target
+             * @param dist_y distance along y-axis to target
+            */
+            double getAngleToRelativePoint( double dist_x, double dist_y ) {
+                return getAngleBetween(pos_theta, getAngleToFromNormal( dist_x, dist_y ));
             }
 
             /**
