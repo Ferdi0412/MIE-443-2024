@@ -89,8 +89,6 @@ int main ( int argc, char **argv ) {
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
         std::cout << "Ranges:\n";
         printVectorFloats( robot.getRanges() );
-        std::cout << "Intensities:\n";
-        printVectorFloats( robot.getIntensities() );
         std::cout << "N Lasers: " << robot.getNLasers() << "\n";
         robot.checkBumpers();
         robot.spinOnce();
