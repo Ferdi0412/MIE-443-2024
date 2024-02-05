@@ -22,6 +22,7 @@
 #include <math.h>
 #include <vector>
 // #include <stdio.h>
+#include <iostream>
 
 #ifndef BUMPER_TOPIC
 #define BUMPER_TOPIC "mobile_base/events/bumper"
@@ -97,6 +98,7 @@ namespace Team1 {
                 n_lasers = (angle_min - angle_max) / angle_increment;
 
                 // ranges apparently implemented as a vector...
+                cout << msg->ranges.size();
                 ranges.assign(msg->ranges.begin(), msg->ranges.end());
                 // ranges.assign(msg->ranges, msg->ranges + n_lasers);
                 // Ignore this field - constantly empty...
