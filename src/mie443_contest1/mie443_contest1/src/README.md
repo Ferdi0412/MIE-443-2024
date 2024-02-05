@@ -75,9 +75,22 @@ if ( robot.getBumperAny() )
 ```
 
 ### Lasers
+Currently not much is handled for you, you must do operations customly. Values are only exposed.
 
 ```C++
-TBD ...
+// Standard LaserScan object fields
+float angle_increment = robot.getAngleIncrement();
+float angle_min       = robot.getAngleMin();
+float angle_max       = robot.getAngleMax();
+float range_min       = robot.getRangeMin();
+float range_max       = robot.getRangeMax();
+
+int32_t n_lasers         = robot.getNLasers();
+int32_t n_lasers_desired = robot.getNLasersDesired( 10 ); // For 10 degrees
+
+std::vector<float> ranges = robot.getRanges();
+float desired_point       = ranges[n_lasers_desired];     // Range at point at exactly 10 degrees from edge of scan...
+float center_point        = ranges[n_lasers / 2];         // Range at center of scan (directly in front of robot)...
 ```
 
 ## Control motion
@@ -152,8 +165,28 @@ try {
     cout << "The front of the robot is touching a wall in the direction of rotation!";
 }
 
-// TODO: Add a distance of rotation...
+// To rotate counter-clockwise to a given orientation of -45 degrees (using Odometry orientation as basis)
+// at a speed of (approx.) 10 degrees per second (sign matters here...)
+try {
+    robot.rotateClockwiseTo( -10, -45 );
+} catch (const BumperException& bumper_triggered) {
+    cout << "The front of the robot touched a wall and cannot/should not rotate!";
+}
+
+// To rotate an additional 15 degrees counter-clockwise (-15 degrees clockwise),
+// at 10 degrees per second (sign doesn't matter here...)
+try {
+    robot.rotateClockwiseBy( 10, -15 );
+} catch ( const BumperException& bumper_triggered ) {
+    cout << "The front of the robot bumper a wall before motion completed!";
+}
 ```
+
+## Potential improvements
+Let me know if any of the following would be good:
+
+1. Add a callback option to the moveForwardsTo(...) and similar, such that you can have a function running for every cycle whilst it is BLOCKING
+2. Add a function to retrieve a section of the scan, like getRangesBetween(-10, 5) to get scan from -10 to 5 degrees clockwise from center of scan
 
 ## Potentially interesting
 ### Nodes
