@@ -28,24 +28,32 @@
 uint16_t secondsElapsed(void);
 
 /**
- * moveAndScan
+ * moveAndScan_example
  *
  * An example function for how to move and scan the robot.
+ *
+ * @param robot the robot object
+ * @param angle the distance to travel [meters]
 */
-void moveAndScan( Team1::Robot robot );
+void moveAndScan_example( Team1::Robot robot, double distance );
 
 /**
- * cleanup
+ * rotateClockwise_example
  *
- * Should run after everything else
+ * Rotate robot clockwise by <angle> degrees
+ * @param robot the robot object
+ * @param angle [degrees]
 */
-void cleanup( void );
+void rotateClockwise_example( Team1::Robot robot, double angle );
 
 /**
  * =====================
  * === GLOBAL params ===
  * =====================
 */
+#define LINEAR_SPEED 0.2
+#define ROTATIONAL_SPEED 10
+
 static std::chrono::time_point<std::chrono::system_clock> program_start;
 
 static const unsigned long long program_duration = 10;
@@ -95,12 +103,12 @@ uint16_t secondsElapsed( void ) {
     return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - program_start).count();
 }
 
-void moveAndScan( Team1::Robot robot ) {
+void moveAndScan_example( Team1::Robot robot, double distance ) {
     double start_x = robot.getX(), start_y = robot.getY();
     robot.jogForwardsSafe( 0.2 ); // Start moving at 0.2 [m/s]
 
-    // Check distance from robot to starting position, until 2 [m] has been travelled
-    while ( robot.distanceToPoint( start_x, start_y ) < 2 ) {
+    // Check distance from robot to starting position, until distance (in units of [m]) has been travelled
+    while ( robot.distanceToPoint( start_x, start_y ) < distance ) {
         // Update values in robot from subscriptions
         robot.spinOnce();
 
@@ -120,7 +128,5 @@ void moveAndScan( Team1::Robot robot ) {
     robot.stopMotion();
 }
 
-void cleanup( void ) {
-
-}
-
+void rotateClockwise_example( Team1::Robot robot, double angle ) {
+    // TBD
