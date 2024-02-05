@@ -87,7 +87,7 @@ int main ( int argc, char **argv ) {
     // robot.moveForwards(0.2, 0.5);
 
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
-        std::cout << "Ranges:\n"
+        std::cout << "Ranges:\n";
         printVectorFloats( robot.getRanges() );
         std::cout << "Intensities:\n";
         printVectorFloats( robot.getIntensities() );
@@ -115,7 +115,8 @@ uint16_t secondsElapsed( void ) {
 }
 
 void printVectorFloats( const std::vector<float>& the_vector ) {
-    for ( const float& val : the_vector )
-        std::cout << val << "; ";
+    std::cout << the_vector.size();
+    //for ( const float& val : the_vector )
+    //    std::cout << val << "; ";
     std::cout << "\n";
 }
