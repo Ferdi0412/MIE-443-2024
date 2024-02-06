@@ -52,8 +52,7 @@ ssh-keygen -t ed25519
 ## Follow setup steps
 ## Make note of where file is stored
 ## Typically under directory /home/<user>/.ssh/id_ed25519
-cd ~/.ssh          # If in default directory
-cat id_ed25519.pub # Print the public certificate key
+cat ~/.ssh/id_ed25519.pub # Print the public certificate key
 ## Add the SSH key to your github "SSH and GPG keys" under settings
 
 ## == GIT SETUP ==
