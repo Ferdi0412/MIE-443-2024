@@ -91,17 +91,20 @@ int main ( int argc, char **argv ) {
 
     // robot.moveForwards(0.2, 0.5);
 
-    while ( ros::ok() && secondsElapsed() <= program_duration ) {
-        std::cout << "Ranges:\n";
-        printVectorFloats( robot.getRanges() );
-        std::cout << "N Lasers: " << robot.getNLasers() << "\n";
-        robot.checkBumpers();
-        robot.spinOnce();
-        ROS_INFO("Position: %.2f\nSpeed: %.2f\n", robot.getTheta(), robot.getVelTheta());
-        robot.sleepOnce();
-    }
+    robot.rotateClockwiseBy(20, -45);
 
-    ROS_INFO("Time ran out!\n");
+    // while ( ros::ok() && secondsElapsed() <= program_duration ) {
+    //     std::cout << "Ranges:\n";
+    //     printVectorFloats( robot.getRanges() );
+    //     std::cout << "N Lasers: " << robot.getNLasers() << "\n";
+    //     robot.checkBumpers();
+    //     robot.spinOnce();
+    //     ROS_INFO("Position: %.2f\nSpeed: %.2f\n", robot.getTheta(), robot.getVelTheta());
+    //     robot.rotateClockwiseBy(20,-45);
+    //     robot.sleepOnce();
+    // }
+
+    // ROS_INFO("Time ran out!\n");
     robot.stopMotion();
     ROS_INFO("Stopping robot!\n");
 }
