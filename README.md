@@ -39,6 +39,37 @@ rosrun map_server map_saver -f your_map_name
 ## Team1Robot
 This is a class for controlling the robot movements, and will wrap the topic calls, for simplicity sake. For details, checkout the [contest 1 README](src/mie443_contest1/mie443_contest1/src/README.md).
 
+## ROS Commands
+To move the robot in gazebo, you can use the following:
+```shell
+roslaunch turtlebot_teleop keyboard_teleop.launch
+```
+
+To check what topic are currently *active*:
+```shell
+rostopic list
+```
+
+To listen to a topic:
+```shell
+rostopic echo /{topic}
+```
+
+To print info about a topic:
+```shell
+rostopic info /{topic}
+```
+
+To check what nodes are currently running:
+```shell
+rosnode list
+```
+
+To print info about a node:
+```shell
+rostopic info /{node_name}
+```
+
 # Workspace Setup
 Treat this as the ***catkin_ws*** directory from class. When first installed, ensure that the root directory is set up, and run catkin_make.
 ```shell
