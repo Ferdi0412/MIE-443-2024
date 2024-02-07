@@ -37,26 +37,7 @@ rosrun map_server map_saver -f your_map_name
 ```
 
 ## Team1Robot
-This is a class for controlling the robot movements, and will wrap the topic calls, for simplicity sake.
-
-```c++
-ros::NodeHandle nh;
-Team1Robot robot(nh);
-
-// Move forwards, and check stuff...
-robot.moveForwards( );
-
-// Use a do-while instead of while loop, such that robot.cycleROS() is run at least once, so that .isMoving updates
-do {
-    robot.cycleROS();
-    // Check states of everything
-} while ( robot.isMoving() );
-
-// Rotate by 45 degrees, and wait until it stops moving
-robot.rotate( 45 );
-
-robot.waitMovement();
-```
+This is a class for controlling the robot movements, and will wrap the topic calls, for simplicity sake. For details, checkout the [contest 1 README](src/mie443_contest1/mie443_contest1/src/README.md).
 
 # Workspace Setup
 Treat this as the ***catkin_ws*** directory from class. When first installed, ensure that the root directory is set up, and run catkin_make.
