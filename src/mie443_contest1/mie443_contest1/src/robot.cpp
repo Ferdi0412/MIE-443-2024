@@ -137,7 +137,7 @@ namespace Team1 {
                 // ranges.assign(msg->ranges, msg->ranges + n_lasers);
                 // Ignore this field - constantly empty...
                 // intensities.assign(msg->intensities.begin(), msg->intensities.end()); // intensities.assign(msg->intensities, msg->intensities + n_lasers);
-            
+
                 // Calculate number of laser points in scan
                 // n_lasers = (angle_min - angle_max) / angle_increment;
                 // Get n_lasers from the ranges vector
@@ -150,15 +150,17 @@ namespace Team1 {
              * This topic displays the robot's position and velocity relative to it's "global" coordinates.
              *
              * @param msg the incoming Odometry message
+             *
+             * NOTE: Flip pos_theta and vel_theta to make them clockwise-positive.
             */
             void odomCallback( const nav_msgs::Odometry::ConstPtr& msg ) {
                 pos_x     = msg->pose.pose.position.x;
                 pos_y     = msg->pose.pose.position.y;
-                pos_theta = RAD2DEG( tf::getYaw(msg->pose.pose.orientation) );
+                pos_theta = - RAD2DEG( tf::getYaw(msg->pose.pose.orientation) );
 
                 vel_x     = msg->twist.twist.linear.x;
                 vel_y     = msg->twist.twist.linear.y;
-                vel_theta = RAD2DEG( msg->twist.twist.angular.z );
+                vel_theta = - RAD2DEG( msg->twist.twist.angular.z );
             }
 
             /**
@@ -167,14 +169,17 @@ namespace Team1 {
              * This topic displays what velocity the robot (should) be going with respect to it's base (ie. fwd/clockwise).
              *
              * @param msg Twist object from the topic
+             *
+             * NOTE: Flip vel_clock_act to make it clockwise-positive.
             */
             void velocityCallback( const geometry_msgs::Twist::ConstPtr& msg ) {
                 vel_fwd_act   = msg->linear.x;
-                vel_clock_act = msg->angular.z;
+                vel_clock_act = - (msg->angular.z);
             }
 
             /**
              * bumperCallback runs on the /mobile_base/events/bumper topic, updating to reflect state of bumpers
+             *
              * @param msg the incoming bumper message
             */
             void bumperCallback( const kobuki_msgs::BumperEvent::ConstPtr& msg ) {
@@ -310,6 +315,19 @@ namespace Team1 {
                 stopMotion();
             }
 
+            /** === MOTION CONTROL === */
+            /**
+             * setMotion will set and publish the velocity components relative to the turtlebot base
+             *
+             * @param fwd_speed   is the linear speed (in m/s) to travel forwards
+             * @param clock_speed is the angular speed (in rad/s) to travel clockwise
+            */
+            void setMotion( double fwd_speed, double clock_speed ) {
+                motion_set.linear.x  = fwd_speed;
+                motion_set.angular.z = -clock_speed; // Adjust for wrong direction of rotation...
+                publishVelocity();
+            }
+
         public:
             /* === PUBLIC GETTERS === */
             double getX()     { return pos_x; }
@@ -390,18 +408,6 @@ namespace Team1 {
             }
 
             /* === MOTION CONTROL === */
-            /**
-             * setMotion will set and publish the velocity components relative to the turtlebot base
-             *
-             * @param fwd_speed   is the linear speed (in m/s) to travel forwards
-             * @param clock_speed is the angular speed (in rad/s) to travel clockwise
-            */
-            void setMotion( double fwd_speed, double clock_speed ) {
-                motion_set.linear.x  = fwd_speed;
-                motion_set.angular.z = -clock_speed; // Adjust for wrong direction of rotation...
-                publishVelocity();
-            }
-
             /**
              * stopMotion will stop all motion of the robot
             */
