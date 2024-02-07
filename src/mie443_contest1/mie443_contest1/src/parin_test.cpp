@@ -148,7 +148,10 @@ int main ( int argc, char **argv ) {
         std::cout << "Ranges:\n";
         printVectorFloats( robot.getRanges() );
         std::cout << "N Lasers: " << robot.getNLasers() << "\n";
-        robot.checkBumpers();
+        try {
+            robot.checkBumpers();
+        } catch ( BumperException& exc ) { }
+        
         robot.spinOnce();
         ROS_INFO("Position: %.2f\nSpeed: %.2f\n", robot.getTheta(), robot.getVelTheta());
         // Start wall following algorithm
@@ -159,11 +162,6 @@ int main ( int argc, char **argv ) {
     // ROS_INFO("Time ran out!\n");
     robot.stopMotion();
     ROS_INFO("Stopping robot!\n");
-
- 
-    
-
-    return 0;
 }
 
 
