@@ -1,15 +1,36 @@
 /**
- * Provides Team1::Robot class
+ * 1. Team1::Robot
+ * |- This is a class to control the robot, with functions to process subscription messages, and publish movements.
+ * |  Included is also some functions for calibrating motion, by adjusting for any biases in motion.
+ * |  There is currently nothing to account for odometry drift, or random errors, only for any
+ * |  deviation from expected paths observer of the robot during linear/rotational motion.
+ *
  *
  * Implements methods to control the kobuki robot base... See documentation at:
  * http://wiki.ros.org/kobuki/Tutorials/Kobuki%27s%20Control%20System#How_it_works
  *
- * From testing:
- * 1. Angle (yaw) is in range [-M_PI, M_PI] rad or [180, 180] deg
+*/
+
+/**
+ * Import guard...
+ * The `ifndef ROBOT_V2_CPP` prevents this file from being included more than once,
+ * as this would lead to issues with compilation...
 */
 #ifndef ROBOT_V2_CPP
 #define ROBOT_V2_CPP
 
+/**
+ * ===============
+ * === IMPORTS ===
+ * ===============
+ *
+ * The first set are the require ROS classes/functions.
+ * NOTE: I am unsure if everything here is available should a header file and CMake linkage be used in the future...
+ *
+ * The second set are the standard C/C++ classes and functions.
+*/
+
+// ROS classes/functions
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/Twist.h>
 #include <tf/transform_datatypes.h>
@@ -18,6 +39,7 @@
 #include <ros/console.h>
 #include "ros/ros.h"
 
+// STD functions/classes
 #include <exception>
 #include <stdexcept>
 #include <cmath>
@@ -26,6 +48,12 @@
 // #include <stdio.h>
 #include <iostream>
 
+
+/**
+ * =================
+ * === CONSTANTS ===
+ * =================
+*/
 #ifndef BUMPER_TOPIC
 #define BUMPER_TOPIC "mobile_base/events/bumper"
 #endif
@@ -81,6 +109,13 @@ namespace Team1 {
             int32_t n_lasers;
             float angle_min = 0, angle_max = 0, angle_increment = 0, range_min = 0, range_max = 0;
             std::vector<float> ranges; //, intensities;
+
+            /**
+             * === Robot calibration variables ===
+             * ~param linear_calibration will be applied during linear motion, to adjust for any difference in power
+             * from left to right wheel
+            */
+            double linear_calibration = 0;
 
 
             /* === SUBSCRIPTION CALLBACKS === */
@@ -304,7 +339,17 @@ namespace Team1 {
             uint32_t getNLasers() { return n_lasers; }
 
             const std::vector<float>& getRanges()      { return ranges; }
-            // const std::vector<float>& getIntensities() { return intensities; }
+
+            /* === PUBLIC SETTERS === */
+            /**
+             * calibrateLinearMotion
+             *
+             * Add a clockwise rotation speed to adjust for any mismatch in power between left and right wheels.
+             * Will be applied as a factor to the linear speed to set the rotational speed for motion.
+             *
+             * @param clockwise_offset  [(deg/s) / (m/s)]
+            */
+            void calibrateLinearMotion( double clockwise_offset ) { linear_calibration = DEG2RAD(clockwise_offset); }
 
             /* === LASER METHODS === */
             /**
@@ -368,7 +413,7 @@ namespace Team1 {
              * @param velocity linear velocity [m/s]
             */
             void jogForwards( double velocity ) {
-                setMotion( velocity, 0 );
+                setMotion( velocity, linear_calibration * velocity );
             }
 
             /**
@@ -380,7 +425,7 @@ namespace Team1 {
             void jogForwardsSafe( double velocity ) {
                 if ( (velocity > 0) && getBumperAny() )
                     throw BumperException();
-                setMotion( velocity, 0 );
+                setMotion( velocity, linear_calibration * velocity );
             }
 
             /**
@@ -529,6 +574,18 @@ namespace Team1 {
                 if ( angle > 0 )
                     return -360 + angle;
                 return angle;
+            }
+
+            /**
+             * getAngleToLaserPoint returns the angle from the center of the laser scan to a laser point in the scane
+             * NOTE: No overflow handling implemented...
+             *
+             * @param  laserpoint_index  index in vector of the laserpoint to face towards
+             * @throws std::out_of_range when laserpoint_index is not in the vector
+            */
+            double getAngleToLaserPoint( unsigned int laserpoint_index ) {
+                if ( laserpoint_index >= ranges.size() ) throw std::out_of_range("[Robot::getAngleToLaserPoint] -> The laserpoint_index cannot be larger than the number of laser scan points.");
+                return getAngleMin() + (laserpoint_index * getAngleIncrement());
             }
 
             /**
