@@ -182,6 +182,20 @@ try {
 }
 ```
 
+### Calibration
+Currently there is only one form of calibration, which applies only to the jogForwards functions.
+
+```C++
+/**
+ * The following line applies a 1.5 degree clockwise rotation per meter travelled forwards...
+ * This is to account for counter-clockwise deviation (ie. leftwards bias when travelling forwards).
+ * Make it negative to account for clockwise (ie. rightwards bias when travelling forwards) deviation.
+ *
+ * NOTE: This function only works for the jogForwards/jogForwardsSafe functions and functions implementing these.
+*/
+robot.calibrateLinearMotion( 1.5 );
+```
+
 ## Potential improvements
 Let me know if any of the following would be good:
 
