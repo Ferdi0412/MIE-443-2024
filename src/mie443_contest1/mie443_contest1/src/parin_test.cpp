@@ -1,89 +1,186 @@
-#include <ros/ros.h>
+// STD imports
+#include <vector>
+#include <cmath>
+#include <chrono>
+#include <stdint.h>
+#include <stdio.h>
+
+// ROS imports
+#include <ros/console.h>
+#include "ros/ros.h"
+
 #include <geometry_msgs/Twist.h>
+#include <kobuki_msgs/BumperEvent.h>
 #include <sensor_msgs/LaserScan.h>
+
+// Team1::Robot import
 #include "robot.cpp"
 
-// Constants
-#define LINEAR_SPEED 0.2
-#define ANGULAR_SPEED 0.5
-#define WALL_DISTANCE_THRESHOLD 0.5 // Adjust according to your environment
-#define MAP_COVERAGE_THRESHOLD 0.8  // Adjust according to your requirement
+// Temp imports
+#include <cmath>
+#include <iostream>
+#include <vector>
 
-// Global variables
-static ros::Publisher velocity_publisher;
-static ros::Subscriber laser_subscriber;
-static double front_distance = 0.0;
-static bool obstacle_detected = false;
-static bool wall_following_mode = false;
 
-// Function declarations
-void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
-void moveRobot(double linear_speed, double angular_speed);
-void stopRobot();
-void wallFollowing();
-bool isObstacleInFront();
+/**
+ * ==============================
+ * === FUNCTIONS DECLARATIONS ===
+ * ==============================
+*/
 
-int main(int argc, char **argv) {
-    // Initialize ROS node
-    ros::init(argc, argv, "wall_following");
-    ros::NodeHandle nh;
+/**
+ * secondsElapsed
+ *
+ * @returns number of seconds from program_start
+*/
+uint16_t secondsElapsed(void);
 
-    // Create robot object
-    Team1::Robot robot(nh, 2);
+/**
+ * printVectorFloats prints each float in a vector
+*/
+void printVectorFloats( const std::vector<float>& the_vector );
 
-    // Setup publishers and subscribers
-    velocity_publisher = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 10);
-    laser_subscriber = nh.subscribe("/scan", 10, laserCallback);
+/**
+ * =====================
+ * === GLOBAL params ===
+ * =====================
+*/
+static std::chrono::time_point<std::chrono::system_clock> program_start;
 
-    // Main loop
-    while (ros::ok()) {
-        if (isObstacleInFront()) {
-            // If obstacle detected in front, start wall-following mode
-            wall_following_mode = true;
+static const unsigned long long program_duration = 10;
+
+#define SPEED_HIGH 0.2
+// #define ROT_HIGH 0.2
+
+
+/**
+ * ============
+ * === MAIN ===
+ * ============
+ *
+ * @param argc number of params used in starting program (ignore but keep)
+ * @param argv string params used when starting program  (ignore but keep)
+*/
+
+
+// Function to determine if a value is within a given range
+bool withinRange(float value, float min, float max) {
+    return (value >= min && value <= max);
+}
+
+// Function to determine if there is an obstacle in a specific range of laser scans
+bool obstacleDetected(const std::vector<float>& ranges, int start_index, int end_index, float min_range, float max_range) {
+    for (int i = start_index; i <= end_index; ++i) {
+        if (withinRange(ranges[i], min_range, max_range)) {
+            return true;
         }
-
-        if (wall_following_mode) {
-            wallFollowing();
-        } else {
-            // Move forward
-            moveRobot(LINEAR_SPEED, 0.0);
-        }
-
-        ros::spinOnce();
     }
+    return false;
+}
+
+// Wall following algorithm
+void wallFollow(Team1::Robot& robot) {
+    float desired_distance = 0.5; // Desired distance from the wall
+    float min_follow_distance = 0.2; // Minimum distance to follow the wall
+    float max_follow_distance = 0.8; // Maximum distance to follow the wall
+
+    while (ros::ok()) {
+        // Get laser scan data
+        const std::vector<float>& ranges = robot.getRanges();
+        int n_lasers = robot.getNLasers();
+
+        // Check if there's an obstacle on the right
+        bool obstacle_right = obstacleDetected(ranges, 0, n_lasers / 4, 0, min_follow_distance);
+
+        // Check if there's an obstacle ahead
+        bool obstacle_front = obstacleDetected(ranges, n_lasers / 4, 3 * n_lasers / 4, 0, desired_distance);
+
+        // Check if there's an obstacle on the left
+        bool obstacle_left = obstacleDetected(ranges, 3 * n_lasers / 4, n_lasers - 1, 0, min_follow_distance);
+
+        // If there's an obstacle on the right or front, turn left
+        if (obstacle_right || obstacle_front) {
+            robot.rotateClockwiseBy(20,-90);
+            robot.moveForwards(0.2,0.5); 
+        }
+        // If there's an obstacle on the left, turn right
+        else if (obstacle_left) {
+            robot.rotateClockwiseBy(20,90);
+            robot.moveForwards(0.2,0.5);
+        }
+        // Otherwise, continue forward
+        else {
+            robot.moveForwards(0.2,0.5);
+        }
+
+        // Spin once and sleep
+        robot.spinOnce();
+        ros::Duration(0.1).sleep();
+    }
+}
+
+int main ( int argc, char **argv ) {
+    // ROS setup
+    ros::init(argc, argv, "contest1");
+
+    ROS_INFO("Starting up...\n");
+
+    ros::NodeHandle nh;
+    ros::Rate loop_rate(2);
+
+    ROS_INFO("Creating Robot");
+
+    // Robot object setup
+    Team1::Robot robot( nh, 2);
+    robot.spinOnce();
+    ros::Duration(0.5).sleep(); // Sleep to ensure is initialized correctly
+
+    // GLOBAL params setup
+    program_start = std::chrono::system_clock::now();
+
+
+    // ROS_INFO("Angle from 10 degrees: %.2f", robot.getAngleTo(10));
+    // ROS_INFO("Angle from -90 degrees: %.2f", robot.getAngleTo(-90));
+    // ROS_INFO("Angle to relative point 10, 10: %.2f", robot.getAngleToRelativePoint(10, 10));
+    // ROS_INFO("Angle to abs point 10, 10: %.2f", robot.getAngleToPoint(10, 10));
+
+    while ( ros::ok() && secondsElapsed() <= program_duration ) {
+        std::cout << "Ranges:\n";
+        printVectorFloats( robot.getRanges() );
+        std::cout << "N Lasers: " << robot.getNLasers() << "\n";
+        robot.checkBumpers();
+        robot.spinOnce();
+        ROS_INFO("Position: %.2f\nSpeed: %.2f\n", robot.getTheta(), robot.getVelTheta());
+        // Start wall following algorithm
+        wallFollow(robot);
+        robot.sleepOnce();
+    }
+
+    // ROS_INFO("Time ran out!\n");
+    robot.stopMotion();
+    ROS_INFO("Stopping robot!\n");
+
+ 
+    
 
     return 0;
 }
 
-void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg) {
-    // Update front distance from laser scan
-    front_distance = msg->ranges[msg->ranges.size() / 2];
+
+
+
+/**
+ * =================================
+ * === FUNCTIONS IMPLEMENTATIONS ===
+ * =================================
+*/
+uint16_t secondsElapsed( void ) {
+    return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - program_start).count();
 }
 
-void moveRobot(double linear_speed, double angular_speed) {
-    // Publish velocity command to move the robot
-    geometry_msgs::Twist vel_msg;
-    vel_msg.linear.x = linear_speed;
-    vel_msg.angular.z = angular_speed;
-    velocity_publisher.publish(vel_msg);
-}
-
-void stopRobot() {
-    // Stop the robot's motion
-    moveRobot(0.0, 0.0);
-}
-
-void wallFollowing() {
-    if (front_distance > WALL_DISTANCE_THRESHOLD) {
-        // If no obstacle in front, move forward while following the wall
-        moveRobot(LINEAR_SPEED, -ANGULAR_SPEED); // Turn right
-    } else {
-        // If obstacle in front, turn left to avoid it
-        moveRobot(LINEAR_SPEED, ANGULAR_SPEED); // Turn left
-    }
-}
-
-bool isObstacleInFront() {
-    // Check if there is an obstacle within the threshold distance in front of the robot
-    return front_distance < WALL_DISTANCE_THRESHOLD;
+void printVectorFloats( const std::vector<float>& the_vector ) {
+    std::cout << the_vector.size();
+    //for ( const float& val : the_vector )
+    //    std::cout << val << "; ";
+    std::cout << "\n";
 }
