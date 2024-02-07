@@ -396,7 +396,7 @@ namespace Team1 {
             */
             void setMotion( double fwd_speed, double clock_speed ) {
                 motion_set.linear.x  = fwd_speed;
-                motion_set.angular.z = clock_speed;
+                motion_set.angular.z = -clock_speed; // Adjust for wrong direction of rotation...
                 publishVelocity();
             }
 
