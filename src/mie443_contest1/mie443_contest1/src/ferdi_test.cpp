@@ -82,7 +82,7 @@ int main ( int argc, char **argv ) {
     // GLOBAL params setup
     program_start = std::chrono::system_clock::now();
 
-    robot.rotateClockwiseTo(-10, -50);
+    // robot.rotateClockwiseTo(-10, -50);
 
     ROS_INFO("Angle from 10 degrees: %.2f", robot.getAngleTo(10));
     ROS_INFO("Angle from -90 degrees: %.2f", robot.getAngleTo(-90));
@@ -91,7 +91,7 @@ int main ( int argc, char **argv ) {
 
     // robot.moveForwards(0.2, 0.5);
 
-    robot.rotateClockwiseBy(20, -45);
+    robot.rotateClockwiseBy(20, 45);
 
     // while ( ros::ok() && secondsElapsed() <= program_duration ) {
     //     std::cout << "Ranges:\n";

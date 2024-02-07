@@ -91,14 +91,18 @@ int main ( int argc, char **argv ) {
 
     ros::Duration(0.5).sleep(); // Sleep to ensure is initialized correctly
     robot.spinOnce();
+    
+    ROS_INFO("fAIL1"); 
 
     while ( ros::ok() && robot.getRanges().size() == 0 ) {
         robot.spinOnce();
+        ROS_INFO("FAIL2");
         ros::Duration(0.5).sleep();
     }
+    
 
     program_start = std::chrono::system_clock::now();
-
+    ROS_INFO("FAIL3");
     // === MAIN ===
     // loop until program_duration [seconds] is reached
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
