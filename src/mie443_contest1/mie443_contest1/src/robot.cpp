@@ -131,15 +131,17 @@ namespace Team1 {
                 range_min = msg->range_min;
                 range_max = msg->range_max;
 
-                // Calculate number of laser points in scan
-                n_lasers = (angle_min - angle_max) / angle_increment;
-
                 // ranges apparently implemented as a vector...
                 // std::cout << "INCOMING ranges: " << msg->ranges.size() << "\n";
                 ranges.assign(msg->ranges.begin(), msg->ranges.end());
                 // ranges.assign(msg->ranges, msg->ranges + n_lasers);
                 // Ignore this field - constantly empty...
                 // intensities.assign(msg->intensities.begin(), msg->intensities.end()); // intensities.assign(msg->intensities, msg->intensities + n_lasers);
+            
+                // Calculate number of laser points in scan
+                // n_lasers = (angle_min - angle_max) / angle_increment;
+                // Get n_lasers from the ranges vector
+                n_lasers = ranges.size();
             }
 
             /**
