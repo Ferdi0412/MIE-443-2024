@@ -1,175 +1,87 @@
-// STD imports
 #include <vector>
 #include <cmath>
 #include <chrono>
 #include <stdint.h>
 #include <stdio.h>
 
-// ROS imports
 #include <ros/console.h>
 #include "ros/ros.h"
+#include "geometry_msgs/Twist.h"
+#include "sensor_msgs/LaserScan.h"
 
-// Team1::Robot import
 #include "robot.cpp"
 
-
-
-/**
- * ==============================
- * === FUNCTIONS DECLARATIONS ===
- * ==============================
-*/
-
-// ========= EDIT THE FOLLOWING DEFINITION BELOW =========
-/**
- * moveAndScan_example
- *
- * An example function for how to move and scan the robot.
- *
- * @param robot the robot object
- * @param angle the distance to travel [meters]
-*/
-void moveAndScan_wallFollow( Team1::Robot robot, double distance );
-
-
-// ========= AUXILLIARY =========
-/**
- * secondsElapsed
- *
- * @returns number of seconds from program_start
-*/
-uint16_t secondsElapsed(void);
-
-/**
- * exitIfTimeRunOut
- *
- * Will terminate the program (exit/return) if the program has completed
-*/
-void exitIfTimeRunOut( void );
-
-/**
- * exitIfTimeRunOut [OVERLOAD]
- *
- * Will terminate the program (exit/return) with exit_code if the program has completed
- *
- * @param exit_code 0 means no error, any other value means program ended with an error (C-standard)
-*/
-void exitIfTimeRunOut( unsigned int exit_code );
-
-
-
-/**
- * =====================
- * === GLOBAL params ===
- * =====================
-*/
+// Define constants
 #define LINEAR_SPEED 0.2
-#define ROTATIONAL_SPEED 10
+#define ANGULAR_SPEED 0.5
+#define WALL_DISTANCE_THRESHOLD 1.0 // Adjust according to your environment
+#define MAP_COVERAGE_THRESHOLD 0.8  // Adjust according to your requirement
 
+// Global variables
 static std::chrono::time_point<std::chrono::system_clock> program_start;
+static const unsigned long long program_duration = 10; // Adjust as needed
 
-static const unsigned long long program_duration = 10;
+// Function declarations
+void moveAndScan_example(Team1::Robot robot, double distance);
+void wallFollowing(Team1::Robot &robot);
+void stopRobot(Team1::Robot &robot);
+uint16_t secondsElapsed(void);
+void exitIfTimeRunOut(void);
+void exitIfTimeRunOut(unsigned int exit_code);
 
-
-/**
- * ============
- * === MAIN ===
- * ============
- *
- * @param argc number of params used in starting program (ignore but keep)
- * @param argv string params used when starting program  (ignore but keep)
-*/
-int main ( int argc, char **argv ) {
-    // === SETUP ===
-    ROS_INFO("SETUP...\n");
+int main(int argc, char **argv) {
+    // Setup ROS node
+    ROS_INFO("Setting up...");
 
     ros::init(argc, argv, "contest1");
-
     ros::NodeHandle nh;
     ros::Rate loop_rate(2);
-    Team1::Robot robot( nh, 2);
 
-    ros::Duration(0.5).sleep(); // Sleep to ensure is initialized correctly
+    Team1::Robot robot(nh, 2);
+    ros::Duration(0.5).sleep(); // Ensure initialization
     robot.spinOnce();
-
     program_start = std::chrono::system_clock::now();
 
-
-    // === MAIN ===
-    // loop until program_duration [seconds] is reached
-    while ( ros::ok() && secondsElapsed() <= program_duration ) {
-        // Main stuff here...
-        moveAndScan_wallFollow(robot, 10.0); // Example call to wall-following function
-        robot.sleepOnce();
+    // Main loop
+    while (ros::ok() && secondsElapsed() <= program_duration) {
+        wallFollowing(robot);
+        ros::spinOnce();
+        loop_rate.sleep();
     }
 
-
-    // === PROGRAM END ===
-    robot.stopMotion();
-    ROS_INFO("ENDED...\n");
+    // Program end
+    stopRobot(robot);
+    ROS_INFO("Program ended.");
 }
 
+void wallFollowing(Team1::Robot &robot) {
+    double front_distance = robot.getRanges()[robot.getNLasers() / 2]; // Front distance from laser scan
 
-
-/**
- * =================================
- * === FUNCTIONS IMPLEMENTATIONS ===
- * =================================
-*/
-// Wall-following algorithm implementation
-void moveAndScan_wallFollow(Team1::Robot robot, double distance) {
-    double start_x = robot.getX(), start_y = robot.getY();
-    robot.jogForwardsSafe(LINEAR_SPEED); // Start moving at LINEAR_SPEED [m/s]
-
-    while ((secondsElapsed() < program_duration) && (robot.distanceToPoint(start_x, start_y) < distance)) {
-        // Update values in robot from subscriptions
-        robot.spinOnce();
-
-        // If any bumper has been triggered, robot has collided with a wall or obstacle...
-        // Stop the motion of the robot and return
-        if (robot.getBumperAny()) {
-            robot.stopMotion();
-            return;
-        }
-
-        // Get laser scan data
-        std::vector<float> scan_distances = robot.getRanges();
-
-        // Wall-following logic
-        if (!scan_distances.empty()) {
-            // Find the minimum distance from the left side of the robot
-            int left_index = scan_distances.size() / 4; // Assuming a laser scan with 4 quarters
-            float min_distance_left = *std::min_element(scan_distances.begin(), scan_distances.begin() + left_index);
-
-            // Adjust the angular velocity based on the minimum distance
-            double angular_velocity = 0.0;
-            if (min_distance_left < 1.0) {
-                angular_velocity = -ROTATIONAL_SPEED; // Turn right to follow the left wall
-            } else {
-                angular_velocity = ROTATIONAL_SPEED; // Turn left to find the wall
-            }
-
-            // Set the robot's velocity
-            robot.setVelocity(LINEAR_SPEED, angular_velocity);
-        }
-
-        robot.sleepOnce();
+    // Check if there's an obstacle in front
+    if (front_distance < WALL_DISTANCE_THRESHOLD) {
+        // Turn right to follow the wall
+        robot.setMotion(LINEAR_SPEED, -ANGULAR_SPEED);
+    } else {
+        // Move forward while following the wall
+        robot.setMotion(LINEAR_SPEED, 0);
     }
+}
 
-    // Once enough distance is traveled...
+void stopRobot(Team1::Robot &robot) {
+    // Stop the robot's motion
     robot.stopMotion();
 }
 
-
-// ========= AUXILLIARY =========
-uint16_t secondsElapsed( void ) {
+uint16_t secondsElapsed(void) {
     return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - program_start).count();
 }
 
-void exitIfTimeRunOut( void ) {
-    if ( secondsElapsed() > program_duration ) exit(0);
+void exitIfTimeRunOut(void) {
+    if (secondsElapsed() > program_duration)
+        exit(0);
 }
 
-void exitIfTimeRunOut( unsigned int exit_code ) {
-    if ( secondsElapsed() > program_duration ) exit( exit_code );
+void exitIfTimeRunOut(unsigned int exit_code) {
+    if (secondsElapsed() > program_duration)
+        exit(exit_code);
 }
