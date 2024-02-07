@@ -1,5 +1,5 @@
 # robot.cpp
-This file creates the Robot class, under the Team1 namespace.
+This file creates the Robot class, under the Team1 namespace. IMPORTANT NOTE: I have clockwise and counter-clockwise flipped in my methods, will fix this later rather than now...
 
 ## Include
 To include the robot.cpp file, and expose the robot class, you need to include the file.
