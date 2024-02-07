@@ -7,7 +7,10 @@ src/CMakeLists.txt
 .catkin_workspace
 
 ## Ignore .vscode directory
-## .vscode/
+.vscode/
+
+## Except for (include) .vscode/settings.json from base
+!.vscode/settings.json
 
 ## 'priv-' prefix to create private files
 priv-*
