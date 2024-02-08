@@ -1,5 +1,16 @@
+// STD imports
+#include <vector>
+#include <cmath>
+#include <chrono>
+#include <stdint.h>
+#include <stdio.h>
+
+// ROS imports
+#include <ros/console.h>
 #include "ros/ros.h"
-#include "Team1/Robot.h"
+
+// Team1::Robot import
+#include "robot.cpp"
 
 int main(int argc, char **argv) {
     // Initialize ROS node

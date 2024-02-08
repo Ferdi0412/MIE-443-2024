@@ -12,7 +12,7 @@
 // Team1::Robot import
 #include "robot.cpp"
 
-
+int randDirection;
 
 /**
  * ==============================
@@ -99,7 +99,7 @@ int main ( int argc, char **argv ) {
         ROS_INFO("FAIL2");
         ros::Duration(0.5).sleep();
     }
-    
+    randomBias(robot);
 
     program_start = std::chrono::system_clock::now();
     ROS_INFO("FAIL3");
@@ -138,7 +138,21 @@ int main ( int argc, char **argv ) {
  * === FUNCTIONS IMPLEMENTATIONS ===
  * =================================
 */
-// ========= EDIT THE FOLLOWING DEFINITION BELOW =========
+// ========= EDIT THE FOLLOWING DEFINITION BELOW ========={}}
+void randomBias(Team1::Robot robot){
+    randDirection = rand() % 180 + -180;
+    std::cout << randDirection;
+try { 
+        robot.rotateClockwiseBy(10, randDirection);
+        robot.moveForwards(0.1,0.1);
+        }
+        catch (BumperException)
+        {
+            std::cout << "Wall!!";
+        }
+
+
+}
 void moveAndScan_example( Team1::Robot robot, double distance ) {
     double start_x = robot.getX(), start_y = robot.getY();
     robot.jogForwardsSafe( 0.2 ); // Start moving at 0.2 [m/s]
