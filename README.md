@@ -12,7 +12,65 @@ Project for Thursday Team 1 for MIE443 in Winter 2023/2024. This assumes you are
 - Open-spaces
 - Biased random-walk
 
-## Setup
+# Contest 1
+For [contest 1](src/mie443_contest1/mie443_contest1/src/README.md), we will start off evaluating wall-following, open-space and biased random-walk navigation strategies.
+~~If time permits, we will look into frontier-search to find unexplored areas from the **gmapping** node.~~
+
+## Startup
+If you want to simulate, us GAZEBO, otherwise use ROBOT to connect to the physical turtlebot.
+```shell
+# Build            -> Before running
+cd ~/catkin_ws
+catkin_make
+# GAZEBO           -> Terminal 1
+roslaunch mie443_contest1 turtlebot_world.launch world:=1
+# ROBOT            -> Terminal 1
+...
+# Script           -> Terminal 2
+rosrun mie443_contest1 contest1
+# GMAPPING         -> Termianl 3
+roslaunch mie443_contest1 gmapping.launch
+# RVIZ [OPTIONAL ] -> Terminal 4
+roslaunch turtlebot_rviz_launchers view_navigation.launch
+# SAVE MAP         -> After running
+rosrun map_server map_saver -f your_map_name
+```
+
+## Team1Robot
+This is a class for controlling the robot movements, and will wrap the topic calls, for simplicity sake. For details, checkout the [contest 1 README](src/mie443_contest1/mie443_contest1/src/README.md).
+
+## ROS Commands
+To move the robot in gazebo, you can use the following:
+```shell
+roslaunch turtlebot_teleop keyboard_teleop.launch
+```
+
+To check what topic are currently *active*:
+```shell
+rostopic list
+```
+
+To listen to a topic:
+```shell
+rostopic echo /{topic}
+```
+
+To print info about a topic:
+```shell
+rostopic info /{topic}
+```
+
+To check what nodes are currently running:
+```shell
+rosnode list
+```
+
+To print info about a node:
+```shell
+rostopic info /{node_name}
+```
+
+# Workspace Setup
 Treat this as the ***catkin_ws*** directory from class. When first installed, ensure that the root directory is set up, and run catkin_make.
 ```shell
 ## == DEPENDENCY SETUP ==
@@ -106,51 +164,3 @@ sudo rm -rf devel     # Remove all devel files created by catkin_make
 catkin_make           # Re-build projecct
 source devel/setup.sh # re-source
 ```
-
-# Contest 1
-For contest 1, we will start off using a wall-following strategy. If time permits, we will look into frontier-search to find unexplored areas from the **gmapping** node.
-
-## Startup
-If you want to simulate, us GAZEBO, otherwise use ROBOT to connect to the physical turtlebot.
-```shell
-# Build            -> Before running
-cd ~/catkin_ws
-catkin_make
-# GAZEBO           -> Terminal 1
-roslaunch mie443_contest1 turtlebot_world.launch world:=1
-# ROBOT            -> Terminal 1
-...
-# Script           -> Terminal 2
-rosrun mie443_contest1 contest1
-# GMAPPING         -> Termianl 3
-roslaunch mie443_contest1 gmapping.launch
-# RVIZ [OPTIONAL ] -> Terminal 4
-roslaunch turtlebot_rviz_launchers view_navigation.launch
-# SAVE MAP         -> After running
-rosrun map_server map_saver -f your_map_name
-```
-
-## Team1Robot
-This is a class for controlling the robot movements, and will wrap the topic calls, for simplicity sake.
-
-```c++
-ros::NodeHandle nh;
-Team1Robot robot(nh);
-
-// Move forwards, and check stuff...
-robot.moveForwards( );
-
-// Use a do-while instead of while loop, such that robot.cycleROS() is run at least once, so that .isMoving updates
-do {
-    robot.cycleROS();
-    // Check states of everything
-} while ( robot.isMoving() );
-
-// Rotate by 45 degrees, and wait until it stops moving
-robot.rotate( 45 );
-
-robot.waitMovement();
-```
-
-## Wall-following
-Add details here...

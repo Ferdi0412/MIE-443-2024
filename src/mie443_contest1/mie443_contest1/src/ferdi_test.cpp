@@ -82,7 +82,7 @@ int main ( int argc, char **argv ) {
     // GLOBAL params setup
     program_start = std::chrono::system_clock::now();
 
-    robot.rotateClockwiseTo(-10, -50);
+    // robot.rotateClockwiseTo(-10, -50);
 
     ROS_INFO("Angle from 10 degrees: %.2f", robot.getAngleTo(10));
     ROS_INFO("Angle from -90 degrees: %.2f", robot.getAngleTo(-90));
@@ -91,17 +91,20 @@ int main ( int argc, char **argv ) {
 
     // robot.moveForwards(0.2, 0.5);
 
-    while ( ros::ok() && secondsElapsed() <= program_duration ) {
-        std::cout << "Ranges:\n";
-        printVectorFloats( robot.getRanges() );
-        std::cout << "N Lasers: " << robot.getNLasers() << "\n";
-        robot.checkBumpers();
-        robot.spinOnce();
-        ROS_INFO("Position: %.2f\nSpeed: %.2f\n", robot.getTheta(), robot.getVelTheta());
-        robot.sleepOnce();
-    }
+    robot.rotateClockwiseBy(20, 45);
 
-    ROS_INFO("Time ran out!\n");
+    // while ( ros::ok() && secondsElapsed() <= program_duration ) {
+    //     std::cout << "Ranges:\n";
+    //     printVectorFloats( robot.getRanges() );
+    //     std::cout << "N Lasers: " << robot.getNLasers() << "\n";
+    //     robot.checkBumpers();
+    //     robot.spinOnce();
+    //     ROS_INFO("Position: %.2f\nSpeed: %.2f\n", robot.getTheta(), robot.getVelTheta());
+    //     robot.rotateClockwiseBy(20,-45);
+    //     robot.sleepOnce();
+    // }
+
+    // ROS_INFO("Time ran out!\n");
     robot.stopMotion();
     ROS_INFO("Stopping robot!\n");
 }

@@ -1,5 +1,5 @@
 # robot.cpp
-This file creates the Robot class, under the Team1 namespace.
+This file creates the Robot class, under the Team1 namespace. IMPORTANT NOTE: I have clockwise and counter-clockwise flipped in my methods, will fix this later rather than now...
 
 ## Include
 To include the robot.cpp file, and expose the robot class, you need to include the file.
@@ -180,6 +180,20 @@ try {
 } catch ( const BumperException& bumper_triggered ) {
     cout << "The front of the robot bumper a wall before motion completed!";
 }
+```
+
+### Calibration
+Currently there is only one form of calibration, which applies only to the jogForwards functions.
+
+```C++
+/**
+ * The following line applies a 1.5 degree clockwise rotation per meter travelled forwards...
+ * This is to account for counter-clockwise deviation (ie. leftwards bias when travelling forwards).
+ * Make it negative to account for clockwise (ie. rightwards bias when travelling forwards) deviation.
+ *
+ * NOTE: This function only works for the jogForwards/jogForwardsSafe functions and functions implementing these.
+*/
+robot.calibrateLinearMotion( 1.5 );
 ```
 
 ## Potential improvements

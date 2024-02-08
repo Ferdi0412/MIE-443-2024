@@ -9,8 +9,14 @@ src/CMakeLists.txt
 ## Ignore .vscode directory
 .vscode/
 
+## Except for (include) .vscode/settings.json from base
+!.vscode/settings.json
+
 ## 'priv-' prefix to create private files
 priv-*
+
+## Ignore compile_commands
+*/compile_commands.json
 
 # Prerequisites
 *.d

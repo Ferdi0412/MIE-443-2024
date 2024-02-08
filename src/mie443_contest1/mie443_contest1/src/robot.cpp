@@ -1,15 +1,36 @@
 /**
- * Provides Team1::Robot class
+ * 1. Team1::Robot
+ * |- This is a class to control the robot, with functions to process subscription messages, and publish movements.
+ * |  Included is also some functions for calibrating motion, by adjusting for any biases in motion.
+ * |  There is currently nothing to account for odometry drift, or random errors, only for any
+ * |  deviation from expected paths observer of the robot during linear/rotational motion.
+ *
  *
  * Implements methods to control the kobuki robot base... See documentation at:
  * http://wiki.ros.org/kobuki/Tutorials/Kobuki%27s%20Control%20System#How_it_works
  *
- * From testing:
- * 1. Angle (yaw) is in range [-M_PI, M_PI] rad or [180, 180] deg
+*/
+
+/**
+ * Import guard...
+ * The `ifndef ROBOT_V2_CPP` prevents this file from being included more than once,
+ * as this would lead to issues with compilation...
 */
 #ifndef ROBOT_V2_CPP
 #define ROBOT_V2_CPP
 
+/**
+ * ===============
+ * === IMPORTS ===
+ * ===============
+ *
+ * The first set are the require ROS classes/functions.
+ * NOTE: I am unsure if everything here is available should a header file and CMake linkage be used in the future...
+ *
+ * The second set are the standard C/C++ classes and functions.
+*/
+
+// ROS classes/functions
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/Twist.h>
 #include <tf/transform_datatypes.h>
@@ -18,6 +39,7 @@
 #include <ros/console.h>
 #include "ros/ros.h"
 
+// STD functions/classes
 #include <exception>
 #include <stdexcept>
 #include <cmath>
@@ -26,6 +48,12 @@
 // #include <stdio.h>
 #include <iostream>
 
+
+/**
+ * =================
+ * === CONSTANTS ===
+ * =================
+*/
 #ifndef BUMPER_TOPIC
 #define BUMPER_TOPIC "mobile_base/events/bumper"
 #endif
@@ -82,6 +110,13 @@ namespace Team1 {
             float angle_min = 0, angle_max = 0, angle_increment = 0, range_min = 0, range_max = 0;
             std::vector<float> ranges; //, intensities;
 
+            /**
+             * === Robot calibration variables ===
+             * ~param linear_calibration will be applied during linear motion, to adjust for any difference in power
+             * from left to right wheel
+            */
+            double linear_calibration = 0;
+
 
             /* === SUBSCRIPTION CALLBACKS === */
             /**
@@ -96,15 +131,17 @@ namespace Team1 {
                 range_min = msg->range_min;
                 range_max = msg->range_max;
 
-                // Calculate number of laser points in scan
-                n_lasers = (angle_min - angle_max) / angle_increment;
-
                 // ranges apparently implemented as a vector...
                 // std::cout << "INCOMING ranges: " << msg->ranges.size() << "\n";
                 ranges.assign(msg->ranges.begin(), msg->ranges.end());
                 // ranges.assign(msg->ranges, msg->ranges + n_lasers);
                 // Ignore this field - constantly empty...
                 // intensities.assign(msg->intensities.begin(), msg->intensities.end()); // intensities.assign(msg->intensities, msg->intensities + n_lasers);
+
+                // Calculate number of laser points in scan
+                // n_lasers = (angle_min - angle_max) / angle_increment;
+                // Get n_lasers from the ranges vector
+                n_lasers = ranges.size();
             }
 
             /**
@@ -113,15 +150,17 @@ namespace Team1 {
              * This topic displays the robot's position and velocity relative to it's "global" coordinates.
              *
              * @param msg the incoming Odometry message
+             *
+             * NOTE: Flip pos_theta and vel_theta to make them clockwise-positive.
             */
             void odomCallback( const nav_msgs::Odometry::ConstPtr& msg ) {
                 pos_x     = msg->pose.pose.position.x;
                 pos_y     = msg->pose.pose.position.y;
-                pos_theta = RAD2DEG( tf::getYaw(msg->pose.pose.orientation) );
+                pos_theta = - RAD2DEG( tf::getYaw(msg->pose.pose.orientation) );
 
                 vel_x     = msg->twist.twist.linear.x;
                 vel_y     = msg->twist.twist.linear.y;
-                vel_theta = RAD2DEG( msg->twist.twist.angular.z );
+                vel_theta = - RAD2DEG( msg->twist.twist.angular.z );
             }
 
             /**
@@ -130,14 +169,17 @@ namespace Team1 {
              * This topic displays what velocity the robot (should) be going with respect to it's base (ie. fwd/clockwise).
              *
              * @param msg Twist object from the topic
+             *
+             * NOTE: Flip vel_clock_act to make it clockwise-positive.
             */
             void velocityCallback( const geometry_msgs::Twist::ConstPtr& msg ) {
                 vel_fwd_act   = msg->linear.x;
-                vel_clock_act = msg->angular.z;
+                vel_clock_act = - (msg->angular.z);
             }
 
             /**
              * bumperCallback runs on the /mobile_base/events/bumper topic, updating to reflect state of bumpers
+             *
              * @param msg the incoming bumper message
             */
             void bumperCallback( const kobuki_msgs::BumperEvent::ConstPtr& msg ) {
@@ -273,6 +315,19 @@ namespace Team1 {
                 stopMotion();
             }
 
+            /** === MOTION CONTROL === */
+            /**
+             * setMotion will set and publish the velocity components relative to the turtlebot base
+             *
+             * @param fwd_speed   is the linear speed (in m/s) to travel forwards
+             * @param clock_speed is the angular speed (in rad/s) to travel clockwise
+            */
+            void setMotion( double fwd_speed, double clock_speed ) {
+                motion_set.linear.x  = fwd_speed;
+                motion_set.angular.z = -clock_speed; // Adjust for wrong direction of rotation...
+                publishVelocity();
+            }
+
         public:
             /* === PUBLIC GETTERS === */
             double getX()     { return pos_x; }
@@ -304,7 +359,17 @@ namespace Team1 {
             uint32_t getNLasers() { return n_lasers; }
 
             const std::vector<float>& getRanges()      { return ranges; }
-            // const std::vector<float>& getIntensities() { return intensities; }
+
+            /* === PUBLIC SETTERS === */
+            /**
+             * calibrateLinearMotion
+             *
+             * Add a clockwise rotation speed to adjust for any mismatch in power between left and right wheels.
+             * Will be applied as a factor to the linear speed to set the rotational speed for motion.
+             *
+             * @param clockwise_offset  [(deg/s) / (m/s)]
+            */
+            void calibrateLinearMotion( double clockwise_offset ) { linear_calibration = DEG2RAD(clockwise_offset); }
 
             /* === LASER METHODS === */
             /**
@@ -344,18 +409,6 @@ namespace Team1 {
 
             /* === MOTION CONTROL === */
             /**
-             * setMotion will set and publish the velocity components relative to the turtlebot base
-             *
-             * @param fwd_speed   is the linear speed (in m/s) to travel forwards
-             * @param clock_speed is the angular speed (in rad/s) to travel clockwise
-            */
-            void setMotion( double fwd_speed, double clock_speed ) {
-                motion_set.linear.x  = fwd_speed;
-                motion_set.angular.z = clock_speed;
-                publishVelocity();
-            }
-
-            /**
              * stopMotion will stop all motion of the robot
             */
             void stopMotion( void ) {
@@ -368,7 +421,7 @@ namespace Team1 {
              * @param velocity linear velocity [m/s]
             */
             void jogForwards( double velocity ) {
-                setMotion( velocity, 0 );
+                setMotion( velocity, linear_calibration * velocity );
             }
 
             /**
@@ -380,7 +433,7 @@ namespace Team1 {
             void jogForwardsSafe( double velocity ) {
                 if ( (velocity > 0) && getBumperAny() )
                     throw BumperException();
-                setMotion( velocity, 0 );
+                setMotion( velocity, linear_calibration * velocity );
             }
 
             /**
@@ -529,6 +582,18 @@ namespace Team1 {
                 if ( angle > 0 )
                     return -360 + angle;
                 return angle;
+            }
+
+            /**
+             * getAngleToLaserPoint returns the angle from the center of the laser scan to a laser point in the scane
+             * NOTE: No overflow handling implemented...
+             *
+             * @param  laserpoint_index  index in vector of the laserpoint to face towards
+             * @throws std::out_of_range when laserpoint_index is not in the vector
+            */
+            double getAngleToLaserPoint( unsigned int laserpoint_index ) {
+                if ( laserpoint_index >= ranges.size() ) throw std::out_of_range("[Robot::getAngleToLaserPoint] -> The laserpoint_index cannot be larger than the number of laser scan points.");
+                return getAngleMin() + (laserpoint_index * getAngleIncrement());
             }
 
             /**
