@@ -78,7 +78,16 @@ void avoidObstacles(Team1::Robot& robot) {
     const float MAX_DISTANCE = 0.5; // Maximum distance to consider an obstacle
 
     // Check if an obstacle is detected within the specified range
-    if (obstacleDetected(robot.getRanges(), MIN_DISTANCE, MAX_DISTANCE)) {
+    const std::vector<float> the_vector = robot.getRanges();
+    float middle_value;
+    if (!the_vector.empty()) {
+        middle_value = the_vector[the_vector.size() / 2];
+        std::cout << "Middle value: " << middle_value << std::endl;
+    } else {
+        std::cout << "Vector is empty!" << std::endl;
+    }
+        
+    if (obstacleDetected(middle_value, MIN_DISTANCE, MAX_DISTANCE)) {
         // Obstacle detected, stop and turn
         robot.stopMotion();
         // Turn away from the obstacle
