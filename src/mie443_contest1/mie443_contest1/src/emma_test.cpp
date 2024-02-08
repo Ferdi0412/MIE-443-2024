@@ -71,26 +71,83 @@ static std::chrono::time_point<std::chrono::system_clock> program_start;
 
 static const unsigned long long program_duration = 10;
 
+double printVectorFloats( const std::vector<float>& the_vector ) {
+    // std::cout << the_vector.size();
+    double midValue;
+    //for ( const float& val : the_vector )
+    //    std::cout << val << "; ";
+    std::cout << "\n";
+    midValue = the_vector[the_vector.size()/2];
+    //for ( const float& val : the_vector )
+    //    std::cout << val << "; ";
+    std::cout << midValue;
+    return midValue;
+}
+
+double printVectorEnds( const std::vector<float>& the_vector ) {
+    // std::cout << the_vector.size();
+    double RightEnd, LeftEnd;
+    LeftEnd = the_vector[the_vector.size()];
+    RightEnd = the_vector[1];
+    return RightEnd,LeftEnd;
+}
+/*
 double laserEnd(Team1::Robot& robot){
-    float center_point = 0;
+    double center_point = 0;
     if ( robot.getRanges().size() > 0 )
         center_point = robot.getRanges()[robot.getNLasers()/2];
-    ROS_INFO("Laser number: ", center_point);
+    ROS_INFO("Laser number: %d ranges: %d", center_point);
     return center_point;
+}
+*/
+
+int genRandom(){
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distr(-90,90);
+    std::cout << "Random direc is: ",(int) distr(gen);
+    return (int) distr(gen);
+}
+
+void rotateAfterBumper(Team1::Robot& robot){
+            if (robot.getBumperLeft() == true){
+                robot.moveForwards(-0.25,0.2);
+                robot.rotateClockwiseBy(60, -45);
+            }
+            else if (robot.getBumperLeft() == true){
+                robot.moveForwards(-0.25,0.2);
+                robot.rotateClockwiseBy(60, 45);
+            }
+            else {
+            robot.moveForwards(-0.25,0.2);
+}
 }
 
 void randomBias(Team1::Robot& robot){
 
     while (ros::ok){
-    randDirection = rand() % 180 + -180;
-    std::cout << randDirection;
-    robot.rotateClockwiseBy(30, randDirection);
-    robot.moveForwards(0.25,laserEnd(robot)-0.2);
-    if (laserEnd(robot) < 0.2){
-    robot.rotateClockwiseBy(30, randDirection);
+    robot.spinOnce();
+    while (printVectorFloats(robot.getRanges()) > 0.4){
+        std::cout << "distance is";
+        std::cout << printVectorFloats(robot.getRanges());
+        try {
+            robot.moveForwards(0.3,printVectorFloats(robot.getRanges()) - 0.4 );
+        }
+        catch (BumperException){
+            rotateAfterBumper(robot);
+        }
+        }
+        robot.spinOnce();
+        try {
+        robot.rotateClockwiseBy(80, genRandom());
+        }
+        catch (BumperException){
+            rotateAfterBumper(robot);
+        }
+    ROS_INFO("direction is: %i", genRandom());
     }
+    robot.stopMotion();
     }
-}
 
 /**
  * printLaserScan
