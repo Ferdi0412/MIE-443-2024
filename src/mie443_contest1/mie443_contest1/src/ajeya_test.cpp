@@ -20,8 +20,8 @@ int main(int argc, char **argv) {
     // Create a Robot object
     Team1::Robot robot(nh, 10); // Spin frequency of 10 Hz
 
-    try {
-        // Start exploration
+    // try {
+    //     // Start exploration
         while (ros::ok()) {
             // Move forwards
             robot.jogForwardsSafe(0.2); // Adjust speed as needed
@@ -50,10 +50,10 @@ int main(int argc, char **argv) {
             robot.sleepFor(0.1); // Adjust as needed
             // Team1::checkBumpers();
         }
-    } catch (const BumperException& e) {
-        // Handle bumper collision
-        ROS_WARN("Bumper collision detected. Stopping exploration.");
-    }
+    // } catch (const BumperException& e) {
+    //     // Handle bumper collision
+    //     ROS_WARN("Bumper collision detected. Stopping exploration.");
+    // }
 
     // Stop motion before exiting
     robot.stopMotion();
