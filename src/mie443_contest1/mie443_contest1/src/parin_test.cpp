@@ -85,7 +85,7 @@ void avoidObstacles(Team1::Robot& robot) {
         robot.rotateClockwiseBy(20, -45);
     } else {
         // No obstacle detected, continue moving forward
-        robot.moveForwards(0.2);
+        robot.moveForwards(0.5,1);
     }
 }
 
@@ -112,14 +112,14 @@ int main ( int argc, char **argv ) {
         std::cout << "Ranges:\n";
         printVectorFloats( robot.getRanges() );
         std::cout << "N Lasers: " << robot.getNLasers() << "\n";
-        try {
-            robot.checkBumpers();
-        } catch ( BumperException& exc ) { }
+        //try {
+        //      robot.checkBumpers();
+        //} catch ( BumperException& exc ) { }
         
         robot.spinOnce();
         ROS_INFO("Position: %.2f\nSpeed: %.2f\n", robot.getTheta(), robot.getVelTheta());
         // Check for obstacles and avoid them
-        avoidObstacles(robot);
+        //avoidObstacles(robot);
         robot.sleepOnce();
     }
 
@@ -141,7 +141,9 @@ uint16_t secondsElapsed( void ) {
 }
 
 void printVectorFloats( const std::vector<float>& the_vector ) {
-    std::cout << the_vector.size();
+    // std::cout << the_vector.size();
+    for ( unsigned int i = 0; i < the_vector.size(); i++ )
+        std::cout << the_vector[i] << "; ";
     //for ( const float& val : the_vector )
     //    std::cout << val << "; ";
     std::cout << "\n";
