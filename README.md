@@ -1,5 +1,5 @@
 # MIE-443-2024
-Project for Thursday Team 1 for MIE443 in Winter 2023/2024. This assumes you are using Ubuntu 16.04, and ROS-Kinetic, with course-provided dependencies installed.
+Project for Thursday Team 1 for MIE443 in Winter 2023/2024. This assumes you are using Ubuntu 16.04, and ROS-Kinetic, with course-provided dependencies installed. [NOTE TO SELF] Next time declare a single priv-test.cpp file, so that everyone is not constantly compiling each others' files.
 
 ## Deadlines
 | Date         | Item |
