@@ -84,12 +84,16 @@ double printVectorFloats( const std::vector<float>& the_vector ) {
     return midValue;
 }
 
-double printVectorEnds( const std::vector<float>& the_vector ) {
+double printVectorAvg( const std::vector<float>& the_vector ) {
     // std::cout << the_vector.size();
-    double RightEnd, LeftEnd;
-    LeftEnd = the_vector[the_vector.size()];
-    RightEnd = the_vector[1];
-    return RightEnd,LeftEnd;
+    double laserAvg;
+    int sum;
+      // std::cout << the_vector.size()
+    for (unsigned int i = 0; i < the_vector.size(); i++){
+        sum = sum + the_vector[i];
+        }
+    laserAvg = sum / the_vector.size();
+    return laserAvg;
 }
 /*
 double laserEnd(Team1::Robot& robot){
@@ -121,23 +125,47 @@ void rotateAfterBumper(Team1::Robot& robot){
             else {
             robot.moveForwards(-0.25,0.2);
 }
+    robot.spinOnce();
+}
+
+void scanForArea(Team1::Robot& robot){
+    robot.spinOnce();
+    int maxArr[6];
+    double bestDir;
+    double longLength;
+    for (unsigned int i=0; i<180;  i=i+30){
+        robot.rotateClockwiseBy(60, i);
+        robot.spinOnce();
+        maxArr[i] = printVectorAvg(robot.getRanges());
+        }
+    for (unsigned int n=0;n<6; n++){
+        if (maxArr[n] > longLength){
+            longLength = maxArr[n];
+                bestDir = n*30;
+        }
+    }
+
 }
 
 void randomBias(Team1::Robot& robot){
 
     while (ros::ok){
     robot.spinOnce();
-    while (printVectorFloats(robot.getRanges()) > 0.4){
+    if (printVectorFloats(robot.getRanges()) > 0.4){
         std::cout << "distance is";
         std::cout << printVectorFloats(robot.getRanges());
         try {
             robot.moveForwards(0.3,printVectorFloats(robot.getRanges()) - 0.4 );
+            std:: cout << "Hmm why";
+            std:: cout << printVectorFloats(robot.getRanges()) - 0.4;
         }
         catch (BumperException){
             rotateAfterBumper(robot);
         }
         }
-        robot.spinOnce();
+    else if (printVectorFloats(robot.getRanges()) > 0.4){
+        scanForArea(robot);
+    }
         try {
         robot.rotateClockwiseBy(80, genRandom());
         }
