@@ -4,6 +4,7 @@
 #include <chrono>
 #include <stdint.h>
 #include <stdio.h>
+#include <random>
 
 // ROS imports
 #include <ros/console.h>
@@ -70,6 +71,35 @@ static std::chrono::time_point<std::chrono::system_clock> program_start;
 
 static const unsigned long long program_duration = 10;
 
+double laserEnd(Team1::Robot& robot){
+    float center_point = 0;
+    if ( robot.getRanges().size() > 0 )
+        center_point = robot.getRanges()[robot.getNLasers()/2];
+    ROS_INFO("Laser number: ", center_point);
+    return center_point;
+}
+
+void randomBias(Team1::Robot& robot){
+
+    while (ros::ok){
+    randDirection = rand() % 180 + -180;
+    std::cout << randDirection;
+    robot.rotateClockwiseBy(30, randDirection);
+    robot.moveForwards(0.25,laserEnd(robot)-0.2);
+    if (laserEnd(robot) < 0.2){
+    robot.rotateClockwiseBy(30, randDirection);
+    }
+    }
+}
+
+/**
+ * printLaserScan
+ * 
+ * @param laser_vector the output from the robot.getRanges() method
+*/
+
+
+
 
 /**
  * ============
@@ -99,28 +129,15 @@ int main ( int argc, char **argv ) {
         ROS_INFO("FAIL2");
         ros::Duration(0.5).sleep();
     }
-    randomBias(robot);
 
     program_start = std::chrono::system_clock::now();
     ROS_INFO("FAIL3");
+
+    randomBias(robot);
     // === MAIN ===
     // loop until program_duration [seconds] is reached
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
         // Main stuff here...  
-        ROS_INFO("Position: (%f,%f) degrees Range: (%f,%f) Lasers:(%d)\n",robot.getX(),robot.getY(),robot.getRangeMin(),robot.getRangeMax(),robot.getNLasers());
-        std::vector<float> ranges = robot.getRanges();
-        ROS_INFO("Ranges size: %d -> %d\n", ranges.size(), robot.getNLasers()/2);
-        float center_point = ranges [robot.getNLasers()/2];
-        ROS_INFO("Following center_point\n");
-        robot.calibrateLinearMotion(1.5);
-        try { 
-        robot.jogClockwise(0.2);
-        robot.moveForwards(0.05,0.1);
-        }
-        catch (BumperException)
-        {
-            std::cout << "Wall!!";
-        }
 
         robot.sleepOnce();
     }
@@ -139,20 +156,7 @@ int main ( int argc, char **argv ) {
  * =================================
 */
 // ========= EDIT THE FOLLOWING DEFINITION BELOW ========={}}
-void randomBias(Team1::Robot robot){
-    randDirection = rand() % 180 + -180;
-    std::cout << randDirection;
-try { 
-        robot.rotateClockwiseBy(10, randDirection);
-        robot.moveForwards(0.1,0.1);
-        }
-        catch (BumperException)
-        {
-            std::cout << "Wall!!";
-        }
 
-
-}
 void moveAndScan_example( Team1::Robot robot, double distance ) {
     double start_x = robot.getX(), start_y = robot.getY();
     robot.jogForwardsSafe( 0.2 ); // Start moving at 0.2 [m/s]
