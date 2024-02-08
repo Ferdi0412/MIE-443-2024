@@ -46,7 +46,7 @@ void printVectorFloats( const std::vector<float>& the_vector );
  * =====================
 */
 static std::chrono::time_point<std::chrono::system_clock> program_start;
-static const unsigned long long program_duration = 10;
+static const unsigned long long program_duration = 500;
 
 
 #define SPEED_HIGH 0.2
@@ -63,12 +63,10 @@ static const unsigned long long program_duration = 10;
 */
 
 // Function to check if any obstacle is within a given range
-bool obstacleDetected(const std::vector<float>& ranges, float min_distance, float max_distance) {
-    for (float range : ranges) {
-        if (range >= min_distance && range <= max_distance) {
+bool obstacleDetected(const float middle_value, float min_distance, float max_distance) {
+    if (middle_value >= min_distance && middle_value <= max_distance) {
             return true;
         }
-    }
     return false;
 }
 
@@ -79,24 +77,25 @@ void avoidObstacles(Team1::Robot& robot) {
 
     // Check if an obstacle is detected within the specified range
     const std::vector<float> the_vector = robot.getRanges();
-    float middle_value;
+    const float middle_value = the_vector[the_vector.size() / 2];
     if (!the_vector.empty()) {
-        middle_value = the_vector[the_vector.size() / 2];
         std::cout << "Middle value: " << middle_value << std::endl;
+        if (obstacleDetected(middle_value, MIN_DISTANCE, MAX_DISTANCE)) {
+            // Obstacle detected, stop and turn
+            robot.stopMotion();
+            // Turn away from the obstacle
+            robot.rotateClockwiseBy(20, -90);
+        } else {
+            // No obstacle detected, continue moving forward
+            robot.moveForwards(0.2,0.2);
+        }
     } else {
         std::cout << "Vector is empty!" << std::endl;
     }
         
-    if (obstacleDetected(middle_value, MIN_DISTANCE, MAX_DISTANCE)) {
-        // Obstacle detected, stop and turn
-        robot.stopMotion();
-        // Turn away from the obstacle
-        robot.rotateClockwiseBy(20, -45);
-    } else {
-        // No obstacle detected, continue moving forward
-        robot.moveForwards(0.5,1);
-    }
+    
 }
+
 
 int main ( int argc, char **argv ) {
     // ROS setup
@@ -128,7 +127,7 @@ int main ( int argc, char **argv ) {
         robot.spinOnce();
         ROS_INFO("Position: %.2f\nSpeed: %.2f\n", robot.getTheta(), robot.getVelTheta());
         // Check for obstacles and avoid them
-        //avoidObstacles(robot);
+        avoidObstacles(robot);
         robot.sleepOnce();
     }
 
