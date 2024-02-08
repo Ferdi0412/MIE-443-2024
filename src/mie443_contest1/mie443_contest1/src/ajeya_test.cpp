@@ -48,8 +48,9 @@ int main(int argc, char **argv) {
 
             // Sleep for a short duration before next iteration
             robot.sleepFor(0.1); // Adjust as needed
+            // Team1::checkBumpers();
         }
-    } catch (const Team1::BumperException& e) {
+    } catch (const BumperException& e) {
         // Handle bumper collision
         ROS_WARN("Bumper collision detected. Stopping exploration.");
     }
