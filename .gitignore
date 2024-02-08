@@ -18,6 +18,10 @@ priv-*
 ## Ignore compile_commands
 */compile_commands.json
 
+## Ignore various linux "temporary" files
+*.swp
+*.swo
+
 # Prerequisites
 *.d
 
