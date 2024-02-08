@@ -26,7 +26,7 @@ The values are exposed through methods.
 In order to ensure the values are up-to-date, use the spinOnceROS function to handle subscriptions and propogate changes to topics.
 
 ```C++
-robot.spinOnceROS();
+robot.spinOnce();
 ```
 
 ### Position
