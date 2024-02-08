@@ -46,8 +46,8 @@ void printVectorFloats( const std::vector<float>& the_vector );
  * =====================
 */
 static std::chrono::time_point<std::chrono::system_clock> program_start;
-
 static const unsigned long long program_duration = 10;
+
 
 #define SPEED_HIGH 0.2
 // #define ROT_HIGH 0.2
@@ -62,60 +62,30 @@ static const unsigned long long program_duration = 10;
  * @param argv string params used when starting program  (ignore but keep)
 */
 
-
-// Function to determine if a value is within a given range
-bool withinRange(float value, float min, float max) {
-    return (value >= min && value <= max);
-}
-
-// Function to determine if there is an obstacle in a specific range of laser scans
-bool obstacleDetected(const std::vector<float>& ranges, int start_index, int end_index, float min_range, float max_range) {
-    for (int i = start_index; i <= end_index; ++i) {
-        if (withinRange(ranges[i], min_range, max_range)) {
+// Function to check if any obstacle is within a given range
+bool obstacleDetected(const std::vector<float>& ranges, float min_distance, float max_distance) {
+    for (float range : ranges) {
+        if (range >= min_distance && range <= max_distance) {
             return true;
         }
     }
     return false;
 }
 
-// Wall following algorithm
-void wallFollow(Team1::Robot& robot) {
-    float desired_distance = 0.5; // Desired distance from the wall
-    float min_follow_distance = 0.2; // Minimum distance to follow the wall
-    float max_follow_distance = 0.8; // Maximum distance to follow the wall
+// Function to make the robot avoid obstacles
+void avoidObstacles(Team1::Robot& robot) {
+    const float MIN_DISTANCE = 0.3; // Minimum distance to consider an obstacle
+    const float MAX_DISTANCE = 0.5; // Maximum distance to consider an obstacle
 
-    while (ros::ok()) {
-        // Get laser scan data
-        const std::vector<float>& ranges = robot.getRanges();
-        int n_lasers = robot.getNLasers();
-
-        // Check if there's an obstacle on the right
-        bool obstacle_right = obstacleDetected(ranges, 0, n_lasers / 4, 0, min_follow_distance);
-
-        // Check if there's an obstacle ahead
-        bool obstacle_front = obstacleDetected(ranges, n_lasers / 4, 3 * n_lasers / 4, 0, desired_distance);
-
-        // Check if there's an obstacle on the left
-        bool obstacle_left = obstacleDetected(ranges, 3 * n_lasers / 4, n_lasers - 1, 0, min_follow_distance);
-
-        // If there's an obstacle on the right or front, turn left
-        if (obstacle_right || obstacle_front) {
-            robot.rotateClockwiseBy(20,-90);
-            robot.moveForwards(0.2,0.5); 
-        }
-        // If there's an obstacle on the left, turn right
-        else if (obstacle_left) {
-            robot.rotateClockwiseBy(20,90);
-            robot.moveForwards(0.2,0.5);
-        }
-        // Otherwise, continue forward
-        else {
-            robot.moveForwards(0.2,0.5);
-        }
-
-        // Spin once and sleep
-        robot.spinOnce();
-        ros::Duration(0.1).sleep();
+    // Check if an obstacle is detected within the specified range
+    if (obstacleDetected(robot.getRanges(), MIN_DISTANCE, MAX_DISTANCE)) {
+        // Obstacle detected, stop and turn
+        robot.stopMotion();
+        // Turn away from the obstacle
+        robot.rotateClockwiseBy(20, -45);
+    } else {
+        // No obstacle detected, continue moving forward
+        robot.moveForwards(0.2);
     }
 }
 
@@ -138,12 +108,6 @@ int main ( int argc, char **argv ) {
     // GLOBAL params setup
     program_start = std::chrono::system_clock::now();
 
-
-    // ROS_INFO("Angle from 10 degrees: %.2f", robot.getAngleTo(10));
-    // ROS_INFO("Angle from -90 degrees: %.2f", robot.getAngleTo(-90));
-    // ROS_INFO("Angle to relative point 10, 10: %.2f", robot.getAngleToRelativePoint(10, 10));
-    // ROS_INFO("Angle to abs point 10, 10: %.2f", robot.getAngleToPoint(10, 10));
-
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
         std::cout << "Ranges:\n";
         printVectorFloats( robot.getRanges() );
@@ -154,8 +118,8 @@ int main ( int argc, char **argv ) {
         
         robot.spinOnce();
         ROS_INFO("Position: %.2f\nSpeed: %.2f\n", robot.getTheta(), robot.getVelTheta());
-        // Start wall following algorithm
-        wallFollow(robot);
+        // Check for obstacles and avoid them
+        avoidObstacles(robot);
         robot.sleepOnce();
     }
 
