@@ -39,6 +39,7 @@ int main(int argc, char **argv) {
                         break;
                     }
                 }
+// fuck
 
                 // If obstacle detected, rotate to avoid it
                 if (obstacle_detected) {
