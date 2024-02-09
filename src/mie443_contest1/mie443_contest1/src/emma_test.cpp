@@ -71,6 +71,35 @@ static std::chrono::time_point<std::chrono::system_clock> program_start;
 
 static const unsigned long long program_duration = 10;
 
+<<<<<<< HEAD
+double printVectorFloats( const std::vector<float>& the_vector ) {
+    // std::cout << the_vector.size();
+    double midValue;
+    //for ( const float& val : the_vector )
+    //    std::cout << val << "; ";
+    std::cout << "\n";
+    midValue = the_vector[the_vector.size()/2];
+    //for ( const float& val : the_vector )
+    //    std::cout << val << "; ";
+    std::cout << midValue;
+    return midValue;
+}
+
+double printVectorAvg( const std::vector<float>& the_vector ) {
+    // std::cout << the_vector.size();
+    float laserAvg;
+    float sum;
+      // std::cout << the_vector.size()
+    for (unsigned int i = 0; i < 640; i++){
+        sum = sum + (the_vector[i]);
+        }
+    laserAvg = sum / 640;
+    ROS_INFO("LASER AVG IS PRINTED");
+    return laserAvg;
+}
+/*
+=======
+>>>>>>> 1eba0eeb4d593606591530e8184ed672ec474685
 double laserEnd(Team1::Robot& robot){
     float center_point = 0;
     if ( robot.getRanges().size() > 0 )
@@ -78,10 +107,98 @@ double laserEnd(Team1::Robot& robot){
     ROS_INFO("Laser number: ", center_point);
     return center_point;
 }
+<<<<<<< HEAD
+*/
+
+int genRandom(){
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distr(-90,90);
+    std::cout << "Random direc is: ",(int) distr(gen);
+    return (int) distr(gen);
+}
+
+void rotateAfterBumper(Team1::Robot& robot){ //tests
+            if (robot.getBumperRight() == true){
+                robot.moveForwards(-0.25,0.2);
+                robot.rotateClockwiseBy(60, -45);
+            }
+            else if (robot.getBumperLeft() == true){
+                robot.moveForwards(-0.25,0.2);
+                robot.rotateClockwiseBy(60, 45);
+            }
+            else {
+            robot.moveForwards(-0.25,0.2);
+            robot.rotateClockwiseBy(80,genRandom());
+}
+    robot.spinOnce();
+}
+
+int scanForArea(Team1::Robot& robot){
+    ROS_INFO("SCANNING");
+    robot.spinOnce();
+    int maxArr[4];
+    int bestDir;
+    int scanArray[6] = {-90,-60, 30, 60, 30, 30};
+    double longLength = 0;
+    for (unsigned int i=0; i<4;  i++){
+        robot.rotateClockwiseBy(60, scanArray[i]);
+        robot.spinOnce();
+        maxArr[i] = printVectorAvg(robot.getRanges());
+        }
+    int n = 0;
+    for (unsigned int n=0;n<4; n++){
+        if (longLength > maxArr[n]){
+            longLength = maxArr[n];
+            if (n > 2){
+                bestDir = n *-30;}
+            
+            else {bestDir = ((5-n) *-30) + 30;
+            }
+
+            }
+        }
+    
+    ROS_INFO("Direction to go: %d", bestDir);
+    return bestDir;
+
+}
+=======
+>>>>>>> 1eba0eeb4d593606591530e8184ed672ec474685
 
 void randomBias(Team1::Robot& robot){
-
+    ROS_INFO("Phase 3.1");
     while (ros::ok){
+<<<<<<< HEAD
+    robot.spinOnce();
+    if (printVectorFloats(robot.getRanges()) > 0.5){
+         ROS_INFO("Distance > 0.4");
+        std::cout << "distance is";
+        std::cout << printVectorFloats(robot.getRanges());
+        try {
+            robot.moveForwards(0.25,printVectorFloats(robot.getRanges()) - 0.5 );
+            ROS_INFO("Moving Forward");
+        }
+        catch (BumperException){
+            ROS_INFO("Caught Bumper");
+            rotateAfterBumper(robot);
+        }
+        }
+    else {
+         ROS_INFO("Distance is less than 0.4");
+        //scanForArea(robot);
+        try {
+             ROS_INFO("Scanning");
+        scanForArea(robot);
+        }
+        catch (BumperException){
+             ROS_INFO("Caught Bumper");
+            rotateAfterBumper(robot);
+        }
+    }
+    }
+    robot.stopMotion();
+=======
     randDirection = rand() % 180 + -180;
     std::cout << randDirection;
     robot.rotateClockwiseBy(30, randDirection);
@@ -89,6 +206,7 @@ void randomBias(Team1::Robot& robot){
     if (laserEnd(robot) < 0.2){
     robot.rotateClockwiseBy(30, randDirection);
     }
+>>>>>>> 1eba0eeb4d593606591530e8184ed672ec474685
     }
 }
 
@@ -122,18 +240,19 @@ int main ( int argc, char **argv ) {
     ros::Duration(0.5).sleep(); // Sleep to ensure is initialized correctly
     robot.spinOnce();
     
-    ROS_INFO("fAIL1"); 
+    ROS_INFO("Phase 1"); 
 
     while ( ros::ok() && robot.getRanges().size() == 0 ) {
         robot.spinOnce();
-        ROS_INFO("FAIL2");
+        ROS_INFO("Phase 2");
         ros::Duration(0.5).sleep();
     }
 
     program_start = std::chrono::system_clock::now();
-    ROS_INFO("FAIL3");
+    ROS_INFO("Phase 3");
 
     randomBias(robot);
+     ROS_INFO("Phase 4");
     // === MAIN ===
     // loop until program_duration [seconds] is reached
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
