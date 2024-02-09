@@ -62,40 +62,51 @@ static const unsigned long long program_duration = 500;
  * @param argv string params used when starting program  (ignore but keep)
 */
 
-// Function to check if any obstacle is within a given range
-bool obstacleDetected(const float middle_value, float min_distance, float max_distance) {
-    if (middle_value >= min_distance && middle_value <= max_distance) {
-            return true;
-        }
-    return false;
-}
-
 // Function to make the robot avoid obstacles
-void avoidObstacles(Team1::Robot& robot) {
+bool avoidObstacles(Team1::Robot& robot) {
     const float MIN_DISTANCE = 0.3; // Minimum distance to consider an obstacle
-    const float MAX_DISTANCE = 0.5; // Maximum distance to consider an obstacle
+    const float MAX_DISTANCE = 0.6; // Maximum distance to consider an obstacle
 
     // Check if an obstacle is detected within the specified range
     const std::vector<float> the_vector = robot.getRanges();
-    const float middle_value = the_vector[the_vector.size() / 2];
     if (!the_vector.empty()) {
-        std::cout << "Middle value: " << middle_value << std::endl;
-        if (obstacleDetected(middle_value, MIN_DISTANCE, MAX_DISTANCE)) {
-            // Obstacle detected, stop and turn
+        const float middle_value = the_vector[the_vector.size() / 2];
+        std::cout << "Middle Value: " << middle_value << std::endl;
+        if (middle_value <= MAX_DISTANCE){
+            ROS_INFO("STOP and TURN");
+            //Obstacle detected STOP
             robot.stopMotion();
-            // Turn away from the obstacle
-            robot.rotateClockwiseBy(20, -90);
-        } else {
-            // No obstacle detected, continue moving forward
-            robot.moveForwards(0.2,0.2);
+            //Turn away from the obstacle
+            robot.rotateClockwiseBy(50,-45);
+            return true;
+        } else{
+            //No obstacle detected, MoVE FORWARD
+            robot.moveForwards(0.2,0.3);
+            ROS_INFO("Move forward");
+            return true;
         }
     } else {
         std::cout << "Vector is empty!" << std::endl;
+        return false;
     }
-        
-    
 }
 
+void rotateAfterBumper(Team1::Robot& robot){
+            if (robot.getBumperRight() == true){
+                robot.moveForwards(-0.25,0.2);
+                robot.rotateClockwiseBy(60, -45);
+            }
+            else if (robot.getBumperLeft() == true){
+                robot.moveForwards(-0.25,0.2);
+                robot.rotateClockwiseBy(60, 45);
+            }
+            else {
+            robot.moveForwards(-0.25,0.2);
+}
+    robot.spinOnce();
+}
+
+bool movement = true;
 
 int main ( int argc, char **argv ) {
     // ROS setup
@@ -116,18 +127,26 @@ int main ( int argc, char **argv ) {
     // GLOBAL params setup
     program_start = std::chrono::system_clock::now();
 
-    while ( ros::ok() && secondsElapsed() <= program_duration ) {
+    while ( ros::ok() && secondsElapsed() <= program_duration && movement == true ) {
         std::cout << "Ranges:\n";
         printVectorFloats( robot.getRanges() );
         std::cout << "N Lasers: " << robot.getNLasers() << "\n";
-        //try {
-        //      robot.checkBumpers();
-        //} catch ( BumperException& exc ) { }
+        try {
+              robot.checkBumpers();
+        } catch ( BumperException) {
+            rotateAfterBumper(robot);
+         }
         
         robot.spinOnce();
         ROS_INFO("Position: %.2f\nSpeed: %.2f\n", robot.getTheta(), robot.getVelTheta());
         // Check for obstacles and avoid them
-        avoidObstacles(robot);
+        try {
+              robot.checkBumpers();
+              movement = avoidObstacles(robot);
+        } catch ( BumperException) {
+            rotateAfterBumper(robot);
+        }
+        
         robot.sleepOnce();
     }
 
