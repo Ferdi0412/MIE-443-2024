@@ -25,7 +25,7 @@ catkin_make
 # GAZEBO           -> Terminal 1
 roslaunch mie443_contest1 turtlebot_world.launch world:=1
 # ROBOT            -> Terminal 1
-...
+roslaunch turtlebot_bringup minimal.launch
 # Script           -> Terminal 2
 rosrun mie443_contest1 contest1
 # GMAPPING         -> Termianl 3
