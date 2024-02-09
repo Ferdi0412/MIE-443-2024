@@ -183,9 +183,7 @@ void randomBias(Team1::Robot& robot){
     }
     }
     robot.stopMotion();
-
     }
-}
 
 /**
  * printLaserScan
