@@ -129,12 +129,15 @@ int main ( int argc, char **argv ) {
 
     while ( ros::ok() && secondsElapsed() <= program_duration && movement == true ) {
         std::cout << "Ranges:\n";
-        printVectorFloats( robot.getRanges() );
+        // printVectorFloats( robot.getRanges() );
         std::cout << "N Lasers: " << robot.getNLasers() << "\n";
         try {
               robot.checkBumpers();
         } catch ( BumperException) {
-            rotateAfterBumper(robot);
+            try{
+                rotateAfterBumper(robot);
+            } catch(BumperException){
+            }
          }
         
         robot.spinOnce();
@@ -144,7 +147,10 @@ int main ( int argc, char **argv ) {
               robot.checkBumpers();
               movement = avoidObstacles(robot);
         } catch ( BumperException) {
-            rotateAfterBumper(robot);
+            try{
+                rotateAfterBumper(robot);
+            } catch(BumperException){
+            }
         }
         
         robot.sleepOnce();
