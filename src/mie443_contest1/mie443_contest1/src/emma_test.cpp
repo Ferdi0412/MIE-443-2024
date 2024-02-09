@@ -71,7 +71,6 @@ static std::chrono::time_point<std::chrono::system_clock> program_start;
 
 static const unsigned long long program_duration = 10;
 
-<<<<<<< HEAD
 double printVectorFloats( const std::vector<float>& the_vector ) {
     // std::cout << the_vector.size();
     double midValue;
@@ -97,18 +96,6 @@ double printVectorAvg( const std::vector<float>& the_vector ) {
     ROS_INFO("LASER AVG IS PRINTED");
     return laserAvg;
 }
-/*
-=======
->>>>>>> 1eba0eeb4d593606591530e8184ed672ec474685
-double laserEnd(Team1::Robot& robot){
-    float center_point = 0;
-    if ( robot.getRanges().size() > 0 )
-        center_point = robot.getRanges()[robot.getNLasers()/2];
-    ROS_INFO("Laser number: ", center_point);
-    return center_point;
-}
-<<<<<<< HEAD
-*/
 
 int genRandom(){
     std::random_device rd;
@@ -163,13 +150,11 @@ int scanForArea(Team1::Robot& robot){
     return bestDir;
 
 }
-=======
->>>>>>> 1eba0eeb4d593606591530e8184ed672ec474685
 
 void randomBias(Team1::Robot& robot){
     ROS_INFO("Phase 3.1");
     while (ros::ok){
-<<<<<<< HEAD
+
     robot.spinOnce();
     if (printVectorFloats(robot.getRanges()) > 0.5){
          ROS_INFO("Distance > 0.4");
@@ -198,17 +183,7 @@ void randomBias(Team1::Robot& robot){
     }
     }
     robot.stopMotion();
-=======
-    randDirection = rand() % 180 + -180;
-    std::cout << randDirection;
-    robot.rotateClockwiseBy(30, randDirection);
-    robot.moveForwards(0.25,laserEnd(robot)-0.2);
-    if (laserEnd(robot) < 0.2){
-    robot.rotateClockwiseBy(30, randDirection);
     }
->>>>>>> 1eba0eeb4d593606591530e8184ed672ec474685
-    }
-}
 
 /**
  * printLaserScan
