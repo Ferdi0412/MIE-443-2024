@@ -61,4 +61,17 @@ float getSlope( const lin_approx_t& linear_object );
 float getIntercept( const lin_approx_t& linear_object );
 
 
+
+/**
+ * getMean returns the average distance in a segment of the laser_scan
+ *
+ * @param input_vector
+ * @param start_index
+ * @param end_index
+ * @returns infinity if no valid, or value if average retrieved
+*/
+float getMean( const laser_scan_t& input_vector, unsigned int start_index, unsigned int end_index )
+
+
+
 #endif

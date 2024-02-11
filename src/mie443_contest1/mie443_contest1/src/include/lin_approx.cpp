@@ -22,7 +22,39 @@ float _invalidLinApprox( void ) { return std::numeric_limits<float>::infinity();
  * Intended to be private...
  * _invalidScanElement returns true if a scan element is "invalid"
 */
-bool _invalidScanElement( float scan_element ) { return false; }
+bool _invalidScanElement( float scan_element ) {
+    return std::isnan(scan_element);
+    //return scan_element == std::numeric_limits<float>.infinity();
+}
+
+
+
+/**
+ * getMean returns the average distance in a segment of the laser_scan
+ *
+ * @param input_vector
+ * @param start_index
+ * @param end_index
+ * @returns infinity if no valid, or value if average retrieved
+*/
+float getMean( const laser_scan_t& input_vector, unsigned int start_index, unsigned int end_index ) {
+    double sum_y = 0, n_elements = 0;
+
+    if ( (end_index > input_vector.size()) || (start_index >= end_index) || (start_index >= input_vector.size()) )
+        return std::numeric_limits<float>::infinity();
+
+    for ( unsigned int i = 0; i < (end_index - start_index); i++ ) {
+        sum_y += input_vector[start_index + i];
+        n_elements++;
+    }
+
+    if ( n_elements == 0 )
+        return std::numeric_limits<float>::infinity();
+
+    return (float) (sum_y / n_elements);
+}
+
+
 
 /**
  * linearApproximation will calculate a linear approximation for the input scan vector
@@ -183,7 +215,7 @@ float getIntercept( const lin_approx_t& linear_object ) {
 
 /**
  * getRSquared will return the R-Squared value of the line
- * 
+ *
  * @param linear_object the object returned from linear_approximation
  * @returns the R-Squared value
 */

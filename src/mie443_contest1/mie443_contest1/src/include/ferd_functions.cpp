@@ -22,6 +22,11 @@
 #endif
 
 
+#ifndef NUM_SCAN_SEGM
+#define NUM_SCAN_SEGM 5
+#endif
+
+
 bool wallInFront( Team1::Robot& robot ) {
     lin_approx_t linear_approximation;
     linear_approximation = linearApproximation( robot.getRanges(), robot.getRanges().size() * 2 / 5, robot.getRanges().size() * 3 / 5);
@@ -153,6 +158,17 @@ int rotateAfterBumper( Team1::Robot& robot ) {
 
     // Otherwise return REACHED_TARGET when all movements complete
     return REACHED_TARGET;
+}
+
+
+
+bool emptyInFront( Team1::Robot& robot ) {
+    // Return true if no valid values in scan, or all values more than a meter away
+    std::vector<float> ranges = robot.getRanges();
+    float front_mean = getMean( ranges, ranges.size() * (NUM_SCAN_SEGM / 2), ranges.size() * (NUM_SCAN_SEGM / 2) + 1 );
+    if ( front_mean == std::numeric_limits<float>::infinity() )
+        return false;
+    return front_mean < 1.;
 }
 
 
