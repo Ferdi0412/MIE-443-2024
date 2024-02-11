@@ -6,9 +6,9 @@ I will try to make a robot class for controlling the robot.
 | Deadline        | Description                                                      |
 | :------:        | :----------                                                      |
 | Feb. 2 (Fri)    | ~~Create the initial robot class.~~                              |
-| Feb. 2 (Fri)    | ~~Go through class with Parin to ensure sufficient function.   ~~|
-| Feb. 6 (Tues)   | ~~Fix and finish robot class.                                  ~~|
-| Feb. 6 (Tues)   | ~~Figure out Open-Space navigation                             ~~|
+| Feb. 2 (Fri)    | ~~Go through class with Parin to ensure sufficient function.~~   |
+| Feb. 6 (Tues)   | ~~Fix and finish robot class.~~                                  |
+| Feb. 6 (Tues)   | ~~Figure out Open-Space navigation~~                             |
 | Feb. 8 (Thurs)  | ~~Initial revision of codebase (make flag in GIT for rollback).~~|
 | Feb. 15 (Thurs) | Competition day!                                                 |
 
