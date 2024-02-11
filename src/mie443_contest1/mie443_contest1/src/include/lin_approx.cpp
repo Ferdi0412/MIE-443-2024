@@ -69,8 +69,8 @@ float getMean( const laser_scan_t& input_vector, unsigned int start_index, unsig
 */
 lin_approx_t linearApproximation( const laser_scan_t& input_vector, unsigned int start_index, unsigned int end_index ) {
     double n_elements, approx_n, sum_x, sum_y, sum_x_squared, sum_xy,
-          x_mean, y_mean, sum_res_squared, total_sum_squared,
-          slope, intercept, r_squared;
+          x_mean, y_mean, mean_squared_error,
+          slope, intercept;
     unsigned int start_offset;
 
     #ifdef DEBUG_LIN_APPROX
@@ -86,15 +86,14 @@ lin_approx_t linearApproximation( const laser_scan_t& input_vector, unsigned int
     #endif
 
     // Set aggregating variables to 0
-    n_elements        = 0;
-    sum_x             = 0;
-    sum_y             = 0;
-    sum_x_squared     = 0;
-    sum_xy            = 0;
-    sum_res_squared   = 0;
-    total_sum_squared = 0;
-    approx_n          = end_index - start_index;
-    start_offset      = start_index;
+    n_elements         = 0;
+    sum_x              = 0;
+    sum_y              = 0;
+    sum_x_squared      = 0;
+    sum_xy             = 0;
+    mean_squared_error = 0;
+    approx_n           = end_index - start_index;
+    start_offset       = start_index;
 
     // Calculate aggregates...
     for ( unsigned int i = 0; i < approx_n; i++ ) {
@@ -132,7 +131,7 @@ lin_approx_t linearApproximation( const laser_scan_t& input_vector, unsigned int
     slope     = ( sum_xy - sum_x * y_mean ) / ( sum_x_squared - sum_x * x_mean );
     intercept = y_mean - slope * x_mean;
 
-    // Calculate R-Squared
+    // Calculate mean squared error
     for ( unsigned int i = 0; i < approx_n; i++ ) {
         float curr_element, prediction;
 
@@ -142,25 +141,11 @@ lin_approx_t linearApproximation( const laser_scan_t& input_vector, unsigned int
         curr_element = input_vector[ start_offset + i ];
         prediction   = (slope * i) + intercept;
 
-        sum_res_squared   += pow(curr_element - prediction, 2);
-        total_sum_squared += pow(curr_element - y_mean,     2);
+        mean_squared_error += pow(curr_element - prediction, 2) / n_elements;
     }
 
-    // Guard against divide by 0
-    if ( total_sum_squared == 0 ) return lin_approx_t( 0, 0, _invalidLinApprox() );
-
-    #ifdef DEBUG_LIN_APPROX
-    std::cout << "DEBUG: " << "sum_res_squared: " << sum_res_squared << "; total_sum_squared: " << total_sum_squared << std::endl;
-    #endif
-
-    r_squared = 1 - (sum_res_squared / total_sum_squared);
-
-    #ifdef DEBUG_LIN_APPROX
-    std::cout << "DEBUG: " << "r_squared: " << r_squared << std::endl;
-    #endif
-
     // Typecast each from double to float...
-    return lin_approx_t( (float) slope, (float) intercept, (float) r_squared );
+    return lin_approx_t( (float) slope, (float) intercept, (float) mean_squared_error );
 }
 
 
@@ -179,15 +164,15 @@ int checkApproximationError( const lin_approx_t& linear_object ) {
  * isStraightLine will return 1 if the "line" is straight enough
  *
  * @param linear_object the object returned from linear_approximation
- * @param r_squared the threshold for determining if the line is straight
+ * @param acceptable_deviation the threshold for determining if the line is straight
  * @returns true if straight enough, otherwise false
 */
-bool isStraightLine( const lin_approx_t& linear_object, float r_squared ) {
+bool isStraightLine( const lin_approx_t& linear_object, float acceptable_deviation ) {
     // If any errors, return false
     if ( checkApproximationError(linear_object) ) return false;
 
     // If calculated R-Squared (from linear_object) is greater than threshold r_squared, return true
-    return std::get<2>(linear_object) > r_squared;
+    return std::get<2>(linear_object) >= acceptable_deviation;
 }
 
 
@@ -210,17 +195,6 @@ float getSlope( const lin_approx_t& linear_object ) {
 */
 float getIntercept( const lin_approx_t& linear_object ) {
     return std::get<1>(linear_object);
-}
-
-
-/**
- * getRSquared will return the R-Squared value of the line
- *
- * @param linear_object the object returned from linear_approximation
- * @returns the R-Squared value
-*/
-float getRSquared( const lin_approx_t& linear_object ) {
-    return std::get<2>(linear_object);
 }
 
 
