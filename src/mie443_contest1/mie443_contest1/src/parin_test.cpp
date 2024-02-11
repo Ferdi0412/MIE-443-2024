@@ -40,6 +40,11 @@ uint16_t secondsElapsed(void);
 */
 void printVectorFloats( const std::vector<float>& the_vector );
 
+Direction wall_follow(Team1::Robot& robot, Direction dir);
+int wall_parallel(Team1::Robot& robot);
+Direction avoidObstacles(Team1::Robot& robot, Direction dir);
+void rotateAfterBumper(Team1::Robot& robot);
+
 /**
  * =====================
  * === GLOBAL params ===
@@ -52,6 +57,9 @@ static const unsigned long long program_duration = 500;
 #define SPEED_HIGH 0.2
 // #define ROT_HIGH 0.2
 
+// Enum for direction
+enum Direction { LEFT, RIGHT, ANY };
+
 
 /**
  * ============
@@ -62,33 +70,95 @@ static const unsigned long long program_duration = 500;
  * @param argv string params used when starting program  (ignore but keep)
 */
 
+// ****** Wall Follow Function ***** //
+Direction wallFollow(Team1::Robot& robot, Direction dir) {
+    
+    // Parallelize with wall
+    int wall_turn = wallParallel(robot);
+    robot.spinOnce();
+
+    // Obstacle Avoidance Algorithm
+    Direction direction = avoidObstacles(robot, dir);
+    
+    return direction;
+}
+
+// ***** Parallelize Robot wrt Walls ***** //
+int wallParallel(Team1::Robot& robot) {
+
+    const float MAX_DISTANCE = 0.6;
+    // Laser scan data
+    const std::vector<float> laser_ranges = robot.getRanges();
+    const float left_value = laser_ranges[0];
+    const float right_value = laser_ranges[laser_ranges.size() - 1];
+
+    // Wall angle data
+    const float wall_angle = getWallAngleFromLaserScan();
+
+    if (wall_angle != 0){
+        if (wall_angle < 90 && right_value < left_value){
+            ROS_INFO("Turn CW");
+            turnRobotBy(robot, wall_angle);
+            return 1; //Turn CW
+        } else if (wall_angle > 90 && right_value >= left_value){
+            ROS_INFO("Turn CCW");
+            turnRobotBy(robot, -wall_angle);
+            return 2; //Turn CCW
+        }
+    } else if (wall_angle == 0) {
+        return 0; // Already parallel
+    }
+
+}
+
 // Function to make the robot avoid obstacles
-bool avoidObstacles(Team1::Robot& robot) {
+Direction avoidObstacles(Team1::Robot& robot, Direction dir) {
+
     const float MIN_DISTANCE = 0.3; // Minimum distance to consider an obstacle
     const float MAX_DISTANCE = 0.6; // Maximum distance to consider an obstacle
 
-    // Check if an obstacle is detected within the specified range
-    const std::vector<float> the_vector = robot.getRanges();
-    if (!the_vector.empty()) {
-        const float middle_value = the_vector[the_vector.size() / 2];
+    // Laser scan data
+    const std::vector<float> laser_ranges = robot.getRanges();
+
+    if (!laser_ranges.empty()) {
+
+        const float middle_value = laser_ranges[laser_ranges.size() / 2];
+        const float left_value = laser_ranges[0];
+        const float right_value = laser_ranges[laser_ranges.size() - 1];
         std::cout << "Middle Value: " << middle_value << std::endl;
-        if (middle_value <= MAX_DISTANCE){
-            ROS_INFO("STOP and TURN");
-            //Obstacle detected STOP
-            robot.stopMotion();
-            //Turn away from the obstacle
-            robot.rotateClockwiseBy(50,-45);
-            return true;
-        } else{
-            //No obstacle detected, MoVE FORWARD
-            robot.moveForwards(0.2,0.3);
-            ROS_INFO("Move forward");
-            return true;
+        std::cout << "Left Value:" << left_value << std::endl;
+        std::cout << "Right Value" << right_value << std::endl;
+
+        if (dir == ANY){
+            if (middle_value > MAX_DISTANCE){
+                ROS_INFO("Move FORWARD");
+                moveForwardsBy(robot,0.2,MAX_DISTANCE);
+                return ANY;
+            } else if (right_value >= left_value){
+                ROS_INFO("TURN RIGHT");
+                turnRobotBy(robot, 90);
+                return RIGHT;
+            } else if (right_value < left_value){
+                ROS_INFO("TURN LEFT");
+                turnRobotBy(robot, -90);
+                return LEFT;
+            }
+
+        } else if (dir == LEFT){
+            if (middle_value <= MAX_DISTANCE){
+                ROS_INFO("TURN LEFT");
+                turnRobotBy(robot, -90);
+                return LEFT;
+            }
+        } else if (dir == RIGHT){
+            if (middle_value <= MAX_DISTANCE){
+                ROS_INFO("TURN RIGHT");
+                turnRobotBy(robot, 90);
+                return RIGHT;
+            }
         }
-    } else {
-        std::cout << "Vector is empty!" << std::endl;
-        return false;
     }
+    return ANY; // Default case
 }
 
 void rotateAfterBumper(Team1::Robot& robot){
@@ -106,7 +176,8 @@ void rotateAfterBumper(Team1::Robot& robot){
     robot.spinOnce();
 }
 
-bool movement = true;
+
+
 
 int main ( int argc, char **argv ) {
     // ROS setup
@@ -126,8 +197,9 @@ int main ( int argc, char **argv ) {
 
     // GLOBAL params setup
     program_start = std::chrono::system_clock::now();
+    Direction dir = ANY;
 
-    while ( ros::ok() && secondsElapsed() <= program_duration && movement == true ) {
+    while ( ros::ok() && secondsElapsed() <= program_duration && (dir == ANY || dir == LEFT || dir == RIGHT)) {
         std::cout << "Ranges:\n";
         // printVectorFloats( robot.getRanges() );
         std::cout << "N Lasers: " << robot.getNLasers() << "\n";
@@ -145,7 +217,7 @@ int main ( int argc, char **argv ) {
         // Check for obstacles and avoid them
         try {
               robot.checkBumpers();
-              movement = avoidObstacles(robot);
+              dir = wallFollow(robot, dir);
         } catch ( BumperException) {
             try{
                 rotateAfterBumper(robot);
