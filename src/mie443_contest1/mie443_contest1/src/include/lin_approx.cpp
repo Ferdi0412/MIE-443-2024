@@ -38,7 +38,7 @@ lin_approx_t linearApproximation( const laser_scan_t& input_vector, unsigned int
 
     // Check if any input parameters are invalid...
     if ( (end_index >= input_vector.size()) || (start_index >= end_index) || (start_index >= input_vector.size()) )
-        return { 0, 0, _invalidLinApprox() };
+        return lin_approx_t( 0., 0., _invalidLinApprox() );
 
     // Set aggregating variables to 0
     n_elements        = 0;
@@ -72,10 +72,10 @@ lin_approx_t linearApproximation( const laser_scan_t& input_vector, unsigned int
     }
 
     // Check that elements were actually aggregated over...
-    if ( n_elements <= 0 ) return { 0, 0, _invalidLinApprox() };
+    if ( n_elements <= 0 ) return lin_approx_t( 0., 0., _invalidLinApprox() );
 
     // Guard against divide by 0
-    if ( (sum_x_squared - sum_x * x_mean) == 0 ) return { 0, 0, _invalidLinApprox() };
+    if ( (sum_x_squared - sum_x * x_mean) == 0 ) return lin_approx_t( 0., 0., _invalidLinApprox() );
 
     x_mean = sum_x / n_elements;
     y_mean = sum_y / n_elements;
@@ -98,12 +98,12 @@ lin_approx_t linearApproximation( const laser_scan_t& input_vector, unsigned int
     }
 
     // Guard against divide by 0
-    if ( total_sum_squared = 0 ) return { 0, 0, _invalidLinApprox() };
+    if ( total_sum_squared = 0 ) return lin_approx_t( 0, 0, _invalidLinApprox() );
 
     r_squared = 1 - sum_res_squared / total_sum_squared;
 
     // Typecast each from double to float...
-    return { (float) slope, (float) intercept, (float) r_squared };
+    return lin_approx_t( (float) slope, (float) intercept, (float) r_squared );
 }
 
 
