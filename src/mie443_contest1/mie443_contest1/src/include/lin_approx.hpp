@@ -70,7 +70,7 @@ float getIntercept( const lin_approx_t& linear_object );
  * @param end_index
  * @returns infinity if no valid, or value if average retrieved
 */
-float getMean( const laser_scan_t& input_vector, unsigned int start_index, unsigned int end_index )
+float getMean( const laser_scan_t& input_vector, unsigned int start_index, unsigned int end_index );
 
 
 
