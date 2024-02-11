@@ -23,7 +23,7 @@
  * @param laser_scan the laser scan vector
  * @returns an angle in range [-180, 180] if successful, or inf if unsuccessful (ie. no wall in front, or error)
 */
-float getWallAngleFromLaserScan( Team1::Robot& robot );
+float getWallAngleFromLaserScan( Team1::Robot& robot ); // Ajeya/ferdi
 
 
 
@@ -35,7 +35,7 @@ float getWallAngleFromLaserScan( Team1::Robot& robot );
  * @returns REACHED_TARGET if no errors, WALL_BUMPED if bumped a wall
  * @throws NOTHING -> kill all exceptions
 */
-int turnRobotBy( Team1::Robot& robot, double angle );
+int turnRobotBy( Team1::Robot& robot, double angle ); // DONE
 
 
 
@@ -48,7 +48,7 @@ int turnRobotBy( Team1::Robot& robot, double angle );
  * @returns REACHED_TARGET if target distance travelled, WALL_BUMPED if a wall was bumped, or WALL_IN_FRONT if something in laser scan
  * @throws NOTHING -> kill all exceptions
 */
-int moveForwardsBy( Team1::Robot& robot, double target_distance, float wall_distance );
+int moveForwardsBy( Team1::Robot& robot, double target_distance, float wall_distance ); // DONE
 
 
 
@@ -59,7 +59,7 @@ int moveForwardsBy( Team1::Robot& robot, double target_distance, float wall_dist
  * @param max_val
  * @returns value between the min_val and max_val
 */
-float getRandomValue( float min_val, float max_val );
+float getRandomValue( float min_val, float max_val ); // EMMA
 
 
 
@@ -67,23 +67,24 @@ float getRandomValue( float min_val, float max_val );
 enum wallDirectionEnum { left, right, any };
 
 /**
- * followWall makes the robot follow a straight segment of a wall detected in front of the robot
+ * wallFollow makes the robot follow a straight segment of a wall detected in front of the robot
  *
  * @param robot the robot object
  * @param wall_direction the side of the robot on which to keep the wall
  * @returns .... TBD
 */
-int followWall( Team1::Robot& robot, wallDirectionEnum wall_direction );
+int wallFollow( Team1::Robot& robot, wallDirectionEnum wall_direction ); // PARIN
 
 
 
-/**
- * randomMotion will complete a linear motion in a random direction
- *
- * @param robot the robot object
- * @returns ... TBD
-*/
-int randomMotion( Team1::Robot& robot );
+/** === SCRATCH randomMotion(robot)... === */
+// /**
+//  * randomMotion will complete a linear motion in a random direction
+//  *
+//  * @param robot the robot object
+//  * @returns ... TBD
+// */
+// int randomMotion( Team1::Robot& robot ); // EMMA
 
 
 
@@ -95,7 +96,7 @@ int randomMotion( Team1::Robot& robot );
  * @param max_angle the maximum acceptable clockwise-positive rotation
  * @returns .... SAME as default randomMotion
 */
-int randomMotion( Team1::Robot& robot, double min_angle, double max_angle );
+int randomMotion( Team1::Robot& robot, double min_angle, double max_angle ); // EMMA
 
 
 
@@ -105,28 +106,51 @@ int randomMotion( Team1::Robot& robot, double min_angle, double max_angle );
  * @param robot the robot object
  * @returns REACHED_TARGET if successful, WALL_BUMPED if bumped into wall when rotating...
 */
-int rotateAfterBumper( Team1::Robot& robot );
+int rotateAfterBumper( Team1::Robot& robot ); // EMMA
 
 
 
 /**
  * checkIfFacingCorner will return true if the robot is facing a 90 (or so) degree corner in the maze
 */
-bool checkIfFacingCorner( Team1::Robot& robot );
+bool checkIfFacingCorner( Team1::Robot& robot ); // AJEYA
+
+
+
+/** === SCRATCHED === */
+// /**
+//  * checkIfFacingRoundObject will return true if the robot is facing a round obstacle...
+// */
+// bool checkIfFacingRoundObject( Team1::Robot& robot );
 
 
 
 /**
- * checkIfFacingRoundObject will return true if the robot is facing a round obstacle...
+ * scanForArea will turn the robot to face the biggest opening it detects...
 */
-bool checkIfFacingRoundObject( Team1::Robot& robot );
+int scanForArea( Team1::Robot& robot ); // EMMA
 
 
 
 /**
- * turnAndScanForOpenings will turn the robot to face the biggest opening it detects...
+ * wallInFront
 */
-int turnAndScanForOpenings( Team1::Robot& robot );
+bool wallInFront( Team1::Robot& robot ); // AJEYA
+
+
+
+/**
+ * distanceToWall in front of robot
+*/
+double distanceToWall( Team1::Robot& robot ); // AJEYA
+
+
+
+/**
+ * emptyInFront
+*/
+bool emptyInFront( Team1::Robot& robot ); // FERDI
+
 
 
 #endif

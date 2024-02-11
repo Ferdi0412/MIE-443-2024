@@ -15,6 +15,9 @@
 // Higher level movements
 #include "include/assumed_functions.hpp"
 
+// Ferdi's functions
+#include "include/ferd_functions.cpp"
+
 // ========= AUXILLIARY =========
 #define WALL_DISTANCE 0.2
 
@@ -22,6 +25,7 @@ typedef unsigned long long time_elapsed_t;
 
 time_elapsed_t secondsElapsed(void);
 
+// FERDI -> To implement...
 time_elapsed_t timeSinceFirstBumper( void ); // Return the first bumper in the queue...
 
 static std::chrono::time_point<std::chrono::system_clock> program_start;
@@ -57,37 +61,41 @@ int main ( int argc, char **argv ) {
     program_start = std::chrono::system_clock::now();
 
     // Add in to wait on laser_ranges
-    robot.waitOnLaserRanges();
+    robot.waitOnLaserRanges(); // FERDI -> To implement
 
     // === MAIN ===
     // loop until program_duration [seconds] is reached
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
-        // === MOVEMENTS FAILED ===
-        if ( move_res > 0 ) {
+        robot.spinOnce(); // Update values....
+        /**
+         * === MOVEMENTS FAILED ===
+        */
+        if ( move_res > 0 ) { // If move_res > 0 -> some movement failed/returned early
             ROS_INFO("Handling movement 'exception'...\n");
             // Handle cases such as bumper triggered here...
             // Rotate after bumping into a wall
-            if ( move_res == WALL_BUMPED ) {
+            if ( move_res == WALL_BUMPED ) { // EMMA -> Go through and check logic
                 if ( wallInFront( robot ) && distanceToWall( robot ) > 0.1 ) {
-                    move_res = rotateAfterBumper();
+                    move_res = rotateAfterBumper( robot );
                 }
-                else move_res = rotateAfterBumper();
+                else move_res = rotateAfterBumper( robot );
             }
             // Do nothing if wall scan stopped motion -> allow the wallFollow to work if needed...
             else if ( move_res == WALL_IN_FRONT ) ;
         }
 
-        /**
+        /** ALL -> consider this
          * TBD: Use odometry to track previous movements/positions to prevent stuck in cycle/loop
         */
 
         /**
          * === BUMPED TOO OFTEN ===
         */
-        if ( timeSinceFirstBumper() ) {
+        if ( timeSinceFirstBumper() < 10 ) { // If too many bumps in the last 10 seconds...
             ROS_WARNING("=== BUMPED TOO OFTEN ===\n");
 
             // NOTE: If this block just ran, and move_res indicates a wall bummp, you likely didn't do much...
+            // Consider "forceful turn..." -> moves regardless of bumping
 
             // Implement logic here...
             move_res = turnRobotBy( robot, 180 );
