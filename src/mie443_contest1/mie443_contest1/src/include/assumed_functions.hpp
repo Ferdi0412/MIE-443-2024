@@ -133,7 +133,7 @@ int scanForArea( Team1::Robot& robot ); // EMMA
 
 
 /**
- * wallInFront
+ * wallInFront -> lin_apprx
 */
 bool wallInFront( Team1::Robot& robot ); // AJEYA
 
