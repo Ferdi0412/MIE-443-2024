@@ -71,7 +71,7 @@ int turnRobotBy( Team1::Robot& robot, double angle ) {
 
 
 
-int moveForwards( Team1::Robot& robot, double target_distance, float wall_distance ) {
+int moveForwardsBy( Team1::Robot& robot, double target_distance, double wall_distance ) {
     double start_x, start_y;
     std::vector<float> laser_scan;
 
