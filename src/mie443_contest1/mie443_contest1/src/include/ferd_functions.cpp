@@ -22,6 +22,13 @@
 #endif
 
 
+bool wallInFront( Team1::Robot& robot ) {
+    lin_approx_t linear_approximation;
+    linear_approximation = linearApproximation( robot.getRanges(), robot.getRanges().size() * 2 / 5, robot.getRanges().size() * 3 / 5);
+    if ( checkApproximationError( linear_approximation) ) return false;
+    return isStraightLine(linear_approximation, 0.1);
+}
+
 
 
 float getWallAngleFromLaserScan( Team1::Robot& robot ) {
