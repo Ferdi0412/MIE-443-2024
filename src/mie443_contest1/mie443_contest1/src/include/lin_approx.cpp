@@ -172,7 +172,7 @@ bool isStraightLine( const lin_approx_t& linear_object, float acceptable_deviati
     if ( checkApproximationError(linear_object) ) return false;
 
     // If calculated R-Squared (from linear_object) is greater than threshold r_squared, return true
-    return std::get<2>(linear_object) >= acceptable_deviation;
+    return std::get<2>(linear_object) <= acceptable_deviation;
 }
 
 
