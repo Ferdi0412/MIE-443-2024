@@ -37,10 +37,10 @@ int checkApproximationError( const lin_approx_t& linear_object );
  * isStraightLine will return 1 if the "line" is straight enough
  *
  * @param linear_object the object returned from linear_approximation
- * @param r_squared the threshold for determining if the line is straight
+ * @param acceptable_deviation the threshold for determining if the line is straight
  * @returns true if straight enough, otherwise false
 */
-bool isStraightLine( const lin_approx_t& linear_object, float r_squared );
+bool isStraightLine( const lin_approx_t& linear_object, float acceptable_deviation );
 
 
 /**
