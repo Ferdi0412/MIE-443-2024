@@ -35,13 +35,16 @@
 */
 uint16_t secondsElapsed(void);
 
+// Enum for direction
+enum Direction { LEFT, RIGHT, ANY };
+
 /**
  * printVectorFloats prints each float in a vector
 */
 void printVectorFloats( const std::vector<float>& the_vector );
 
-Direction wall_follow(Team1::Robot& robot, Direction dir);
-int wall_parallel(Team1::Robot& robot);
+Direction wallFollow(Team1::Robot& robot, Direction dir);
+int wallParallel(Team1::Robot& robot);
 Direction avoidObstacles(Team1::Robot& robot, Direction dir);
 void rotateAfterBumper(Team1::Robot& robot);
 
@@ -57,8 +60,6 @@ static const unsigned long long program_duration = 500;
 #define SPEED_HIGH 0.2
 // #define ROT_HIGH 0.2
 
-// Enum for direction
-enum Direction { LEFT, RIGHT, ANY };
 
 
 /**
@@ -89,23 +90,25 @@ int wallParallel(Team1::Robot& robot) {
     const float MAX_DISTANCE = 0.6;
     // Laser scan data
     const std::vector<float> laser_ranges = robot.getRanges();
-    const float left_value = laser_ranges[0];
-    const float right_value = laser_ranges[laser_ranges.size() - 1];
+    const float right_value = laser_ranges[0];
+    const float left_value = laser_ranges[laser_ranges.size() - 1];
 
     // Wall angle data
-    const float wall_angle = getWallAngleFromLaserScan();
+    // const float wall_angle = getWallAngleFromLaserScan();
+    const float wall_angle = 0;
 
     if (wall_angle != 0){
-        if (wall_angle < 90 && right_value < left_value){
+        if (right_value <= left_value){
             ROS_INFO("Turn CW");
-            turnRobotBy(robot, wall_angle);
+            // turnRobotBy(robot, wall_angle);
             return 1; //Turn CW
-        } else if (wall_angle > 90 && right_value >= left_value){
+        } else if (right_value > left_value){
             ROS_INFO("Turn CCW");
-            turnRobotBy(robot, -wall_angle);
+            // turnRobotBy(robot, -wall_angle);
             return 2; //Turn CCW
         }
     } else if (wall_angle == 0) {
+        ROS_INFO("Already PARALLEL");
         return 0; // Already parallel
     }
 
@@ -119,12 +122,14 @@ Direction avoidObstacles(Team1::Robot& robot, Direction dir) {
 
     // Laser scan data
     const std::vector<float> laser_ranges = robot.getRanges();
-
+    // printVectorFloats(laser_ranges);
+    
     if (!laser_ranges.empty()) {
 
         const float middle_value = laser_ranges[laser_ranges.size() / 2];
-        const float left_value = laser_ranges[0];
-        const float right_value = laser_ranges[laser_ranges.size() - 1];
+        const float right_value = laser_ranges[0];
+        const float left_value = laser_ranges[laser_ranges.size() - 1];
+        
         std::cout << "Middle Value: " << middle_value << std::endl;
         std::cout << "Left Value:" << left_value << std::endl;
         std::cout << "Right Value" << right_value << std::endl;
@@ -132,28 +137,28 @@ Direction avoidObstacles(Team1::Robot& robot, Direction dir) {
         if (dir == ANY){
             if (middle_value > MAX_DISTANCE){
                 ROS_INFO("Move FORWARD");
-                moveForwardsBy(robot,0.2,MAX_DISTANCE);
+                // moveForwardsBy(robot,0.2,MAX_DISTANCE);
                 return ANY;
             } else if (right_value >= left_value){
                 ROS_INFO("TURN RIGHT");
-                turnRobotBy(robot, 90);
+                // turnRobotBy(robot, 90);
                 return RIGHT;
             } else if (right_value < left_value){
                 ROS_INFO("TURN LEFT");
-                turnRobotBy(robot, -90);
+                // turnRobotBy(robot, -90);
                 return LEFT;
             }
 
         } else if (dir == LEFT){
             if (middle_value <= MAX_DISTANCE){
                 ROS_INFO("TURN LEFT");
-                turnRobotBy(robot, -90);
+                // turnRobotBy(robot, -90);
                 return LEFT;
             }
         } else if (dir == RIGHT){
             if (middle_value <= MAX_DISTANCE){
                 ROS_INFO("TURN RIGHT");
-                turnRobotBy(robot, 90);
+                // turnRobotBy(robot, 90);
                 return RIGHT;
             }
         }
