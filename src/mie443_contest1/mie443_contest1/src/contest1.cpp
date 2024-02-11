@@ -122,7 +122,7 @@ int main ( int argc, char **argv ) {
 
             // If scanForArea failed
             if ( move_res > 0 )
-                move_res = randomMotion( robot );
+                move_res = randomMotion( robot, -90, 90 );
             continue;
         }
 
