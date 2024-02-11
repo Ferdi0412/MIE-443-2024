@@ -92,7 +92,7 @@ int main ( int argc, char **argv ) {
          * === BUMPED TOO OFTEN ===
         */
         if ( timeSinceFirstBumper() < 10 ) { // If too many bumps in the last 10 seconds...
-            ROS_WARNING("=== BUMPED TOO OFTEN ===\n");
+            ROS_WARN("=== BUMPED TOO OFTEN ===\n");
 
             // NOTE: If this block just ran, and move_res indicates a wall bummp, you likely didn't do much...
             // Consider "forceful turn..." -> moves regardless of bumping
@@ -173,6 +173,6 @@ int main ( int argc, char **argv ) {
  * =================================
 */
 // ========= EDIT THE FOLLOWING DEFINITION BELOW =========
-uint16_t secondsElapsed( void ) {
+time_elapsed_t secondsElapsed( void ) {
     return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - program_start).count();
 }

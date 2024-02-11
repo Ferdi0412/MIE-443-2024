@@ -104,7 +104,7 @@ int moveForwards( Team1::Robot& robot, double target_distance, float wall_distan
         laser_scan = robot.getRanges();
 
         // Calculated distance to wall in front
-        if ( getDistanceToWall( laser_scan ) <= wall_distance ) {
+        if ( distanceToWall( robot ) <= wall_distance ) {
             robot.stopMotion();
             return WALL_IN_FRONT;
         }
