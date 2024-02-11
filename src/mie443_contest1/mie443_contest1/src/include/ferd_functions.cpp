@@ -107,21 +107,33 @@ int moveForwards( Team1::Robot& robot, double target_distance, float wall_distan
 
 
 
+double getRotateAfterDistance( void ) {
+    return 0.2;
+}
+
+
+
+double getRotateAfterAngle( void ) {
+    return 45;
+}
+
+
+
 int rotateAfterBumper( Team1::Robot& robot ) {
     try {
         // If center bumper pressed... TBD
         if ( robot.getBumperCenter() ) {
-            // Do something...
+            robot.moveForwards(-LINEAR_VELOCITY, getRotateAfterDistance());
         }
         // If left bumper is pressed, rotate clockwise
         else if ( robot.getBumperLeft() ) {
-            robot.moveForwards(-LINEAR_VELOCITY, 0.2);
-            robot.rotateClockwiseBy(ROTATIONAL_VELOCITY, 45);
+            robot.moveForwards(-LINEAR_VELOCITY, getRotateAfterDistance());
+            robot.rotateClockwiseBy(ROTATIONAL_VELOCITY, getRotateAfterAngle());
         }
         // If right bumper is pressed, rotate counter-clockwise
         else if ( robot.getBumperRight() ) {
-            robot.moveForwards(-LINEAR_VELOCITY, 0.2);
-            robot.rotateClockwiseBy(ROTATIONAL_VELOCITY, -45);
+            robot.moveForwards(-LINEAR_VELOCITY, getRotateAfterDistance());
+            robot.rotateClockwiseBy(ROTATIONAL_VELOCITY, -getRotateAfterAngle());
         }
     }
     // If any given movement fails, return WALL_BUMPED

@@ -608,6 +608,14 @@ namespace Team1 {
                 }
             }
 
+            /**
+             * waitOnLaserRanges will BLOCK until a valid laser scan is retrieved
+            */
+            void waitOnLaserRanges( void ) {
+                if ( ranges.size() > 0 ) return;
+                // TODO: Implement
+            }
+
             /* === CONSTRUCTORS/DESTRUCTORS === */
             /**
              * Robot class constructor

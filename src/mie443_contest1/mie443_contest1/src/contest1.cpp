@@ -12,26 +12,6 @@
 // Team1::Robot import
 #include "robot.cpp"
 
-
-
-/**
- * ==============================
- * === FUNCTIONS DECLARATIONS ===
- * ==============================
-*/
-
-// ========= EDIT THE FOLLOWING DEFINITION BELOW =========
-/**
- * moveAndScan_example
- *
- * An example function for how to move and scan the robot.
- *
- * @param robot the robot object
- * @param angle the distance to travel [meters]
-*/
-void moveAndScan_example( Team1::Robot robot, double distance );
-
-
 // ========= AUXILLIARY =========
 /**
  * secondsElapsed
@@ -40,35 +20,9 @@ void moveAndScan_example( Team1::Robot robot, double distance );
 */
 uint16_t secondsElapsed(void);
 
-/**
- * exitIfTimeRunOut
- *
- * Will terminate the program (exit/return) if the program has completed
-*/
-void exitIfTimeRunOut( void );
-
-/**
- * exitIfTimeRunOut [OVERLOAD]
- *
- * Will terminate the program (exit/return) with exit_code if the program has completed
- *
- * @param exit_code 0 means no error, any other value means program ended with an error (C-standard)
-*/
-void exitIfTimeRunOut( unsigned int exit_code );
-
-
-
-/**
- * =====================
- * === GLOBAL params ===
- * =====================
-*/
-#define LINEAR_SPEED 0.2
-#define ROTATIONAL_SPEED 10
-
 static std::chrono::time_point<std::chrono::system_clock> program_start;
 
-static const unsigned long long program_duration = 10;
+static const unsigned long long program_duration = 480;
 
 
 /**
@@ -86,19 +40,53 @@ int main ( int argc, char **argv ) {
     ros::init(argc, argv, "contest1");
 
     ros::NodeHandle nh;
-    ros::Rate loop_rate(2);
     Team1::Robot robot( nh, 2);
 
-    ros::Duration(0.5).sleep(); // Sleep to ensure is initialized correctly
+    // Sleep to ensure is initialized correctly
+    ros::Duration(0.5).sleep();
     robot.spinOnce();
 
+    // Start timer
     program_start = std::chrono::system_clock::now();
 
+    // Add in to wait on laser_ranges
+    robot.waitOnLaserRanges();
 
     // === MAIN ===
     // loop until program_duration [seconds] is reached
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
         // Main stuff here...
+
+        // Track odometry for previous positions
+
+        /**
+         * === STARTUP ===
+         * 1. Check for wall   -> if true, wallFollow move in that direction until wall
+         * 2. Check for corner -> if true, turn 45 degrees and next cycle
+         * 3. scanForArea      -> move in that direction until wall
+         *                     -> if scanForArea issue -> randomMotion -> move in that direction until wall
+        */
+
+        /**
+         * === NORMAL CYCLE ===
+         * SAME AS STARTUP
+        */
+
+        /**
+         * === BUMPED TOO OFTEN ===
+         * - Store vector/fixed sized queue of timestamps
+         * -> if first element too recent, run this...
+         *
+         * 3 bumps -> within 10 seconds (something on ground, or stuck in corner)
+         *
+         * 1. turn 180
+         * 2. small random rotation -> +/- 45 degrees???
+        */
+
+        /**
+         * === BUMP INTO OBJECT BUT NO SCAN ===
+         * - account for object on ground
+        */
 
         robot.sleepOnce();
     }
@@ -117,43 +105,6 @@ int main ( int argc, char **argv ) {
  * =================================
 */
 // ========= EDIT THE FOLLOWING DEFINITION BELOW =========
-void moveAndScan_example( Team1::Robot robot, double distance ) {
-    double start_x = robot.getX(), start_y = robot.getY();
-    robot.jogForwardsSafe( 0.2 ); // Start moving at 0.2 [m/s]
-
-    // Check distance from robot to starting position, until distance (in units of [m]) has been travelled
-    while ( (secondsElapsed() << program_duration) && (robot.distanceToPoint( start_x, start_y ) < distance) ) {
-        // Update values in robot from subscriptions
-        robot.spinOnce();
-
-        // If any bumper has been triggered, robot has collided with a wall...
-        // Stop the motion of the robot, and return
-        if ( robot.getBumperAny() ) {
-            robot.stopMotion();
-            return;
-        }
-
-        // Do something with the scan data
-        std::vector<float> scan_distances = robot.getRanges();
-        // ...
-
-        robot.sleepOnce();
-    }
-
-    // Once enough distance travelled...
-    robot.stopMotion();
-}
-
-
-// ========= AUXILLIARY =========
 uint16_t secondsElapsed( void ) {
     return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - program_start).count();
-}
-
-void exitIfTimeRunOut( void ) {
-    if ( secondsElapsed() > program_duration ) exit(0);
-}
-
-void exitIfTimeRunOut( unsigned int exit_code ) {
-    if ( secondsElapsed() > program_duration ) exit( exit_code );
 }
