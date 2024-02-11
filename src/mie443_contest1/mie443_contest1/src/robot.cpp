@@ -94,6 +94,7 @@ namespace Team1 {
             /* === PRIVATE VARIABLES === */
             ros::Subscriber bumper_sub, laser_sub, odom_sub, vel_sub;
             ros::Publisher  vel_pub;
+            ros::NodeHandle subscription_node_handler;
 
             double pos_x = 0, pos_y = 0, pos_theta = 0;
             double vel_x = 0, vel_y = 0, vel_theta = 0;
@@ -613,7 +614,8 @@ namespace Team1 {
             */
             void waitOnLaserRanges( void ) {
                 if ( ranges.size() > 0 ) return;
-                // TODO: Implement
+                // Wait for a message, and run laserCallback on it...
+                laserCallback(ros::topic::waitForMessage<sensor_msgs::LaserScan>(SCAN_TOPIC, subscription_node_handler));
             }
 
             /* === CONSTRUCTORS/DESTRUCTORS === */
@@ -631,6 +633,9 @@ namespace Team1 {
 
                 // Configure publisher
                 vel_pub    = node_handler.advertise<geometry_msgs::Twist>(VEL_COMMAND_TOPIC, 1);
+
+                // Store node handler to be able to wait on a topic
+                subscription_node_handler = node_handler;
             }
     };
 }
