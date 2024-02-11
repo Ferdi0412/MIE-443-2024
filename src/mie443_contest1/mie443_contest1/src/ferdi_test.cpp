@@ -70,15 +70,24 @@ float arr[] = { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3};
 */
 int main ( int argc, char **argv ) {
     std::vector<float> temp_v;
-    temp_v.assign( arr, arr + sizeof(arr) / sizeof(arr[0]) );
+    lin_approx_t linear_approximation;
 
-    std::cout << temp_v.size() << std::endl;
-    lin_approx_t temp = linearApproximation( temp_v, 0, temp_v.size() );
-    std::cout << "Is there an error? " << checkApproximationError(temp) << std::endl;
-    std::cout << (isStraightLine( temp, R_SQUARED_THRESHOLD ) ? "IT IS STRAIGHT ENOUGH!" : "It isn't straight enought :(") << std::endl;
-    std::cout << "MES: " << getMeanSquaredError(temp) << std::endl;
-    std::cout << "Slope:     " << getSlope( temp ) << std::endl;
-    std::cout << "Intercept: " << getIntercept( temp ) << std::endl;
+    ros::init(argc, argv, "ferdi_test");
+
+    ros::NodeHandle nh;
+
+    Team1::Robot robot ( nh, 50 );
+
+    robot.waitOnLaserRanges();
+
+    temp_v = robot.getRanges();
+
+    linear_approximation = linearApproximation( temp_v, 0, temp_v.size() );
+
+    std::cout << checkApproximationError(linear_approximation) << " < err" << std::endl;
+    std::cout << isStraightLine(linear_approximation) ? "IT IS STRAIGHT!" : "It is not..." << std::endl;
+    std::cout << getSlope(linear_approximation) << " < slope" << std::endl;
+    std::cout << getMeanSquaredError(linear_approximation) << " < MSE" << std::endl;
 }
 
 
