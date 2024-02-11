@@ -18,6 +18,9 @@
 // Ferdi's functions
 #include "include/ferd_functions.cpp"
 
+// Linear approximation dependency
+#include "include/lin_approx.cpp"
+
 // ========= AUXILLIARY =========
 #define WALL_DISTANCE 0.2
 
