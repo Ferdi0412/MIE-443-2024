@@ -156,4 +156,15 @@ float getIntercept( const lin_approx_t& linear_object ) {
 }
 
 
+/**
+ * getRSquared will return the R-Squared value of the line
+ * 
+ * @param linear_object the object returned from linear_approximation
+ * @returns the R-Squared value
+*/
+float getRSquared( const lin_approx_t& linear_object ) {
+    return std::get<2>(linear_object);
+}
+
+
 #endif
