@@ -60,7 +60,7 @@ static const unsigned long long program_duration = 500;
 
 
 
-#define SPEED_HIGH 0.2
+#define SPEED_HIGH 0.1
 // #define ROT_HIGH 0.2
 
 
@@ -108,7 +108,7 @@ int main ( int argc, char **argv ) {
     //  CONTROL LOOP      #
     // ####################
 
-    while ( ros::ok() && secondsElapsed() <= program_duration && movement_stopped != 1) {
+    while ( ros::ok() && secondsElapsed() <= program_duration && final_obstacle_type != 69) {
         // std::cout << "Ranges:\n";
         // printVectorFloats( robot.getRanges() );
         // std::cout << "N Lasers: " << robot.getNLasers() << "\n";
@@ -136,11 +136,20 @@ int main ( int argc, char **argv ) {
 
         try {
             robot.spinOnce();
-            robot.moveForwards(0.2,0.3);
+            // robot.rotateClockwiseBy(60, 90);
+            // robot.moveForwards(0.2,0.3);
             final_obstacle_type = detectObstacles(robot);
-            std::cout << "Obstacle Type: " << movement_stopped << std::endl;
-            robot.moveForwards(0.2,0.3);
-            ROS_INFO("Sailing forward...");
+            std::cout << "Obstacle Type: " << final_obstacle_type << std::endl;
+            
+            if (final_obstacle_type == 1){
+                robot.moveForwards(0.2,0.3);
+                ROS_INFO("Sailing forward...");
+            }
+            else if (final_obstacle_type == 69){
+                // robot.rotateClockwiseBy(60, 90);
+                ROS_INFO("Error 69...");
+            }
+            
 
         } catch (CollisionException){
             ROS_INFO("Obstacle Detected...");
@@ -178,39 +187,63 @@ int main ( int argc, char **argv ) {
 
 // Function to make the robot detect obstacles hopefully without hitting them
 int detectObstacles(Team1::Robot& robot) {
-    const float MIN_DISTANCE = 0.3; // Minimum distance to consider an obstacle
-    const float MAX_DISTANCE = 0.6; // Maximum distance to consider an obstacle
+    robot.stopMotion();
+
+    const float MIN_DISTANCE = 0.5; // Minimum distance to consider an obstacle
+    const float MAX_DISTANCE = 0.75; // Maximum distance to consider an obstacle
 
     // the_vector stores all the laserScan readings
     const std::vector<float> the_vector = robot.getRanges();
     std::cout << "No. of laser data points: " << the_vector.size() << std::endl;
 
 
-    // port side scanned value (the_vector[0])
-    const float left_scan_value = the_vector.front();
+    // // port side scanned value (the_vector[0])
+    // float left_scan_value = the_vector.front();
+    // std::cout << "<<<--- Port Side: " << left_scan_value;
+    // // head on distance is the middle value of the peripheral field of view
+    // int vector_size = the_vector.size()/2;
+    // float middle_scan_value = the_vector[vector_size];
+    // std::cout << "      ^^^ Fore Side: " << middle_scan_value;
+    // // starboard side scanned value (the_vector[-1])
+    // float right_scan_value = the_vector.back();
+    // std::cout << " ^^^      Starboard Side: " << right_scan_value;
+    // std::cout << " --->>>" << std::endl;
+
+    float left_scan_value = std::isnan(the_vector.front()) ? 2.0f : the_vector.front();
     std::cout << "<<<--- Port Side: " << left_scan_value;
-    // head on distance is the middle value of the peripheral field of view
-    const float middle_scan_value = the_vector[the_vector.size() / 2];
+
+    // Head-on distance is the middle value of the peripheral field of view
+    int vector_size = the_vector.size();
+    float middle_scan_value = (vector_size > 0 && !std::isnan(the_vector[vector_size / 2])) ? the_vector[vector_size / 2] : 2.0f;
     std::cout << "      ^^^ Fore Side: " << middle_scan_value;
-    // starboard side scanned value (the_vector[-1])
-    const float right_scan_value = the_vector.back();
+
+    // Starboard side scanned value
+    float right_scan_value = std::isnan(the_vector.back()) ? 2.0f : the_vector.back();
     std::cout << " ^^^      Starboard Side: " << right_scan_value;
+
     std::cout << " --->>>" << std::endl;
     
-    int obstacle_type = 0;
+    
 
     // check if laser is sending legitimate values if not, close function
     if (!the_vector.empty()) {
+        int obstacle_type = 0;
+        std::cout << "Obstacle type before loop: " << obstacle_type << std::endl;
+
 
         if (left_scan_value <= MIN_DISTANCE && right_scan_value >= left_scan_value && middle_scan_value >= left_scan_value){
             // Robot faces a wall on the left
             obstacle_type = 111;
+            std::cout << "Obstacle type after loop: " << obstacle_type << std::endl;
+
             throw CollisionException();
             return obstacle_type;
         }
         else if (right_scan_value <= MIN_DISTANCE && right_scan_value <= middle_scan_value && middle_scan_value <= left_scan_value){
             // Robot faces a wall on the right
             obstacle_type = 333;
+            std::cout << "Obstacle type after loop: " << obstacle_type << std::endl;
+
             throw CollisionException();
             return obstacle_type;
 
@@ -218,6 +251,8 @@ int detectObstacles(Team1::Robot& robot) {
         else if (middle_scan_value <= MIN_DISTANCE && right_scan_value >= middle_scan_value && middle_scan_value <= left_scan_value){
             // Robot faces a wall head on
             obstacle_type = 222;
+            std::cout << "Obstacle type after loop: " << obstacle_type << std::endl;
+
             throw CollisionException();
             return obstacle_type;
 
@@ -225,47 +260,75 @@ int detectObstacles(Team1::Robot& robot) {
 
         else if (left_scan_value <= MIN_DISTANCE){
             obstacle_type = 11;
+            std::cout << "Obstacle type after loop: " << obstacle_type << std::endl;
+
             throw CollisionException();
             return obstacle_type;
 
         }
         else if (right_scan_value <= MIN_DISTANCE){
             obstacle_type = 33;
+            std::cout << "Obstacle type after loop: " << obstacle_type << std::endl;
+
             throw CollisionException();
             return obstacle_type;
 
         }
         else if (middle_scan_value <= MIN_DISTANCE){
             obstacle_type = 22;
+            std::cout << "Obstacle type after loop: " << obstacle_type << std::endl;
+
             throw CollisionException();
             return obstacle_type;
 
         }
+        else{
+            // no obstacle
+            obstacle_type = 1;
+            return obstacle_type;
+            std::cout << "Obstacle type after loop: " << obstacle_type << std::endl;
+            
+
+        }
     } else {
         std::cout << "Vector is empty!" << std::endl;
-        return 1;
+        return 69;
     }
 }
 
 // Function to make the robot detect obstacles hopefully without hitting them
 void dodgeObstacles(Team1::Robot& robot, int obstacle) {
-    const float MIN_DISTANCE = 0.3; // Minimum distance to consider an obstacle
-    const float MAX_DISTANCE = 0.6; // Maximum distance to consider an obstacle
+    const float MIN_DISTANCE = 0.2; // Minimum distance to consider an obstacle
+    const float MAX_DISTANCE = 0.3; // Maximum distance to consider an obstacle
 
     // the_vector stores all the laserScan readings
     const std::vector<float> the_vector = robot.getRanges();
     std::cout << "No. of laser data points: " << the_vector.size() << std::endl;
 
 
-    // port side scanned value (the_vector[0])
-    const float left_scan_value = the_vector.front();
+    // // port side scanned value (the_vector[0])
+    // float left_scan_value = the_vector.front();
+    // std::cout << "<<<--- Port Side: " << left_scan_value;
+    // // head on distance is the middle value of the peripheral field of view
+    // float middle_scan_value = the_vector[the_vector.size() / 2];
+    // std::cout << "      ^^^ Fore Side: " << middle_scan_value;
+    // // starboard side scanned value (the_vector[-1])
+    // float right_scan_value = the_vector.back();
+    // std::cout << " ^^^      Starboard Side: " << right_scan_value;
+    // std::cout << " --->>>" << std::endl;
+
+    float left_scan_value = std::isnan(the_vector.front()) ? 2.0f : the_vector.front();
     std::cout << "<<<--- Port Side: " << left_scan_value;
-    // head on distance is the middle value of the peripheral field of view
-    const float middle_scan_value = the_vector[the_vector.size() / 2];
+
+    // Head-on distance is the middle value of the peripheral field of view
+    int vector_size = the_vector.size();
+    float middle_scan_value = (vector_size > 0 && !std::isnan(the_vector[vector_size / 2])) ? the_vector[vector_size / 2] : 2.0f;
     std::cout << "      ^^^ Fore Side: " << middle_scan_value;
-    // starboard side scanned value (the_vector[-1])
-    const float right_scan_value = the_vector.back();
+
+    // Starboard side scanned value
+    float right_scan_value = std::isnan(the_vector.back()) ? 2.0f : the_vector.back();
     std::cout << " ^^^      Starboard Side: " << right_scan_value;
+
     std::cout << " --->>>" << std::endl;
 
     bool wall_on_left,wall_on_right, wall_head_on;
