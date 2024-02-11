@@ -87,7 +87,7 @@ sudo apt-get update
 ## In case of issues running Gazebo with the setup/dependencies provided in the course, run the following (taken from course PIAZZA post note@19)
 sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
 wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
-sduo apt update
+sudo apt update
 sudo apt upgrade
 
 
