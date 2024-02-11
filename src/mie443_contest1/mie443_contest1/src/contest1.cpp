@@ -5,6 +5,9 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include <queue>
+#include <boost/circular_buffer.hpp>
+
 // ROS imports
 #include <ros/console.h>
 #include "ros/ros.h"
@@ -28,8 +31,15 @@ typedef unsigned long long time_elapsed_t;
 
 time_elapsed_t secondsElapsed(void);
 
-// FERDI -> To implement...
-time_elapsed_t timeSinceFirstBumper( void ); // Return the first bumper in the queue...
+time_elapsed_t getCurrentTime( void );
+
+void storeBumperTimestamp( void ); // Stores the current timestamp in the bumper events queue
+
+void initializeBumperQueue( void );
+
+boost::circular_buffer<time_elapsed_t> bumper_queue(3); // 3 Bumper events...
+
+long long timeSinceFirstBumper( void );
 
 static std::chrono::time_point<std::chrono::system_clock> program_start;
 
@@ -50,6 +60,8 @@ wallDirectionEnum direction = any;
 int main ( int argc, char **argv ) {
     // === SETUP ===
     ROS_INFO("SETUP...\n");
+
+    initializeBumperQueue();
 
     ros::init(argc, argv, "contest1");
 
@@ -178,4 +190,26 @@ int main ( int argc, char **argv ) {
 // ========= EDIT THE FOLLOWING DEFINITION BELOW =========
 time_elapsed_t secondsElapsed( void ) {
     return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - program_start).count();
+}
+
+
+time_elapsed_t getCurrentTime( void ) {
+    return secondsElapsed();
+}
+
+
+void storeBumperTimestamp( void ) {
+    bumper_queue.push_back( getCurrentTime() );
+}
+
+
+void initializeBumperQueue( void ) {
+    while ( bumper_queue.size() > 0 )
+        bumper_queue.pop_front();
+}
+
+long long timeSinceFirstBumper( void ) {
+    if ( bumper_queue.size() == bumper_queue.capacity() )
+        return (getCurrentTime() - bumper_queue.front());
+    return -1;
 }
