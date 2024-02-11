@@ -173,4 +173,13 @@ bool emptyInFront( Team1::Robot& robot ) {
 
 
 
+#ifndef distanceToWall
+double distanceToWall( Team1::Robot& robot ) {
+    std::vector<float> ranges = robot.getRanges();
+    float front_mean = getMean( ranges, ranges.ssize() * (NUM_SCAN_SEGM / 2), ranges.size() * (NUM_SCAN_SEGM / 2) + 1 );
+    return (double) front_mean;
+}
+#endif
+
+
 #endif
