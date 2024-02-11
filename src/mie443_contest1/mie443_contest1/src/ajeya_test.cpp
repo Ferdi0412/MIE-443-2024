@@ -30,7 +30,7 @@
 
 // trying to get to use this as an interrupt in the main obs avoid function
 class CollisionException : std::exception {};
-// class BumperException : std::exception {};
+
 
 
 /**
@@ -109,29 +109,11 @@ int main ( int argc, char **argv ) {
     // ####################
 
     while ( ros::ok() && secondsElapsed() <= program_duration && final_obstacle_type != 69) {
-        // std::cout << "Ranges:\n";
-        // printVectorFloats( robot.getRanges() );
-        // std::cout << "N Lasers: " << robot.getNLasers() << "\n";
-        // try {
-        //       robot.checkBumpers();
-        // } catch ( BumperException) {
-        //     rotateAfterBumper(robot);
-        //  }
-        
-        // robot.spinOnce();
-        // ROS_INFO("Position: %.2f\nSpeed: %.2f\n", robot.getTheta(), robot.getVelTheta());
-        // // Check for obstacles and avoid them
-        // try {
-        //       robot.checkBumpers();
-        //       movement = avoidObstacles(robot);
-        // } catch ( BumperException) {
-        //     rotateAfterBumper(robot);
-        // }
 
         // ajeya's obstacle avoidance code
 
         robot.spinOnce();
-
+        
         // add try that handles obstacle avoidance using laser scanners
 
         try {
@@ -142,7 +124,7 @@ int main ( int argc, char **argv ) {
             std::cout << "Obstacle Type: " << final_obstacle_type << std::endl;
             
             if (final_obstacle_type == 1){
-                robot.moveForwards(0.2,0.3);
+                robot.moveForwards(0.1,0.1);
                 ROS_INFO("Sailing forward...");
             }
             else if (final_obstacle_type == 69){
@@ -152,6 +134,7 @@ int main ( int argc, char **argv ) {
             
 
         } catch (CollisionException){
+            // bumper exception kills the program as it is being caught before the collision exception
             ROS_INFO("Obstacle Detected...");
 
             try {
@@ -160,8 +143,7 @@ int main ( int argc, char **argv ) {
                 ROS_INFO("Dodged...");
 
             } catch (BumperException) {
-                // checking if obs avoid works without bumpers
-                movement_stopped = 1;
+                rotateAfterBumper(robot);
             }
 
         }
@@ -209,16 +191,16 @@ int detectObstacles(Team1::Robot& robot) {
     // std::cout << " ^^^      Starboard Side: " << right_scan_value;
     // std::cout << " --->>>" << std::endl;
 
-    float left_scan_value = std::isnan(the_vector.front()) ? 2.0f : the_vector.front();
+    float left_scan_value = std::isnan(the_vector.front()) ? std::numeric_limits<float>::infinity() : the_vector.front();
     std::cout << "<<<--- Port Side: " << left_scan_value;
 
     // Head-on distance is the middle value of the peripheral field of view
     int vector_size = the_vector.size();
-    float middle_scan_value = (vector_size > 0 && !std::isnan(the_vector[vector_size / 2])) ? the_vector[vector_size / 2] : 2.0f;
+    float middle_scan_value = (vector_size > 0 && !std::isnan(the_vector[vector_size / 2])) ? the_vector[vector_size / 2] : std::numeric_limits<float>::infinity();
     std::cout << "      ^^^ Fore Side: " << middle_scan_value;
 
     // Starboard side scanned value
-    float right_scan_value = std::isnan(the_vector.back()) ? 2.0f : the_vector.back();
+    float right_scan_value = std::isnan(the_vector.back()) ? std::numeric_limits<float>::infinity() : the_vector.back();
     std::cout << " ^^^      Starboard Side: " << right_scan_value;
 
     std::cout << " --->>>" << std::endl;
@@ -285,8 +267,8 @@ int detectObstacles(Team1::Robot& robot) {
         else{
             // no obstacle
             obstacle_type = 1;
-            return obstacle_type;
             std::cout << "Obstacle type after loop: " << obstacle_type << std::endl;
+            return obstacle_type;
             
 
         }
@@ -317,16 +299,16 @@ void dodgeObstacles(Team1::Robot& robot, int obstacle) {
     // std::cout << " ^^^      Starboard Side: " << right_scan_value;
     // std::cout << " --->>>" << std::endl;
 
-    float left_scan_value = std::isnan(the_vector.front()) ? 2.0f : the_vector.front();
+    float left_scan_value = std::isnan(the_vector.front()) ? std::numeric_limits<float>::infinity() : the_vector.front();
     std::cout << "<<<--- Port Side: " << left_scan_value;
 
     // Head-on distance is the middle value of the peripheral field of view
     int vector_size = the_vector.size();
-    float middle_scan_value = (vector_size > 0 && !std::isnan(the_vector[vector_size / 2])) ? the_vector[vector_size / 2] : 2.0f;
+    float middle_scan_value = (vector_size > 0 && !std::isnan(the_vector[vector_size / 2])) ? the_vector[vector_size / 2] : std::numeric_limits<float>::infinity();
     std::cout << "      ^^^ Fore Side: " << middle_scan_value;
 
     // Starboard side scanned value
-    float right_scan_value = std::isnan(the_vector.back()) ? 2.0f : the_vector.back();
+    float right_scan_value = std::isnan(the_vector.back()) ? std::numeric_limits<float>::infinity() : the_vector.back();
     std::cout << " ^^^      Starboard Side: " << right_scan_value;
 
     std::cout << " --->>>" << std::endl;
@@ -417,22 +399,9 @@ void dodgeObstacles(Team1::Robot& robot, int obstacle) {
 
         // add inverse trig parallelize code
 
-        // if (middle_value <= MAX_DISTANCE){
-        //     ROS_INFO("STOP and TURN");
-        //     //Obstacle detected STOP
-            // robot.stopMotion();
-        //     //Turn away from the obstacle
-        //     robot.rotateClockwiseBy(50,-45);
-        //     return 0;
-        // } else{
-        //     //No obstacle detected, MoVE FORWARD
-        //     robot.moveForwards(0.2,0.3);
-        //     ROS_INFO("Move forward");
-        //     return 0;
-        // }
     } else {
         std::cout << "Vector is empty!" << std::endl;
-        throw BumperException();
+        // throw BumperException();
         // return 1;
     }
 }
@@ -448,35 +417,6 @@ void printVectorFloats( const std::vector<float>& the_vector ) {
     //for ( const float& val : the_vector )
     //    std::cout << val << "; ";
     std::cout << "\n";
-}
-
-// Function to make the robot avoid obstacles
-bool avoidObstacles(Team1::Robot& robot) {
-    const float MIN_DISTANCE = 0.3; // Minimum distance to consider an obstacle
-    const float MAX_DISTANCE = 0.6; // Maximum distance to consider an obstacle
-
-    // Check if an obstacle is detected within the specified range
-    const std::vector<float> the_vector = robot.getRanges();
-    if (!the_vector.empty()) {
-        const float middle_value = the_vector[the_vector.size() / 2];
-        std::cout << "Middle Value: " << middle_value << std::endl;
-        if (middle_value <= MAX_DISTANCE){
-            ROS_INFO("STOP and TURN");
-            //Obstacle detected STOP
-            robot.stopMotion();
-            //Turn away from the obstacle
-            robot.rotateClockwiseBy(50,-45);
-            return true;
-        } else{
-            //No obstacle detected, MoVE FORWARD
-            robot.moveForwards(0.2,0.3);
-            ROS_INFO("Move forward");
-            return true;
-        }
-    } else {
-        std::cout << "Vector is empty!" << std::endl;
-        return false;
-    }
 }
 
 void rotateAfterBumper(Team1::Robot& robot){
