@@ -7,6 +7,11 @@
 #include <limits>
 #include <cmath>
 
+#ifdef DEBUG_LIN_APPROX
+// FOR DEBUGGING!
+#include <iostream>
+#endif
+
 /**
  * Intended to be private...
  * _invalidLinApprox returns a value for R-squared, to indicate that the operation failed...
@@ -36,9 +41,17 @@ lin_approx_t linearApproximation( const laser_scan_t& input_vector, unsigned int
           slope, intercept, r_squared;
     unsigned int start_offset;
 
+    #ifdef DEBUG_LIN_APPROX
+    std::cout << "DEBUG: " << (end_index > input_vector.size()) << "; " << (start_index >= end_index) << "; " << (start_index >= input_vector.size()) << std::endl;
+    #endif
+
     // Check if any input parameters are invalid...
-    if ( (end_index >= input_vector.size()) || (start_index >= end_index) || (start_index >= input_vector.size()) )
+    if ( (end_index > input_vector.size()) || (start_index >= end_index) || (start_index >= input_vector.size()) )
         return lin_approx_t( 0., 0., _invalidLinApprox() );
+
+    #ifdef DEBUG_LIN_APPROX
+    std::cout << "DEBUG: " << "Passed initial test!" << std::endl;
+    #endif
 
     // Set aggregating variables to 0
     n_elements        = 0;
@@ -57,6 +70,10 @@ lin_approx_t linearApproximation( const laser_scan_t& input_vector, unsigned int
 
         // If encountered an invalid element, skip it...
         if ( _invalidScanElement(input_vector[ start_offset + i ]) ) continue;
+
+        #ifdef DEBUG_LIN_APPROX
+        std::cout << "DEBUG: " << start_offset + i << "; " << input_vector[ start_offset + i] << std::endl;
+        #endif
 
         // Count elements aggregated over
         n_elements ++;
@@ -98,9 +115,17 @@ lin_approx_t linearApproximation( const laser_scan_t& input_vector, unsigned int
     }
 
     // Guard against divide by 0
-    if ( total_sum_squared = 0 ) return lin_approx_t( 0, 0, _invalidLinApprox() );
+    if ( total_sum_squared == 0 ) return lin_approx_t( 0, 0, _invalidLinApprox() );
 
-    r_squared = 1 - sum_res_squared / total_sum_squared;
+    #ifdef DEBUG_LIN_APPROX
+    std::cout << "DEBUG: " << "sum_res_squared: " << sum_res_squared << "; total_sum_squared: " << total_sum_squared << std::endl;
+    #endif
+
+    r_squared = 1 - (sum_res_squared / total_sum_squared);
+
+    #ifdef DEBUG_LIN_APPROX
+    std::cout << "DEBUG: " << "r_squared: " << r_squared << std::endl;
+    #endif
 
     // Typecast each from double to float...
     return lin_approx_t( (float) slope, (float) intercept, (float) r_squared );
@@ -114,7 +139,7 @@ lin_approx_t linearApproximation( const laser_scan_t& input_vector, unsigned int
  * @returns 0 if no errors, >0 if error occured
 */
 int checkApproximationError( const lin_approx_t& linear_object ) {
-    return std::get<2>(linear_object) != _invalidLinApprox();
+    return std::get<2>(linear_object) == _invalidLinApprox();
 }
 
 
