@@ -55,10 +55,12 @@ float getWallAngleFromLaserScan( Team1::Robot& robot ) {
 
 
 int turnRobotBy( Team1::Robot& robot, double angle ) {
-    try
+    try {
         robot.rotateClockwiseBy( ROTATIONAL_VELOCITY, angle );
-    catch (BumperException)
+    }
+    catch (BumperException) {
         return WALL_BUMPED;
+    }
     return REACHED_TARGET;
 }
 
@@ -84,8 +86,9 @@ int moveForwards( Team1::Robot& robot, double target_distance, float wall_distan
         else
             return REACHED_TARGET;
     }
-    catch (BumperException)
+    catch (BumperException) {
         return WALL_BUMPED;
+    }
 
     // During motion... Until target_distance is reached...
     while ( robot.distanceToPoint( start_x, start_y ) < target_distance ) {
@@ -144,8 +147,9 @@ int rotateAfterBumper( Team1::Robot& robot ) {
         }
     }
     // If any given movement fails, return WALL_BUMPED
-    catch (BumperException)
+    catch (BumperException) {
         return WALL_BUMPED;
+    }
 
     // Otherwise return REACHED_TARGET when all movements complete
     return REACHED_TARGET;
