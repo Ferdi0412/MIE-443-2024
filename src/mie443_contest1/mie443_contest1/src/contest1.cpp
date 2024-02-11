@@ -12,18 +12,25 @@
 // Team1::Robot import
 #include "robot.cpp"
 
+// Higher level movements
+#include "include/assumed_functions.hpp"
+
 // ========= AUXILLIARY =========
-/**
- * secondsElapsed
- *
- * @returns number of seconds from program_start
-*/
-uint16_t secondsElapsed(void);
+#define WALL_DISTANCE 0.2
+
+typedef unsigned long long time_elapsed_t;
+
+time_elapsed_t secondsElapsed(void);
+
+time_elapsed_t timeSinceFirstBumper( void ); // Return the first bumper in the queue...
 
 static std::chrono::time_point<std::chrono::system_clock> program_start;
 
-static const unsigned long long program_duration = 480;
+static time_elapsed_t program_duration = 480;
 
+int move_res = 0;
+
+wallDirectionEnum direction = any;
 
 /**
  * ============
@@ -55,13 +62,66 @@ int main ( int argc, char **argv ) {
     // === MAIN ===
     // loop until program_duration [seconds] is reached
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
-        // Main stuff here...
+        // === MOVEMENTS FAILED ===
+        if ( move_res > 0 ) {
+            ROS_INFO("Handling movement 'exception'...\n");
+            // Handle cases such as bumper triggered here...
+            // Rotate after bumping into a wall
+            if ( move_res == WALL_BUMPED ) {
+                if ( wallInFront( robot ) && distanceToWall( robot ) > 0.1 ) {
+                    move_res = rotateAfterBumper();
+                }
+                else move_res = rotateAfterBumper();
+            }
+            // Do nothing if wall scan stopped motion -> allow the wallFollow to work if needed...
+            else if ( move_res == WALL_IN_FRONT ) ;
+        }
 
-        // Track odometry for previous positions
+        /**
+         * TBD: Use odometry to track previous movements/positions to prevent stuck in cycle/loop
+        */
+
+        /**
+         * === BUMPED TOO OFTEN ===
+        */
+        if ( timeSinceFirstBumper() ) {
+            ROS_WARNING("=== BUMPED TOO OFTEN ===\n");
+
+            // NOTE: If this block just ran, and move_res indicates a wall bummp, you likely didn't do much...
+
+            // Implement logic here...
+            move_res = turnRobotBy( robot, 180 );
+            if ( move_res > 0 ) continue; // Go to the MOVEMENTS FAILED section...
+            move_res = randomMotion( robot, -45, 45 );
+            continue;
+        }
+
+        // STARTUP/NORMAL CYCLE
+        if ( wallInFront( robot ) ) {
+            move_res = wallFollow( robot, direction );
+            continue;
+        }
+        else if ( emptyInFront( robot ) ) {
+            moveForwardsBy( robot, 0.2, WALL_DISTANCE );
+            continue;
+        }
+        else if ( checkIfFacingCorner( robot ) ) { // V-Shaped corner
+            move_res = turnRobotBy( robot, 45 );
+            continue;
+        }
+        else {
+            move_res = scanForArea( robot );
+
+            // If scanForArea failed
+            if ( move_res > 0 )
+                move_res = randomMotion( robot );
+            continue;
+        }
 
         /**
          * === STARTUP ===
          * 1. Check for wall   -> if true, wallFollow move in that direction until wall
+         * 1b. Check if open in front ->
          * 2. Check for corner -> if true, turn 45 degrees and next cycle
          * 3. scanForArea      -> move in that direction until wall
          *                     -> if scanForArea issue -> randomMotion -> move in that direction until wall

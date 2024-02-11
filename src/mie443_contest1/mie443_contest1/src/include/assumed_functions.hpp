@@ -7,9 +7,13 @@
 
 #include "../robot.cpp"
 
-#define REACHED_TARGET 0
-#define WALL_BUMPED 1
-#define WALL_IN_FRONT 2
+// MOVEMENT RESULTS
+#define REACHED_TARGET_LEFT    -1 // wallFollow success
+#define REACHED_TARGET_RIGHT   -2 // wallFollow success
+#define REACHED_TARGET_CENTER  -3 // wallFollow success
+#define REACHED_TARGET          0
+#define WALL_BUMPED             1 // GREATER THAN 0 INDICATES ERROR/EXCEPTIONS
+#define WALL_IN_FRONT           2
 
 
 
