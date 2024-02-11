@@ -16,6 +16,10 @@
 // Team1::Robot import
 #include "robot.cpp"
 
+// LinearAlgebra functions
+#include "include/lin_approx.hpp"
+#include "include/lin_approx.cpp"
+
 // Temp imports
 #include <cmath>
 #include <iostream>
@@ -45,12 +49,15 @@ void printVectorFloats( const std::vector<float>& the_vector );
  * === GLOBAL params ===
  * =====================
 */
+#define R_SQUARED_THRESHOLD 0.7
 static std::chrono::time_point<std::chrono::system_clock> program_start;
 
 static const unsigned long long program_duration = 10;
 
 #define SPEED_HIGH 0.2
 // #define ROT_HIGH 0.2
+
+float arr[] = { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3};
 
 
 /**
@@ -62,51 +69,16 @@ static const unsigned long long program_duration = 10;
  * @param argv string params used when starting program  (ignore but keep)
 */
 int main ( int argc, char **argv ) {
-    // ROS setup
-    ros::init(argc, argv, "contest1");
+    std::vector<float> temp_v;
+    temp_v.assign( arr, arr + sizeof(arr) / sizeof(arr[0]) );
 
-    ROS_INFO("fmod(-180, 360): %.2f\n", fmod(-180, 360));
-
-    ROS_INFO("Starting up...\n");
-
-    ros::NodeHandle nh;
-    ros::Rate loop_rate(2);
-
-    ROS_INFO("Creating Robot");
-
-    // Robot object setup
-    Team1::Robot robot( nh, 2);
-    robot.spinOnce();
-    ros::Duration(0.5).sleep(); // Sleep to ensure is initialized correctly
-
-    // GLOBAL params setup
-    program_start = std::chrono::system_clock::now();
-
-    // robot.rotateClockwiseTo(-10, -50);
-
-    ROS_INFO("Angle from 10 degrees: %.2f", robot.getAngleTo(10));
-    ROS_INFO("Angle from -90 degrees: %.2f", robot.getAngleTo(-90));
-    ROS_INFO("Angle to relative point 10, 10: %.2f", robot.getAngleToRelativePoint(10, 10));
-    ROS_INFO("Angle to abs point 10, 10: %.2f", robot.getAngleToPoint(10, 10));
-
-    // robot.moveForwards(0.2, 0.5);
-
-    robot.rotateClockwiseBy(20, 45);
-
-    // while ( ros::ok() && secondsElapsed() <= program_duration ) {
-    //     std::cout << "Ranges:\n";
-    //     printVectorFloats( robot.getRanges() );
-    //     std::cout << "N Lasers: " << robot.getNLasers() << "\n";
-    //     robot.checkBumpers();
-    //     robot.spinOnce();
-    //     ROS_INFO("Position: %.2f\nSpeed: %.2f\n", robot.getTheta(), robot.getVelTheta());
-    //     robot.rotateClockwiseBy(20,-45);
-    //     robot.sleepOnce();
-    // }
-
-    // ROS_INFO("Time ran out!\n");
-    robot.stopMotion();
-    ROS_INFO("Stopping robot!\n");
+    std::cout << temp_v.size() << std::endl;
+    lin_approx_t temp = linearApproximation( temp_v, 0, temp_v.size() );
+    std::cout << "Is there an error? " << checkApproximationError(temp) << std::endl;
+    std::cout << (isStraightLine( temp, R_SQUARED_THRESHOLD ) ? "IT IS STRAIGHT ENOUGH!" : "It isn't straight enought :(") << std::endl;
+    std::cout << "R-Squared: " << getRSquared(temp) << std::endl;
+    std::cout << "Slope:     " << getSlope( temp ) << std::endl;
+    std::cout << "Intercept: " << getIntercept( temp ) << std::endl;
 }
 
 
