@@ -76,7 +76,7 @@ int main ( int argc, char **argv ) {
     lin_approx_t temp = linearApproximation( temp_v, 0, temp_v.size() );
     std::cout << "Is there an error? " << checkApproximationError(temp) << std::endl;
     std::cout << (isStraightLine( temp, R_SQUARED_THRESHOLD ) ? "IT IS STRAIGHT ENOUGH!" : "It isn't straight enought :(") << std::endl;
-    std::cout << "R-Squared: " << getRSquared(temp) << std::endl;
+    std::cout << "MES: " << getMeanSquaredError(temp) << std::endl;
     std::cout << "Slope:     " << getSlope( temp ) << std::endl;
     std::cout << "Intercept: " << getIntercept( temp ) << std::endl;
 }

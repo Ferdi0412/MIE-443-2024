@@ -198,4 +198,11 @@ float getIntercept( const lin_approx_t& linear_object ) {
 }
 
 
+/**
+ * getMeanSquaredError returns the mean squared error...
+*/
+float getMeanSquaredError( const lin_approx_t& linear_object ) {
+    return std::get<2>(linear_object);
+}
+
 #endif
