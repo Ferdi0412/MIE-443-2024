@@ -137,18 +137,18 @@ int main ( int argc, char **argv ) {
             moveForwardsBy( robot, 0.2, WALL_DISTANCE );
             continue;
         }
-        else if ( checkIfFacingCorner( robot,  WALL_DISTANCE) ) { // V-Shaped corner
-            move_res = turnRobotBy( robot, 45 );
-            continue;
-        }
-        else {
-            move_res = scanForArea( robot );
+        // else if ( checkIfFacingCorner( robot,  WALL_DISTANCE) ) { // V-Shaped corner
+        //     move_res = turnRobotBy( robot, 45 );
+        //     continue;
+        // }
+        // else {
+        //     move_res = scanForArea( robot );
 
-            // If scanForArea failed
-            if ( move_res > 0 )
-                move_res = randomMotion( robot, -90, 90 );
-            continue;
-        }
+        //     // If scanForArea failed
+        //     if ( move_res > 0 )
+        //         move_res = randomMotion( robot, -90, 90 );
+        //     continue;
+        // }
 
         /**
          * === STARTUP ===
