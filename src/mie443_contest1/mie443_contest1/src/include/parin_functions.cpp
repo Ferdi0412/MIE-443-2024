@@ -96,8 +96,8 @@ int avoidObstacles(Team1::Robot& robot, wallDirectionEnum dir) {
     if (!laser_ranges.empty()) {
 
         const float middle_value = laser_ranges[laser_ranges.size() / 2];
-        const float right_value = laser_ranges[0];
-        const float left_value = laser_ranges[laser_ranges.size() - 1];
+        const double right_value = laser_ranges[0];
+        const double left_value = laser_ranges[laser_ranges.size() - 1];
 
         std::cout << "Middle Value: " << middle_value << std::endl;
         std::cout << "Left Value:" << left_value << std::endl;
@@ -106,7 +106,7 @@ int avoidObstacles(Team1::Robot& robot, wallDirectionEnum dir) {
         if (dir == any){
             if (middle_value > MAX_DISTANCE){
                 ROS_INFO("Move FORWARD");
-                moveForwardsBy(robot, middle_value - MIN_DISTANCE, MIN_DISTANCE);
+                moveForwardsBy(robot, middle_value - MAX_DISTANCE, MAX_DISTANCE);
                 return 0;
             } else if (right_value >= left_value){
                 ROS_INFO("TURN RIGHT");
@@ -127,7 +127,7 @@ int avoidObstacles(Team1::Robot& robot, wallDirectionEnum dir) {
         } else if (dir == right){
             if (middle_value <= MAX_DISTANCE){
                 ROS_INFO("TURN RIGHT");
-                // turnRobotBy(robot, 90);
+                turnRobotBy(robot, 90);
                 return -2;
             }
         }

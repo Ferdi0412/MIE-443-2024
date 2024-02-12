@@ -131,6 +131,13 @@ int main ( int argc, char **argv ) {
         // STARTUP/NORMAL CYCLE
         if ( wallInFront( robot ) ) {
             move_res = wallFollow( robot, direction );
+            if (move_res == 0){
+                direction = any;
+            } else if (move_res == -1){
+                direction = left;
+            } else if (move_res == -2){
+                direction = right;
+            }
             continue;
         }
         else if ( emptyInFront( robot ) ) {
