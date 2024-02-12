@@ -130,18 +130,22 @@ int main ( int argc, char **argv ) {
 
         // STARTUP/NORMAL CYCLE
         if ( wallInFront( robot ) ) {
+            ROS_INFO("=== wallInFront ===\n");
             move_res = wallFollow( robot, direction );
             continue;
         }
         else if ( emptyInFront( robot ) ) {
+            ROS_INFO("=== emptyInFront ===\n");
             moveForwardsBy( robot, 0.2, WALL_DISTANCE );
             continue;
         }
         else if ( checkIfFacingCorner( robot,  WALL_DISTANCE) ) { // V-Shaped corner
+            ROS_INFO("=== checkIfFacingCorner ===\n");
             move_res = turnRobotBy( robot, 45 );
             continue;
         }
         else {
+            ROS_INFO("=== scanForArea ===\n");
             move_res = scanForArea( robot );
 
             // If scanForArea failed
