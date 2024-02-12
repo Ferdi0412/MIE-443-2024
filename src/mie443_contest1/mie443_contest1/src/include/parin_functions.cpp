@@ -43,10 +43,10 @@ int wallParallel(Team1::Robot& robot) {
     float wall_angle = getWallAngleFromLaserScan(robot);
     double distance_to_wall = distanceToWall(robot);
 
-    if ( std::isinf(wall_angle) ) {
-        ROS_ERROR("Wall angle is inf!!!\n");
-        return NO_MOVE;
-    }
+    // if ( std::isinf(wall_angle) ) {
+    //     ROS_ERROR("Wall angle is inf!!!\n");
+    //     return NO_MOVE;
+    // }
 
     if ( distance_to_wall >= MAX_DISTANCE) {
         moveForwardsBy(robot, distance_to_wall - MAX_DISTANCE, MAX_DISTANCE);
