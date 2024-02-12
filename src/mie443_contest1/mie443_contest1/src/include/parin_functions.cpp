@@ -5,6 +5,13 @@
 #include "assumed_functions.hpp"
 
 
+int wallParallel(Team1::Robot& robot);
+int avoidObstacles(Team1::Robot& robot, wallDirectionEnum dir);
+
+
+/**
+ * === IMPLEMENTATIONS ===
+*/
 
 int wallFollow( Team1::Robot& robot, wallDirectionEnum wall_direction ) {
     // Parallelize with wall
@@ -12,7 +19,7 @@ int wallFollow( Team1::Robot& robot, wallDirectionEnum wall_direction ) {
     robot.spinOnce();
 
     // Obstacle Avoidance Algorithm
-    int direction = avoidObstacles(robot, dir);
+    int direction = avoidObstacles(robot, wall_direction);
 
     return direction;
 
