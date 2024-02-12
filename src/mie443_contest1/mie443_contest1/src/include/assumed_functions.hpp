@@ -63,7 +63,12 @@ int moveForwardsBy( Team1::Robot& robot, double target_distance, float wall_dist
 */
 float getRandomValue( float min_val, float max_val ); // EMMA
 
-
+/**
+ * Scanmotion does a 180 degree scan and moves in that direction until 0.2 away from the wall
+ *
+ * @param robot the robot object
+*/
+int ScanMotion(Team1::Robot& robot);
 
 // Enum for use with followWall
 enum wallDirectionEnum { left, right, any };

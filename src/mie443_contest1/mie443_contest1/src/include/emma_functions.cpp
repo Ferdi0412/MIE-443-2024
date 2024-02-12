@@ -127,6 +127,18 @@ int randomMotion(Team1::Robot& robot, double minValue, double maxValue){
     return REACHED_TARGET;
     }
 
+int scanMotion(Team1::Robot& robot){
+        try {
+            robot.rotateClockwiseBy(60, scanForArea(robot));
+            robot.moveForwards(0.25,printVectorFloats(robot.getRanges()) - 0.2);
+        }
+        catch (BumperException){
+            rotateAfterBumper(robot);
+            return WALL_BUMPED;
+        }
+    return REACHED_TARGET;
+    }
+
 int randomBias(Team1::Robot& robot){
     robot.spinOnce();
     if (printVectorFloats(robot.getRanges()) > 0.5){
