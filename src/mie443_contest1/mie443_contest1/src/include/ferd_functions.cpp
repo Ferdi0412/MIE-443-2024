@@ -58,6 +58,7 @@ float getWallAngleFromLaserScan( Team1::Robot& robot ) {
 
     // Get normal angle from slope...
     angle = RAD2DEG(acos( slope ));
+    ROS_INFO("Calculated angle: %.2f\n", angle);
 
     return angle;
 }
