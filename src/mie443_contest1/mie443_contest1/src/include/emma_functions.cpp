@@ -91,7 +91,7 @@ int scanForArea(Team1::Robot& robot){
         }
     int n = 0;
     for (unsigned int n=0;n<6; n++){
-        if (longLength > maxArr[n]){
+        if (longLength < maxArr[n]){
             longLength = maxArr[n];
             if (n > 2){
                 bestDir = (5-n) *-30;}
@@ -114,14 +114,12 @@ int randomMotion(Team1::Robot& robot, double minValue, double maxValue){
         }
         catch (BumperException){
             rotateAfterBumper(robot);
+            return WALL_BUMPED;
         }
-    return 0;
+    return REACHED_TARGET;
     }
 
 int randomBias(Team1::Robot& robot){
-    ROS_INFO("Phase 3.1");
-    while (ros::ok){
-
     robot.spinOnce();
     if (printVectorFloats(robot.getRanges()) > 0.5){
          ROS_INFO("Distance > 0.4");
@@ -147,7 +145,6 @@ int randomBias(Team1::Robot& robot){
              ROS_INFO("Caught Bumper");
             rotateAfterBumper(robot);
         }
-    }
     }
     robot.stopMotion();
     return WALL_BUMPED;

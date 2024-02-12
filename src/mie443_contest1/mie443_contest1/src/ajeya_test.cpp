@@ -48,7 +48,7 @@ void initializeBumperQueue( void );
 
 boost::circular_buffer<time_elapsed_t> bumper_queue(3); // 3 Bumper events...
 
-long long timeSinceFirstBumper( void );
+time_elapsed_t timeSinceFirstBumper( void );
 
 static std::chrono::time_point<std::chrono::system_clock> program_start;
 
@@ -128,26 +128,43 @@ int main ( int argc, char **argv ) {
             continue;
         }
 
+        robot.spinOnce();
+        double distance_to_wall_head_on = distanceToWallHeadOn(robot);
+
         // STARTUP/NORMAL CYCLE
-        if ( wallInFront( robot ) ) {
+        if ( wallInFront( robot ) && distance_to_wall_head_on < 0.5) {
+            ROS_INFO("=== wallInFront ===\n");
             move_res = wallFollow( robot, direction );
             continue;
         }
         else if ( emptyInFront( robot ) ) {
+            ROS_INFO("=== emptyInFront ===\n");
             moveForwardsBy( robot, 0.2, WALL_DISTANCE );
             continue;
         }
         else if ( checkIfFacingCorner( robot,  WALL_DISTANCE) ) { // V-Shaped corner
+            ROS_INFO("=== checkIfFacingCorner ===\n");
             move_res = turnRobotBy( robot, 45 );
             continue;
         }
         else {
-            move_res = scanForArea( robot );
+            ROS_INFO("=== scanForArea ===\n");
 
-            // If scanForArea failed
-            if ( move_res > 0 )
-                move_res = randomMotion( robot, -90, 90 );
-            continue;
+            try {
+                robot.rotateClockwiseBy(60, scanForArea( robot ));
+                robot.moveForwards(0.25,distance_to_wall_head_on - 0.2 );
+                move_res = REACHED_TARGET;
+
+            }
+            catch (BumperException){
+                rotateAfterBumper(robot);
+                move_res = WALL_BUMPED;
+            }
+
+            // // If scanForArea failed
+            // if ( move_res > 0 )
+            //     move_res = randomMotion( robot, -90, 90 );
+            // continue;
         }
 
         /**
@@ -217,8 +234,8 @@ void initializeBumperQueue( void ) {
         bumper_queue.pop_front();
 }
 
-long long timeSinceFirstBumper( void ) {
+time_elapsed_t timeSinceFirstBumper( void ) {
     if ( bumper_queue.size() == bumper_queue.capacity() )
         return (getCurrentTime() - bumper_queue.front());
-    return -1;
+    return 1000;
 }
