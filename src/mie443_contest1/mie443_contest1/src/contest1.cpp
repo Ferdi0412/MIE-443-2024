@@ -24,6 +24,9 @@
 // Parin's functions
 #include "include/parin_functions.cpp"
 
+// Emma's functions
+#include "include/emma_functions.cpp"
+
 // Linear approximation dependency
 #include "include/lin_approx.cpp"
 
