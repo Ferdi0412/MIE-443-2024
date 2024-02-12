@@ -86,7 +86,7 @@ int wallParallel(Team1::Robot& robot) {
 // Function to make the robot avoid obstacles
 int avoidObstacles(Team1::Robot& robot, wallDirectionEnum dir) {
 
-    const float MIN_DISTANCE = 0.3; // Minimum distance to consider an obstacle
+    const float MIN_DISTANCE = 0.4; // Minimum distance to consider an obstacle
     const float MAX_DISTANCE = 0.6; // Maximum distance to consider an obstacle
 
     // Laser scan data
@@ -106,7 +106,7 @@ int avoidObstacles(Team1::Robot& robot, wallDirectionEnum dir) {
         if (dir == any){
             if (middle_value > MAX_DISTANCE){
                 ROS_INFO("Move FORWARD");
-                moveForwardsBy(robot, middle_value - 0.4,MAX_DISTANCE);
+                moveForwardsBy(robot, middle_value - MIN_DISTANCE, MIN_DISTANCE);
                 return 0;
             } else if (right_value >= left_value){
                 ROS_INFO("TURN RIGHT");
