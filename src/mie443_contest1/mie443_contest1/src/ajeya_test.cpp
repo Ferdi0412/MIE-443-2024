@@ -91,6 +91,8 @@ int main ( int argc, char **argv ) {
     // loop until program_duration [seconds] is reached
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
         robot.spinOnce(); // Update values....
+
+        double distance_to_wall_head_on = distanceToWallHeadOn(robot);
         /**
          * === MOVEMENTS FAILED ===
         */
@@ -128,16 +130,13 @@ int main ( int argc, char **argv ) {
             continue;
         }
 
-        robot.spinOnce();
-        double distance_to_wall_head_on = distanceToWallHeadOn(robot);
-
         // STARTUP/NORMAL CYCLE
-        if ( wallInFront( robot ) && distance_to_wall_head_on < 0.5) {
+        if ( wallInFront( robot ) && distance_to_wall_head_on < WALL_DISTANCE) {
             ROS_INFO("=== wallInFront ===\n");
-            move_res = wallFollow( robot, direction );
+            // move_res = wallFollow( robot, direction );
             continue;
         }
-        else if ( emptyInFront( robot ) ) {
+        else if ( emptyInFront( robot ) || distance_to_wall_head_on < WALL_DISTANCE) {
             ROS_INFO("=== emptyInFront ===\n");
             moveForwardsBy( robot, 0.2, WALL_DISTANCE );
             continue;
@@ -149,22 +148,12 @@ int main ( int argc, char **argv ) {
         }
         else {
             ROS_INFO("=== scanForArea ===\n");
+            move_res = scanForArea( robot );
 
-            try {
-                robot.rotateClockwiseBy(60, scanForArea( robot ));
-                robot.moveForwards(0.25,distance_to_wall_head_on - 0.2 );
-                move_res = REACHED_TARGET;
-
-            }
-            catch (BumperException){
-                rotateAfterBumper(robot);
-                move_res = WALL_BUMPED;
-            }
-
-            // // If scanForArea failed
-            // if ( move_res > 0 )
-            //     move_res = randomMotion( robot, -90, 90 );
-            // continue;
+            // If scanForArea failed
+            if ( move_res > 0 )
+                move_res = randomMotion( robot, -90, 90 );
+            continue;
         }
 
         /**
