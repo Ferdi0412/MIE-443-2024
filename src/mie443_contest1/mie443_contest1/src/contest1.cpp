@@ -27,6 +27,9 @@
 // Emma's functions
 #include "include/emma_functions.cpp"
 
+// Ajeya's Functions
+#include "include/ajeya_functions.cpp"
+
 // Linear approximation dependency
 #include "include/lin_approx.cpp"
 
@@ -134,7 +137,7 @@ int main ( int argc, char **argv ) {
             moveForwardsBy( robot, 0.2, WALL_DISTANCE );
             continue;
         }
-        else if ( checkIfFacingCorner( robot ) ) { // V-Shaped corner
+        else if ( checkIfFacingCorner( robot,  WALL_DISTANCE) ) { // V-Shaped corner
             move_res = turnRobotBy( robot, 45 );
             continue;
         }
