@@ -4,6 +4,10 @@
 
 #include "assumed_functions.hpp"
 #include "lin_approx.hpp"
+#include "lin_approx.cpp"
+
+#include <ros/console.h>
+#include "ros/ros.h"
 
 #include <vector>
 #include <limits>
@@ -31,7 +35,8 @@ bool wallInFront( Team1::Robot& robot ) {
     lin_approx_t linear_approximation;
     linear_approximation = linearApproximation( robot.getRanges(), robot.getRanges().size() * 2 / 5, robot.getRanges().size() * 3 / 5);
     if ( checkApproximationError( linear_approximation) ) return false;
-    return isStraightLine(linear_approximation, 0.1);
+    ROS_INFO("MSE on scan: %.2f\n", getMeanSquaredError(linear_approximation));
+    return isStraightLine(linear_approximation, 0.3);
 }
 
 
@@ -53,6 +58,7 @@ float getWallAngleFromLaserScan( Team1::Robot& robot ) {
 
     // Get normal angle from slope...
     angle = RAD2DEG(acos( slope ));
+    ROS_INFO("Calculated angle: %.2f\n", angle);
 
     return angle;
 }

@@ -48,7 +48,7 @@ void initializeBumperQueue( void );
 
 boost::circular_buffer<time_elapsed_t> bumper_queue(3); // 3 Bumper events...
 
-long long timeSinceFirstBumper( void );
+time_elapsed_t timeSinceFirstBumper( void );
 
 static std::chrono::time_point<std::chrono::system_clock> program_start;
 
@@ -130,18 +130,22 @@ int main ( int argc, char **argv ) {
 
         // STARTUP/NORMAL CYCLE
         if ( wallInFront( robot ) ) {
+            ROS_INFO("=== wallInFront ===\n");
             move_res = wallFollow( robot, direction );
             continue;
         }
         else if ( emptyInFront( robot ) ) {
+            ROS_INFO("=== emptyInFront ===\n");
             moveForwardsBy( robot, 0.2, WALL_DISTANCE );
             continue;
         }
         else if ( checkIfFacingCorner( robot,  WALL_DISTANCE) ) { // V-Shaped corner
+            ROS_INFO("=== checkIfFacingCorner ===\n");
             move_res = turnRobotBy( robot, 45 );
             continue;
         }
         else {
+            ROS_INFO("=== scanForArea ===\n");
             move_res = scanForArea( robot );
 
             // If scanForArea failed
@@ -217,8 +221,8 @@ void initializeBumperQueue( void ) {
         bumper_queue.pop_front();
 }
 
-long long timeSinceFirstBumper( void ) {
+time_elapsed_t timeSinceFirstBumper( void ) {
     if ( bumper_queue.size() == bumper_queue.capacity() )
         return (getCurrentTime() - bumper_queue.front());
-    return -1;
+    return 1000;
 }
