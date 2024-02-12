@@ -26,6 +26,9 @@
 #define NUM_SCAN_SEGM 5
 #endif
 
+int wallParallel(Team1::Robot& robot);
+int avoidObstacles(Team1::Robot& robot, wallDirectionEnum dir);
+
 
 bool wallInFront( Team1::Robot& robot ) {
     lin_approx_t linear_approximation;
