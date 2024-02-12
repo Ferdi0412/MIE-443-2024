@@ -21,6 +21,9 @@
 // Ferdi's functions
 #include "include/ferd_functions.cpp"
 
+// Parin's functions
+#include "include/parin_functions.cpp"
+
 // Linear approximation dependency
 #include "include/lin_approx.cpp"
 
