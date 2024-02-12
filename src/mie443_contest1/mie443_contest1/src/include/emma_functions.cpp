@@ -11,6 +11,8 @@
 #include <chrono>
 #include <stdint.h>
 #include <stdio.h>
+#include <random>
+#include <iostream>
 
 // ROS imports
 #include <ros/console.h>
@@ -45,12 +47,11 @@ double printVectorAvg( const std::vector<float>& the_vector ) {
     return laserAvg;
 }
 
-int getRandomValue(double  minVal,double&  maxVal){
+float getRandomValue(float  minVal,float  maxVal){
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distr(-minVal,maxVal);
-    std::cout << "Random Angle is: ",(int) distr(gen);
-    return (int) distr(gen);
+    std::uniform_real_distribution<> distr(-minVal,maxVal);
+    return distr(gen);
 }
 
 int rotateAfterBumper(Team1::Robot& robot){ //tests
@@ -78,6 +79,7 @@ catch (BumperException)
 }
 
 int scanForArea(Team1::Robot& robot){
+    try {
     ROS_INFO("SCANNING");
     robot.spinOnce();
     int maxArr[6];
@@ -91,7 +93,7 @@ int scanForArea(Team1::Robot& robot){
         }
     int n = 0;
     for (unsigned int n=0;n<6; n++){
-        if (longLength < maxArr[n]){
+        if (longLength > maxArr[n]){
             longLength = maxArr[n];
             if (n > 2){
                 bestDir = (5-n) *-30;}
@@ -104,6 +106,12 @@ int scanForArea(Team1::Robot& robot){
     
     ROS_INFO("Direction to go: %d", bestDir);
     return bestDir;
+    }
+catch (BumperException)
+{
+    rotateAfterBumper(robot);
+    return WALL_BUMPED;
+}
 
 }
 
