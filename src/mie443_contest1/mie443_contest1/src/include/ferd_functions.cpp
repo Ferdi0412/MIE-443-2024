@@ -4,6 +4,7 @@
 
 #include "assumed_functions.hpp"
 #include "lin_approx.hpp"
+#include "lin_approx.cpp"
 
 #include <ros/console.h>
 #include "ros/ros.h"
