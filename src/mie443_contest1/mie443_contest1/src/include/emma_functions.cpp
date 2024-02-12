@@ -43,8 +43,27 @@ double printVectorAvg( const std::vector<float>& the_vector ) {
         sum = sum + (the_vector[i]);
         }
     laserAvg = sum / 640;
-    ROS_INFO("LASER AVG IS PRINTED");
+    std:: cout << laserAvg;
     return laserAvg;
+}
+
+double printLaserAvg(Team1::Robot& robot, const std::vector<float>& the_vector){
+    const std::vector<float> laser_ranges = robot.getRanges();
+    // printVectorFloats(laser_ranges);
+    if (!laser_ranges.empty()) {
+
+        const float middle_value = laser_ranges[laser_ranges.size() / 2];
+        const float right_value = laser_ranges[0];
+        const float left_value = laser_ranges[laser_ranges.size() - 1];
+
+        std::cout << "Middle Value: " << middle_value << std::endl;
+        std::cout << "Left Value:" << left_value << std::endl;
+        std::cout << "Right Value" << right_value << std::endl;
+
+        float laserAverage = (middle_value + right_value + left_value)/3;
+
+        return laserAverage;
+    }
 }
 
 float getRandomValue(float  minVal,float  maxVal){
@@ -83,25 +102,30 @@ int scanForArea(Team1::Robot& robot){
     ROS_INFO("SCANNING");
     robot.spinOnce();
     int maxArr[6];
-    int bestDir;
+    int bestDir = 0;
     int scanArray[6] = {-90,30, 30, 60, 30, 30};
     double longLength = 0;
-    for (unsigned int i=0; i<6;  i++){
+    for (int i=0; i<6;  i++){
         robot.rotateClockwiseBy(60, scanArray[i]);
         robot.spinOnce();
-        maxArr[i] = printVectorAvg(robot.getRanges());
+        maxArr[i] = printLaserAvg(robot,robot.getRanges());
         }
-    int n = 0;
-    for (unsigned int n=0;n<6; n++){
-        if (longLength > maxArr[n]){
+    for (int n=0;n<6; n++){
+        std::cout << maxArr[n];
+        std::cout << "second print array";
+        if (longLength < maxArr[n]){
+            std::cout << "Longer";
             longLength = maxArr[n];
             if (n > 2){
-                bestDir = (5-n) *-30;}
+                bestDir = (5-n) *-30;
+                ROS_INFO("best dir is: %i", bestDir);
+                }
             
             else {bestDir = (n * 30) - 180;
             }
 
             }
+            else{std:: cout << "why no work";}
         }
     
     ROS_INFO("Direction to go: %d", bestDir);
@@ -130,6 +154,7 @@ int randomMotion(Team1::Robot& robot, double minValue, double maxValue){
 int scanMotion(Team1::Robot& robot){
         try {
             robot.rotateClockwiseBy(60, scanForArea(robot));
+            std:: cout << "rotating";
             robot.moveForwards(0.25,printVectorFloats(robot.getRanges()) - 0.2);
         }
         catch (BumperException){
