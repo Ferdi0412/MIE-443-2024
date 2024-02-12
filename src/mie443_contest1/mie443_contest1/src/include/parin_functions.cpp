@@ -139,7 +139,7 @@ int wallFollow( Team1::Robot& robot, wallDirectionEnum wall_direction ) {
     robot.spinOnce();
 
     // Obstacle Avoidance Algorithm
-    int direction = avoidObstacles(robot, dir);
+    int direction = avoidObstacles(robot, wall_direction);
     
     return direction;
 
