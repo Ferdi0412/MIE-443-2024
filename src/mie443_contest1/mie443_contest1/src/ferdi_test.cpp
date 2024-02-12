@@ -85,7 +85,7 @@ int main ( int argc, char **argv ) {
     linear_approximation = linearApproximation( temp_v, 0, temp_v.size() );
 
     std::cout << checkApproximationError(linear_approximation) << " < err" << std::endl;
-    std::cout << isStraightLine(linear_approximation) ? "IT IS STRAIGHT!" : "It is not..." << std::endl;
+    std::cout << (isStraightLine(linear_approximation, 0.1) ? "IT IS STRAIGHT!" : "It is not...") << std::endl;
     std::cout << getSlope(linear_approximation) << " < slope" << std::endl;
     std::cout << getMeanSquaredError(linear_approximation) << " < MSE" << std::endl;
 }

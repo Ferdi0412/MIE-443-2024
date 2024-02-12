@@ -113,7 +113,7 @@ int rotateAfterBumper( Team1::Robot& robot ); // EMMA
 /**
  * checkIfFacingCorner will return true if the robot is facing a 90 (or so) degree corner in the maze
 */
-bool checkIfFacingCorner( Team1::Robot& robot ); // AJEYA
+bool checkIfFacingCorner( Team1::Robot& robot , int MIN_DISTANCE); // AJEYA
 
 
 

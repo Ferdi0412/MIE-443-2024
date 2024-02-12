@@ -31,8 +31,8 @@ target_link_libraries(parin_test ${catkin_LIBRARIES} ${OpenCV_LIB})
 add_executable(ajeya_test src/ajeya_test.cpp)
 target_link_libraries(ajeya_test ${catkin_LIBRARIES} ${OpenCV_LIB})
 
-#add_executable(emma_test src/emma_test.cpp)
-#target_link_libraries(emma_test ${catkin_LIBRARIES} ${OpenCV_LIB})
+add_executable(emma_test src/emma_test.cpp)
+target_link_libraries(emma_test ${catkin_LIBRARIES} ${OpenCV_LIB})
 
 add_executable(ferdi_test src/ferdi_test.cpp)
 target_link_libraries(ferdi_test ${catkin_LIBRARIES} ${OpenCV_LIB})
