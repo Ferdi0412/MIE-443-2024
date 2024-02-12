@@ -91,7 +91,7 @@ int scanForArea(Team1::Robot& robot){
         }
     int n = 0;
     for (unsigned int n=0;n<6; n++){
-        if (longLength > maxArr[n]){
+        if (longLength < maxArr[n]){
             longLength = maxArr[n];
             if (n > 2){
                 bestDir = (5-n) *-30;}
