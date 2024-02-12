@@ -4,6 +4,9 @@
 
 #include "assumed_functions.hpp"
 #include "ferd_functions.cpp"
+#include <ros/console.h>
+#include "ros/ros.h"
+
 
 
 int wallParallel(Team1::Robot& robot);
@@ -17,6 +20,7 @@ int avoidObstacles(Team1::Robot& robot, wallDirectionEnum dir);
 int wallFollow( Team1::Robot& robot, wallDirectionEnum wall_direction ) {
     // Parallelize with wall
     int wall_turn = wallParallel(robot);
+    if ( (wall_turn == WALL_NOT_FOUND) || (wall_turn == NO_MOVE) ) return WALL_NOT_FOUND;
     robot.spinOnce();
 
     // Obstacle Avoidance Algorithm
@@ -36,23 +40,36 @@ int wallParallel(Team1::Robot& robot) {
     // const float left_value = laser_ranges[laser_ranges.size() - 1];
 
     // Wall angle data
-    const float wall_angle = getWallAngleFromLaserScan(robot);
+    float wall_angle = getWallAngleFromLaserScan(robot);
+    double distance_to_wall = distanceToWall(robot);
 
-    if (!std::isinf(wall_angle)){
-        if (wall_angle < 0){
-            ROS_INFO("Turn CW");
-            turnRobotBy(robot, -wall_angle);
-            return -2; //Turn CW
-        } else if (wall_angle > 0){
-            ROS_INFO("Turn CCW");
-            turnRobotBy(robot, -wall_angle);
-            return -1; //Turn CCW
-        } else if (wall_angle == 0){
-            ROS_INFO("Already PARALLEL");
-            return 0; // Already parallel
-        }
-    } else if (std::isinf(wall_angle)) {
-        ROS_INFO("Incorrect Wall Angle");
+    if ( std::isinf(wall_angle) ) {
+        ROS_ERROR("Wall angle is inf!!!\n");
+        return NO_MOVE;
+    }
+
+    if ( distance_to_wall >= MAX_DISTANCE) {
+        moveForwardsBy(robot, distance_to_wall - MAX_DISTANCE, MAX_DISTANCE);
+        robot.spinOnce();
+        wall_angle = getWallAngleFromLaserScan(robot);
+    }
+
+    if ( std::isinf(wall_angle) ) {
+        ROS_WARN("Wall angle is inf!!!\n");
+        return WALL_NOT_FOUND;
+    }
+
+    if (wall_angle < 0){
+        ROS_INFO("Turn CW");
+        turnRobotBy(robot, -wall_angle);
+        return -2; //Turn CW
+    } else if (wall_angle > 0){
+        ROS_INFO("Turn CCW");
+        turnRobotBy(robot, -wall_angle);
+        return -1; //Turn CCW
+    } else if (wall_angle == 0){
+        ROS_INFO("Already PARALLEL");
+        return 0; // Already parallel
     }
 
 }
