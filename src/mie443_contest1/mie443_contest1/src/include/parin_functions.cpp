@@ -33,7 +33,7 @@ int wallFollow( Team1::Robot& robot, wallDirectionEnum wall_direction ) {
 // ***** Parallelize Robot wrt Walls ***** //
 int wallParallel(Team1::Robot& robot) {
 
-    const float MAX_DISTANCE = 0.6;
+    const float MAX_DISTANCE = 0.7;
     // Laser scan data
     // const std::vector<float> laser_ranges = robot.getRanges();
     // const float right_value = laser_ranges[0];
