@@ -115,18 +115,18 @@ int main ( int argc, char **argv ) {
         /**
          * === BUMPED TOO OFTEN ===
         */
-        if ( timeSinceFirstBumper() < 10 ) { // If too many bumps in the last 10 seconds...
-            ROS_WARN("=== BUMPED TOO OFTEN ===\n");
+        //if ( timeSinceFirstBumper() < 10 ) { // If too many bumps in the last 10 seconds...
+        //    ROS_WARN("=== BUMPED TOO OFTEN ===\n");
 
             // NOTE: If this block just ran, and move_res indicates a wall bummp, you likely didn't do much...
             // Consider "forceful turn..." -> moves regardless of bumping
 
             // Implement logic here...
-            move_res = turnRobotBy( robot, 180 );
-            if ( move_res > 0 ) continue; // Go to the MOVEMENTS FAILED section...
-            move_res = randomMotion( robot, -45, 45 );
-            continue;
-        }
+        //    move_res = turnRobotBy( robot, 180 );
+        //    if ( move_res > 0 ) continue; // Go to the MOVEMENTS FAILED section...
+        //    move_res = randomMotion( robot, -45, 45 );
+        //    continue;
+        //}
 
         // STARTUP/NORMAL CYCLE
         if ( wallInFront( robot ) ) {

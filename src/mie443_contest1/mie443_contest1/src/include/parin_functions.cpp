@@ -106,7 +106,7 @@ int avoidObstacles(Team1::Robot& robot, wallDirectionEnum dir) {
         if (dir == any){
             if (middle_value > MAX_DISTANCE){
                 ROS_INFO("Move FORWARD");
-                moveForwardsBy(robot, middle_value - MAX_DISTANCE,MAX_DISTANCE);
+                moveForwardsBy(robot, middle_value - 0.4,MAX_DISTANCE);
                 return 0;
             } else if (right_value >= left_value){
                 ROS_INFO("TURN RIGHT");
