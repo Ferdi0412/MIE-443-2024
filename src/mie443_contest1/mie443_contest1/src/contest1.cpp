@@ -48,7 +48,7 @@ void initializeBumperQueue( void );
 
 boost::circular_buffer<time_elapsed_t> bumper_queue(3); // 3 Bumper events...
 
-long long timeSinceFirstBumper( void );
+time_elapsed_t timeSinceFirstBumper( void );
 
 static std::chrono::time_point<std::chrono::system_clock> program_start;
 
@@ -217,8 +217,8 @@ void initializeBumperQueue( void ) {
         bumper_queue.pop_front();
 }
 
-long long timeSinceFirstBumper( void ) {
+time_elapsed_t timeSinceFirstBumper( void ) {
     if ( bumper_queue.size() == bumper_queue.capacity() )
         return (getCurrentTime() - bumper_queue.front());
-    return -1;
+    return 1000;
 }
