@@ -154,8 +154,7 @@ int randomMotion(Team1::Robot& robot, double minValue, double maxValue){
 int scanMotion(Team1::Robot& robot){
         try {
             robot.rotateClockwiseBy(60, scanForArea(robot));
-            std:: cout << "rotating";
-            robot.moveForwards(0.25,printVectorFloats(robot.getRanges()) - 0.2);
+            robot.moveForwards(0.25, printLaserAvg(robot,robot.getRanges()));
         }
         catch (BumperException){
             rotateAfterBumper(robot);
