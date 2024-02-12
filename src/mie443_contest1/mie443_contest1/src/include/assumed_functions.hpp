@@ -68,7 +68,7 @@ float getRandomValue( float min_val, float max_val ); // EMMA
  *
  * @param robot the robot object
 */
-int ScanMotion(Team1::Robot& robot);
+int scanMotion(Team1::Robot& robot);
 
 // Enum for use with followWall
 enum wallDirectionEnum { left, right, any };
