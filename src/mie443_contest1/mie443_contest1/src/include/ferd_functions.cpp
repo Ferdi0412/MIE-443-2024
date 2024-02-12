@@ -134,31 +134,31 @@ double getRotateAfterAngle( void ) {
 
 
 
-int rotateAfterBumper( Team1::Robot& robot ) {
-    try {
-        // If center bumper pressed... TBD
-        if ( robot.getBumperCenter() ) {
-            robot.moveForwards(-LINEAR_VELOCITY, getRotateAfterDistance());
-        }
-        // If left bumper is pressed, rotate clockwise
-        else if ( robot.getBumperLeft() ) {
-            robot.moveForwards(-LINEAR_VELOCITY, getRotateAfterDistance());
-            robot.rotateClockwiseBy(ROTATIONAL_VELOCITY, getRotateAfterAngle());
-        }
-        // If right bumper is pressed, rotate counter-clockwise
-        else if ( robot.getBumperRight() ) {
-            robot.moveForwards(-LINEAR_VELOCITY, getRotateAfterDistance());
-            robot.rotateClockwiseBy(ROTATIONAL_VELOCITY, -getRotateAfterAngle());
-        }
-    }
-    // If any given movement fails, return WALL_BUMPED
-    catch (BumperException) {
-        return WALL_BUMPED;
-    }
+// int rotateAfterBumper( Team1::Robot& robot ) {
+//     try {
+//         // If center bumper pressed... TBD
+//         if ( robot.getBumperCenter() ) {
+//             robot.moveForwards(-LINEAR_VELOCITY, getRotateAfterDistance());
+//         }
+//         // If left bumper is pressed, rotate clockwise
+//         else if ( robot.getBumperLeft() ) {
+//             robot.moveForwards(-LINEAR_VELOCITY, getRotateAfterDistance());
+//             robot.rotateClockwiseBy(ROTATIONAL_VELOCITY, getRotateAfterAngle());
+//         }
+//         // If right bumper is pressed, rotate counter-clockwise
+//         else if ( robot.getBumperRight() ) {
+//             robot.moveForwards(-LINEAR_VELOCITY, getRotateAfterDistance());
+//             robot.rotateClockwiseBy(ROTATIONAL_VELOCITY, -getRotateAfterAngle());
+//         }
+//     }
+//     // If any given movement fails, return WALL_BUMPED
+//     catch (BumperException) {
+//         return WALL_BUMPED;
+//     }
 
-    // Otherwise return REACHED_TARGET when all movements complete
-    return REACHED_TARGET;
-}
+//     // Otherwise return REACHED_TARGET when all movements complete
+//     return REACHED_TARGET;
+// }
 
 
 
