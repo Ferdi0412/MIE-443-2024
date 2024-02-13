@@ -224,7 +224,7 @@ double distanceToScanCenter( Team1::Robot& robot ) {
     std::vector<float> ranges = robot.getRanges();
     if ( ranges.size() == 0 ) return std::numeric_limits<double>::infinity();
     float front_center = ranges[ (unsigned int) ranges.size() / 2 ];
-    return (double) front_center
+    return (double) front_center;
 }
 
 
