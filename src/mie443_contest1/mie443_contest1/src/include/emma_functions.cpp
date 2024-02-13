@@ -98,27 +98,31 @@ int scanForArea(Team1::Robot& robot){
     try {
     ROS_INFO("SCANNING");
     robot.spinOnce();
-    float maxArr[6];
+    float maxArr[2];
     int bestDir = 0;
-    int scanArray[6] = {-90,30, 30, 60, 30, 30};
+    int scanArray[2] = {-45,90};
     double longLength = 0;
-    for (int i=0; i<6;  i++){
+    for (int i=0; i<2;  i++){
         robot.rotateClockwiseBy(60, scanArray[i]);
         robot.sleepOnce();
         robot.spinOnce();
         maxArr[i] = printLaserAvg(robot,robot.getRanges());
         ROS_INFO("output: %f",maxArr[i]);
+        if (maxArr[i] > 2)
+        {return REACHED_TARGET;
+            exit;}
         }
-    for (int n=0;n<6; n++){
+    for (int n=0;n<2; n++){
         if (longLength < maxArr[n]){
             std:: cout << longLength << maxArr[n];
             longLength = maxArr[n];
-            if (n > 2){
-                bestDir = (5-n) *-30;
+            if (n == 0){
+                bestDir = -90;
                 ROS_INFO("best dir is: %i", bestDir);
                 }
             
-            else {bestDir = (n * 30) - 180;
+            else {bestDir = 0;
+            ROS_INFO("best dir is: %i", bestDir);
             }
 
             }
