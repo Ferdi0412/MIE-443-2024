@@ -106,6 +106,9 @@ int main ( int argc, char **argv ) {
             }
             // Do nothing if wall scan stopped motion -> allow the wallFollow to work if needed...
             else if ( move_res == WALL_IN_FRONT ) ;
+            else {
+                ROS_ERROR("UNCAUGHT 'ERROR': %d...\n", move_res);
+            }
         }
 
         /** ALL -> consider this
