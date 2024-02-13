@@ -148,7 +148,7 @@ int moveForwardsBy( Team1::Robot& robot, double target_distance, float wall_dist
         laser_scan = robot.getRanges();
 
         // Calculated distance to wall in front
-        if ( distanceToWall( robot ) <= wall_distance ) {
+        if ( distanceToScanCenter( robot ) <= wall_distance ) {
             robot.stopMotion();
             return WALL_IN_FRONT;
         }
@@ -211,14 +211,23 @@ bool emptyInFront( Team1::Robot& robot ) {
 }
 
 
-
-#ifndef distanceToWall
 double distanceToWall( Team1::Robot& robot ) {
     std::vector<float> ranges = robot.getRanges();
     float front_mean = getMean( ranges, ranges.size() * SCAN_START / NUM_SCAN_SEGM, ranges.size() * SCAN_END / NUM_SCAN_SEGM );
     return (double) front_mean;
 }
-#endif
+
+
+
+
+double distanceToScanCenter( Team1::Robot& robot ) {
+    std::vector<float> ranges = robot.getRanges();
+    if ( ranges.size() == 0 ) return std::numeric_limits<double>::infinity();
+    float front_center = ranges[ (unsigned int) ranges.size() / 2 ];
+    return (double) front_center
+}
+
+
 
 
 #endif
