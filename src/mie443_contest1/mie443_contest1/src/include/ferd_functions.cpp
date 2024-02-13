@@ -35,7 +35,7 @@ bool wallInFront( Team1::Robot& robot ) {
     lin_approx_t linear_approximation;
     linear_approximation = linearApproximation( robot.getRanges(), robot.getRanges().size() * (NUM_SCAN_SEGM / 2) / NUM_SCAN_SEGM, robot.getRanges().size() * (NUM_SCAN_SEGM / 2 + 1) / NUM_SCAN_SEGM);
     if ( checkApproximationError( linear_approximation) ) return false;
-    ROS_INFO("MSE on scan: %.2f\n", getMeanSquaredError(linear_approximation));
+    ROS_INFO("=== wallInFront ---> MSE: %.4f\n", getMeanSquaredError(linear_approximation));
     return isStraightLine(linear_approximation, 0.00005);
 }
 
@@ -56,9 +56,11 @@ float getWallAngleFromLaserScan( Team1::Robot& robot ) {
 
     slope = getSlope( linear_approximation );
 
+    ROS_INFO("=== wallAngle ---> slope: %.2f\n", slope);
+
     // Get normal angle from slope...
     angle = RAD2DEG(atan( slope ));
-    ROS_INFO("Calculated angle: %.2f\n", angle);
+    ROS_INFO("=== wallAngle ---> angle: %.2f\n", angle);
 
     return angle;
 }
@@ -80,9 +82,11 @@ float getWallAngleFromLaserScanNonStraight( Team1::Robot& robot ) {
 
     slope = getSlope( linear_approximation );
 
+    ROS_INFO("=== wallAngle ---> slope: %.2f\n", slope);
+
     // Get normal angle from slope...
     angle = RAD2DEG(atan( slope ));
-    ROS_INFO("Calculated angle: %.2f\n", angle);
+    ROS_INFO("=== wallAngle ---> angle: %.2f\n", angle);
 
     return angle;
 }
