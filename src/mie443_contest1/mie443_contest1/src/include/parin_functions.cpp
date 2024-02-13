@@ -90,7 +90,7 @@ int avoidObstacles(Team1::Robot& robot, wallDirectionEnum dir) {
     const float MAX_DISTANCE = 0.6; // Maximum distance to consider an obstacle
 
     // Laser scan data
-    float std::vector<float> laser_ranges = robot.getRanges();
+    std::vector<float> laser_ranges = robot.getRanges();
     // printVectorFloats(laser_ranges);
 
     if (!laser_ranges.empty()) {
