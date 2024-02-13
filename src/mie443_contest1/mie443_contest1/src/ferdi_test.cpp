@@ -90,6 +90,7 @@ int main ( int argc, char **argv ) {
     // === MAIN ===
     // loop until program_duration [seconds] is reached
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
+        robot.spinOnce();
         ROS_INFO("=== === Wall ANGLE: %.2f\n", getWallAngleFromLaserScan(robot));
 
         // robot.sleepOnce();
