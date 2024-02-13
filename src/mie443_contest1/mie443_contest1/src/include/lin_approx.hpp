@@ -15,13 +15,14 @@ typedef std::tuple<float, float, float> lin_approx_t;
  *
  * NOTE: No accounting for any overflow of variables...
  *
- * @param input_vector the scan vector
- * @param start_index  the first index to approximate -> Used as coordinate 0 -> where intercept occurs...
- * @param end_index    the last index to approximate
+ * @param input_vector     the scan vector
+ * @param start_index      the first index to approximate -> Used as coordinate 0 -> where intercept occurs...
+ * @param end_index        the first index to not approximate (this element is NOT included)...
+ * @param angle_increments the angle between each point in the laser scan, to adjust for the width of the scan (use 0 to ignore)
  *
  * @returns a linearApproximation object -> use other functions to retrieve the data from it...
 */
-lin_approx_t linearApproximation( const laser_scan_t& input_vector, unsigned int start_index, unsigned int end_index );
+lin_approx_t linearApproximation( const laser_scan_t& input_vector, unsigned int start_index, unsigned int end_index, double angle_increments );
 
 
 /**

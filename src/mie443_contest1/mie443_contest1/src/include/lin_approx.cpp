@@ -61,16 +61,17 @@ float getMean( const laser_scan_t& input_vector, unsigned int start_index, unsig
  *
  * NOTE: No accounting for any overflow of variables...
  *
- * @param input_vector the scan vector
- * @param start_index  the first index to approximate -> Used as coordinate 0 -> where intercept occurs...
- * @param end_index    the first index to not approximate (this element is NOT included)...
+ * @param input_vector     the scan vector
+ * @param start_index      the first index to approximate -> Used as coordinate 0 -> where intercept occurs...
+ * @param end_index        the first index to not approximate (this element is NOT included)...
+ * @param angle_increments the angle between each point in the laser scan, to adjust for the width of the scan (use 0 to ignore)
  *
  * @returns a linearApproximation object -> use other functions to retrieve the data from it...
 */
-lin_approx_t linearApproximation( const laser_scan_t& input_vector, unsigned int start_index, unsigned int end_index ) {
+lin_approx_t linearApproximation( const laser_scan_t& input_vector, unsigned int start_index, unsigned int end_index, double angle_increments ) {
     double n_elements, approx_n, sum_x, sum_y, sum_x_squared, sum_xy,
           x_mean, y_mean, mean_squared_error,
-          slope, intercept;
+          slope, intercept, width_per_increment;
     unsigned int start_offset;
 
     #ifdef DEBUG_LIN_APPROX
@@ -142,6 +143,13 @@ lin_approx_t linearApproximation( const laser_scan_t& input_vector, unsigned int
         prediction   = (slope * i) + intercept;
 
         mean_squared_error += pow(curr_element - prediction, 2) / n_elements;
+    }
+
+    // Adjust span for actual span of scan
+    if ( angle_increments != 0. ) {
+        angle_increments = fabs(angle_increments);
+        width_per_increment = tan(angle_increments) * (intercept + slope * approx_n); // Get average distance times tan(angle) (o/a * a)
+        slope /= width_per_increment;
     }
 
     // Typecast each from double to float...
