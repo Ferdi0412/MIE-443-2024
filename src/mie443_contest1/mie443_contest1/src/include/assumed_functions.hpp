@@ -26,6 +26,7 @@
  * @returns an angle in range [-180, 180] if successful, or inf if unsuccessful (ie. no wall in front, or error)
 */
 float getWallAngleFromLaserScan( Team1::Robot& robot ); // Ajeya/ferdi
+float getWallAngleFromLaserScanNonStraight( Team1::Robot& robot );
 
 
 

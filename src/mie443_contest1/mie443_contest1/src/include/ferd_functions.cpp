@@ -65,6 +65,30 @@ float getWallAngleFromLaserScan( Team1::Robot& robot ) {
 
 
 
+float getWallAngleFromLaserScanNonStraight( Team1::Robot& robot ) {
+    lin_approx_t linear_approximation;
+    std::vector<float> laser_ranges;
+    float slope, angle;
+
+    laser_ranges = robot.getRanges();
+
+    linear_approximation = linearApproximation( laser_ranges, laser_ranges.size() * 2 / 5, laser_ranges.size() * 3 / 5 );
+
+    if ( checkApproximationError(linear_approximation) ) return std::numeric_limits<float>::infinity();
+
+    // if ( !isStraightLine(linear_approximation, LINEAR_LIMIT) ) return std::numeric_limits<float>::infinity();
+
+    slope = getSlope( linear_approximation );
+
+    // Get normal angle from slope...
+    angle = RAD2DEG(acos( slope ));
+    ROS_INFO("Calculated angle: %.2f\n", angle);
+
+    return angle;
+}
+
+
+
 int turnRobotBy( Team1::Robot& robot, double angle ) {
     try {
         robot.rotateClockwiseBy( ROTATIONAL_VELOCITY, angle );
