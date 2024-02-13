@@ -66,7 +66,9 @@ float getRandomValue(float  minVal,float  maxVal){
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> distr(-minVal,maxVal);
-    return distr(gen);
+    float randomval = distr(gen);
+    std:: cout << "random value is: " << randomval;
+    return randomval;
 }
 
 int rotateAfterBumper(Team1::Robot& robot){ //tests
@@ -136,7 +138,9 @@ catch (BumperException)
 
 int randomMotion(Team1::Robot& robot, double minValue, double maxValue){
         try {
-            robot.rotateClockwiseBy(60, getRandomValue(-minValue,maxValue));
+            float degreeVal = getRandomValue(-minValue,maxValue);
+            ROS_INFO("Degree is: %f",degreeVal);
+            robot.rotateClockwiseBy(60, degreeVal);
             robot.moveForwards(0.25,printLaserAvg(robot,robot.getRanges()) - 0.2);
         }
         catch (BumperException){
