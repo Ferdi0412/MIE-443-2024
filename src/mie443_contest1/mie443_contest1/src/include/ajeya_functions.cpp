@@ -53,7 +53,7 @@ bool checkIfFacingCorner( Team1::Robot& robot , int MIN_DISTANCE){
 
     if (!the_vector.empty()){
 
-        
+
         std::cout << "Obstacle type before scan: " << obstacle_type << std::endl;
 
 
@@ -137,11 +137,11 @@ double distanceToWallHeadOn( Team1::Robot& robot ){
 bool wallHeadOn( Team1::Robot& robot , int MIN_DISTANCE){
 
     /*
-    
+
     Returns true if there is a wall in front of the robot (head on), else false
 
     uses linear approximation to return true ONLY if the estimated head on wall is flat
-    
+
     */
 
     // the_vector stores all the laserScan readings
@@ -162,12 +162,12 @@ bool wallHeadOn( Team1::Robot& robot , int MIN_DISTANCE){
 
     std::cout << " --->>>" << std::endl;
 
-    
+
     int obstacle_type = 0;
-    
+
     if (!the_vector.empty()){
 
-        
+
         std::cout << "Obstacle type before scan: " << obstacle_type << std::endl;
 
 
@@ -190,7 +190,7 @@ bool wallHeadOn( Team1::Robot& robot , int MIN_DISTANCE){
             std::cout << "Obstacle type after scan: " << obstacle_type << std::endl;
 
             lin_approx_t linear_approximation;
-            linear_approximation = linearApproximation(the_vector, the_vector.size() * 2 / 5, the_vector.size() * 3 / 5);
+            linear_approximation = linearApproximation(the_vector, the_vector.size() * 2 / 5, the_vector.size() * 3 / 5, 0.);
 
             if (isStraightLine(linear_approximation, 0.1)){
                 return true;
@@ -215,9 +215,9 @@ bool wallHeadOn( Team1::Robot& robot , int MIN_DISTANCE){
 bool wallNearby( Team1::Robot& robot , int MIN_DISTANCE){
 
     /*
-    
+
     Returns true if there is a wall nearby, else false
-    
+
     */
 
     // the_vector stores all the laserScan readings
@@ -238,12 +238,12 @@ bool wallNearby( Team1::Robot& robot , int MIN_DISTANCE){
 
     std::cout << " --->>>" << std::endl;
 
-    
+
     int obstacle_type = 0;
-    
+
     if (!the_vector.empty()){
 
-        
+
         std::cout << "Obstacle type before scan: " << obstacle_type << std::endl;
 
 
