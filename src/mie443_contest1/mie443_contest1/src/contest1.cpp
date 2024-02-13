@@ -146,7 +146,7 @@ int main ( int argc, char **argv ) {
         }
         else {
             ROS_INFO("=== scanForArea ===\n");
-            move_res = scanForArea( robot );
+            move_res = scanMotion( robot );
 
             // If scanForArea failed
             if ( move_res > 0 )
