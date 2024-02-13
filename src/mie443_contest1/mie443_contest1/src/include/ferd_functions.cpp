@@ -37,7 +37,7 @@
 
 bool wallInFront( Team1::Robot& robot ) {
     lin_approx_t linear_approximation;
-    linear_approximation = linearApproximation( robot.getRanges(), robot.getRanges().size() * SCAN_START / NUM_SCAN_SEGM, robot.getRanges().size() * SCAN_END / NUM_SCAN_SEGM);
+    linear_approximation = linearApproximation( robot.getRanges(), robot.getRanges().size() * SCAN_START / NUM_SCAN_SEGM, robot.getRanges().size() * SCAN_END / NUM_SCAN_SEGM, 0. );
     if ( checkApproximationError( linear_approximation) ) return false;
     ROS_INFO("=== wallInFront ---> MSE: %.4f\n", getMeanSquaredError(linear_approximation));
     return isStraightLine(linear_approximation, 0.00005);
@@ -52,7 +52,7 @@ float getWallAngleFromLaserScan( Team1::Robot& robot ) {
 
     laser_ranges = robot.getRanges();
 
-    linear_approximation = linearApproximation( robot.getRanges(), robot.getRanges().size() * SCAN_START / NUM_SCAN_SEGM, robot.getRanges().size() * SCAN_END / NUM_SCAN_SEGM);
+    linear_approximation = linearApproximation( robot.getRanges(), robot.getRanges().size() * SCAN_START / NUM_SCAN_SEGM, robot.getRanges().size() * SCAN_END / NUM_SCAN_SEGM, robot.getAngleIncrement() );
 
     if ( checkApproximationError(linear_approximation) ) return std::numeric_limits<float>::infinity();
 
@@ -78,7 +78,7 @@ float getWallAngleFromLaserScanNonStraight( Team1::Robot& robot ) {
 
     laser_ranges = robot.getRanges();
 
-    linear_approximation = linearApproximation( laser_ranges, laser_ranges.size() * 2 / 5, laser_ranges.size() * 3 / 5 );
+    linear_approximation = linearApproximation( robot.getRanges(), robot.getRanges().size() * SCAN_START / NUM_SCAN_SEGM, robot.getRanges().size() * SCAN_END / NUM_SCAN_SEGM, robot.getAngleIncrement() );
 
     if ( checkApproximationError(linear_approximation) ) return std::numeric_limits<float>::infinity();
 
@@ -204,7 +204,7 @@ double getRotateAfterAngle( void ) {
 bool emptyInFront( Team1::Robot& robot ) {
     // Return true if no valid values in scan, or all values more than a meter away
     std::vector<float> ranges = robot.getRanges();
-    float front_mean = getMean( ranges, ranges.size() * (NUM_SCAN_SEGM / 2), ranges.size() * (NUM_SCAN_SEGM / 2) + 1 );
+    float front_mean = getMean( ranges, ranges.size() * SCAN_START / NUM_SCAN_SEGM, ranges.size() * SCAN_END / NUM_SCAN_SEGM );
     if ( front_mean == std::numeric_limits<float>::infinity() )
         return false;
     return front_mean < 1.;
@@ -215,7 +215,7 @@ bool emptyInFront( Team1::Robot& robot ) {
 #ifndef distanceToWall
 double distanceToWall( Team1::Robot& robot ) {
     std::vector<float> ranges = robot.getRanges();
-    float front_mean = getMean( ranges, ranges.size() * (NUM_SCAN_SEGM / 2), ranges.size() * (NUM_SCAN_SEGM / 2) + 1 );
+    float front_mean = getMean( ranges, ranges.size() * SCAN_START / NUM_SCAN_SEGM, ranges.size() * SCAN_END / NUM_SCAN_SEGM );
     return (double) front_mean;
 }
 #endif
