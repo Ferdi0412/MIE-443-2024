@@ -41,7 +41,7 @@ int wallParallel(Team1::Robot& robot) {
     const float right_value = laser_ranges[0];
     const float left_value = laser_ranges[laser_ranges.size() - 1];
     const float middle_value = laser_ranges[laser_ranges.size()/2];
-    float wall_angle = 90 - getWallAngleFromLaserScanNonStraight(robot);
+    float wall_angle = getWallAngleFromLaserScanNonStraight(robot);
     // Wall angle data
     // float wall_angle = getWallAngleFromLaserScan(robot);
     // double distance_to_wall = distanceToWall(robot);
