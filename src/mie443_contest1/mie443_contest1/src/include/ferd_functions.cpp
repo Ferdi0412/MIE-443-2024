@@ -34,6 +34,15 @@
 #define SCAN_START 4
 #define SCAN_END   5
 
+/**
+ * === LOCAL ===
+*/
+double distanceToScanCenter( Team1::Robot& robot );
+
+/**
+ * === PUBLIC ===
+*/
+
 
 bool wallInFront( Team1::Robot& robot ) {
     lin_approx_t linear_approximation;
