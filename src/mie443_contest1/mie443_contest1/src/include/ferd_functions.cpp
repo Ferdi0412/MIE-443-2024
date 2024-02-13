@@ -130,8 +130,9 @@ int moveForwardsBy( Team1::Robot& robot, double target_distance, float wall_dist
         robot.spinOnce();
 
         // Check bumpers
-        if ( robot.getBumperAny() ) {
-            robot.stopMotion();
+        try {
+            robot.checkBumpers();
+        } catch (BumperException) {
             return WALL_BUMPED;
         }
 
