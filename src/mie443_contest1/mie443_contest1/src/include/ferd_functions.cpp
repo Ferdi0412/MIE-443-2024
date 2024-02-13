@@ -27,7 +27,7 @@
 
 
 #ifndef NUM_SCAN_SEGM
-#define NUM_SCAN_SEGM 5
+#define NUM_SCAN_SEGM 9
 #endif
 
 
