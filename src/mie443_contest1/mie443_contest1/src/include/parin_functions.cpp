@@ -111,10 +111,18 @@ int avoidObstacles(Team1::Robot& robot, wallDirectionEnum dir) {
             } else if (right_value >= left_value){
                 ROS_INFO("TURN RIGHT");
                 turnRobotBy(robot, 90);
+                robot.spinOnce();
+                laser_ranges = robot.getRanges();
+                middle_value = laser_ranges[laser_ranges.size() / 2];
+                moveForwardsBy(robot, middle_value - MAX_DISTANCE, MAX_DISTANCE);                
                 return -2;
             } else if (right_value < left_value){
                 ROS_INFO("TURN LEFT");
                 turnRobotBy(robot, -90);
+                robot.spinOnce();
+                laser_ranges = robot.getRanges();
+                middle_value = laser_ranges[laser_ranges.size() / 2];
+                moveForwardsBy(robot, middle_value - MAX_DISTANCE, MAX_DISTANCE); 
                 return -1;
             }
 
