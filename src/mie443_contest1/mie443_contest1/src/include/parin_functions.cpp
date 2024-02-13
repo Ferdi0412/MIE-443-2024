@@ -95,7 +95,7 @@ int avoidObstacles(Team1::Robot& robot, wallDirectionEnum dir) {
 
     if (!laser_ranges.empty()) {
 
-        const float middle_value = laser_ranges[laser_ranges.size() / 2];
+        float middle_value = laser_ranges[laser_ranges.size() / 2];
         const double right_value = laser_ranges[0];
         const double left_value = laser_ranges[laser_ranges.size() - 1];
 
