@@ -12,6 +12,14 @@
 #include <iostream>
 #endif
 
+#ifndef RAD2DEG
+#define RAD2DEG(rad) ((rad) * 180. / M_PI)
+#endif
+
+#ifndef DEG2RAD
+#define DEG2RAD(deg) ((deg) * M_PI / 180.)
+#endif
+
 /**
  * Intended to be private...
  * _invalidLinApprox returns a value for R-squared, to indicate that the operation failed...
@@ -64,7 +72,7 @@ float getMean( const laser_scan_t& input_vector, unsigned int start_index, unsig
  * @param input_vector     the scan vector
  * @param start_index      the first index to approximate -> Used as coordinate 0 -> where intercept occurs...
  * @param end_index        the first index to not approximate (this element is NOT included)...
- * @param angle_increments the angle between each point in the laser scan, to adjust for the width of the scan (use 0 to ignore)
+ * @param angle_increments the angle between each point in the laser scan, to adjust for the width of the scan (use 0 to ignore) [deg]
  *
  * @returns a linearApproximation object -> use other functions to retrieve the data from it...
 */
@@ -148,7 +156,7 @@ lin_approx_t linearApproximation( const laser_scan_t& input_vector, unsigned int
     // Adjust span for actual span of scan
     if ( angle_increments != 0. ) {
         angle_increments = fabs(angle_increments);
-        width_per_increment = tan(angle_increments) * (intercept + slope * approx_n); // Get average distance times tan(angle) (o/a * a)
+        width_per_increment = tan(DEG2RAD(angle_increments)) * (intercept + slope * approx_n); // Get average distance times tan(angle) (o/a * a)
         slope /= width_per_increment;
     }
 
