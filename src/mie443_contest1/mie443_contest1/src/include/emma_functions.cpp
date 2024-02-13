@@ -137,7 +137,7 @@ catch (BumperException)
 int randomMotion(Team1::Robot& robot, double minValue, double maxValue){
         try {
             robot.rotateClockwiseBy(60, getRandomValue(-minValue,maxValue));
-            robot.moveForwards(0.25,printLaserAvg(robot.getRanges()) - 0.2);
+            robot.moveForwards(0.25,printLaserAvg(robot,robot.getRanges()) - 0.2);
         }
         catch (BumperException){
             rotateAfterBumper(robot);
