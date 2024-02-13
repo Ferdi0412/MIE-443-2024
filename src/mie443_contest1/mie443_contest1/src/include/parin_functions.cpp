@@ -65,22 +65,18 @@ int wallParallel(Team1::Robot& robot) {
         return NO_MOVE;
     }
 
-    if ( middle_value <= MAX_DISTANCE) {
-        if (wall_angle < 0){
-            ROS_INFO("Turn CW");
-            return turnRobotBy(robot, -wall_angle) || REACHED_TARGET_RIGHT;
-        } else if (wall_angle > 0){
-            ROS_INFO("Turn CCW");
-            return turnRobotBy(robot, -wall_angle) || REACHED_TARGET_LEFT;
-        } else if (wall_angle == 0){
-            ROS_INFO("Already PARALLEL");
-            return REACHED_TARGET_CENTER; // Already parallel
-        }
+    if (wall_angle < 0){
+        ROS_INFO("Turn CW");
+        return turnRobotBy(robot, -wall_angle) || REACHED_TARGET_RIGHT;
+    } else if (wall_angle > 0){
+        ROS_INFO("Turn CCW");
+        return turnRobotBy(robot, -wall_angle) || REACHED_TARGET_LEFT;
+    } else if (wall_angle == 0){
+        ROS_INFO("Already PARALLEL");
+        return REACHED_TARGET_CENTER; // Already parallel
     }
 
     return WALL_NOT_FOUND;
-
-
 }
 
 // Function to make the robot avoid obstacles
