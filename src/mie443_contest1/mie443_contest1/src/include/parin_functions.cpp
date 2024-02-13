@@ -90,12 +90,12 @@ int avoidObstacles(Team1::Robot& robot, wallDirectionEnum dir) {
     const float MAX_DISTANCE = 0.6; // Maximum distance to consider an obstacle
 
     // Laser scan data
-    const std::vector<float> laser_ranges = robot.getRanges();
+    std::vector<float> laser_ranges = robot.getRanges();
     // printVectorFloats(laser_ranges);
 
     if (!laser_ranges.empty()) {
 
-        const float middle_value = laser_ranges[laser_ranges.size() / 2];
+        float middle_value = laser_ranges[laser_ranges.size() / 2];
         const double right_value = laser_ranges[0];
         const double left_value = laser_ranges[laser_ranges.size() - 1];
 
@@ -111,10 +111,18 @@ int avoidObstacles(Team1::Robot& robot, wallDirectionEnum dir) {
             } else if (right_value >= left_value){
                 ROS_INFO("TURN RIGHT");
                 turnRobotBy(robot, 90);
+                robot.spinOnce();
+                laser_ranges = robot.getRanges();
+                middle_value = laser_ranges[laser_ranges.size() / 2];
+                moveForwardsBy(robot, middle_value - MAX_DISTANCE, MAX_DISTANCE);                
                 return -2;
             } else if (right_value < left_value){
                 ROS_INFO("TURN LEFT");
                 turnRobotBy(robot, -90);
+                robot.spinOnce();
+                laser_ranges = robot.getRanges();
+                middle_value = laser_ranges[laser_ranges.size() / 2];
+                moveForwardsBy(robot, middle_value - MAX_DISTANCE, MAX_DISTANCE); 
                 return -1;
             }
 
