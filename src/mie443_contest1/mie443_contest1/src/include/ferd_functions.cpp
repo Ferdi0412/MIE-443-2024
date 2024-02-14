@@ -69,11 +69,11 @@ float getWallAngleFromLaserScan( Team1::Robot& robot ) {
 
     slope = getSlope( linear_approximation );
 
-    ROS_INFO("=== wallAngle ---> slope: %.5f\n", slope);
+    ROS_INFO("[wallAngle] ---> slope: %.5f\n", slope);
 
     // Get normal angle from slope...
     angle = RAD2DEG(atan( slope ));
-    ROS_INFO("=== wallAngle ---> angle: %.5f\n", angle);
+    ROS_INFO("[wallAngle] ---> angle: %.5f\n", angle);
 
     return angle;
 }
@@ -95,11 +95,11 @@ float getWallAngleFromLaserScanNonStraight( Team1::Robot& robot ) {
 
     slope = getSlope( linear_approximation );
 
-    ROS_INFO("=== wallAngle ---> slope: %.2f\n", slope);
+    ROS_INFO("[wallAngle] ---> slope: %.2f\n", slope);
 
     // Get normal angle from slope...
     angle = RAD2DEG(atan( slope ));
-    ROS_INFO("=== wallAngle ---> angle: %.2f\n", angle);
+    ROS_INFO("[wallAngle] ---> angle: %.2f\n", angle);
 
     return angle;
 }
@@ -121,6 +121,8 @@ int turnRobotBy( Team1::Robot& robot, double angle ) {
 int moveForwardsBy( Team1::Robot& robot, double target_distance, float wall_distance ) {
     double start_x, start_y;
     std::vector<float> laser_scan;
+
+    ROS_INFO("[moveForwardsBy] -> %.2f", target_distance);
 
     // Update positions
     robot.spinOnce();
@@ -165,6 +167,9 @@ int moveForwardsBy( Team1::Robot& robot, double target_distance, float wall_dist
 
     // If no early stop... stop motion and return that target location was reached...
     robot.stopMotion();
+
+    ROS_INFO("[moveForwardsBy] -> Reached target!\n");
+
     return REACHED_TARGET;
 }
 

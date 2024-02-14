@@ -103,7 +103,7 @@ int scanForArea(Team1::Robot& robot){
     int scanArray[2] = {-45,90};
     double longLength = 0;
     for (int i=0; i<2;  i++){
-        robot.rotateClockwiseBy(60, scanArray[i]);
+        robot.rotateClockwiseBy(45, scanArray[i]);
         robot.sleepOnce();
         robot.spinOnce();
         maxArr[i] = printLaserAvg(robot,robot.getRanges());
@@ -134,7 +134,7 @@ int scanForArea(Team1::Robot& robot){
     }
 catch (BumperException)
 {
-    rotateAfterBumper(robot);
+    //rotateAfterBumper(robot);
     return WALL_BUMPED;
 }
 
@@ -144,11 +144,11 @@ int randomMotion(Team1::Robot& robot, double minValue, double maxValue){
         try {
             float degreeVal = getRandomValue(-minValue,maxValue);
             ROS_INFO("Degree is: %f",degreeVal);
-            robot.rotateClockwiseBy(60, degreeVal);
+            robot.rotateClockwiseBy(45, degreeVal);
             robot.moveForwards(0.25,printLaserAvg(robot,robot.getRanges()) - 0.2);
         }
         catch (BumperException){
-            rotateAfterBumper(robot);
+            //rotateAfterBumper(robot);
             return WALL_BUMPED;
         }
     return REACHED_TARGET;
@@ -158,11 +158,11 @@ int scanMotion(Team1::Robot& robot){
         try {
             int degreeRot = scanForArea(robot);
             robot.sleepOnce();
-            robot.rotateClockwiseBy(60, degreeRot);
+            robot.rotateClockwiseBy(45, degreeRot);
             robot.moveForwards(0.25, printLaserAvg(robot,robot.getRanges()) -  0.2);
         }
         catch (BumperException){
-            rotateAfterBumper(robot);
+            //rotateAfterBumper(robot);
             return WALL_BUMPED;
         }
     return REACHED_TARGET;

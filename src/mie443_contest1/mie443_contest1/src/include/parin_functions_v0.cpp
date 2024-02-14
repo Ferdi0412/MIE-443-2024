@@ -7,7 +7,6 @@
 #include <ros/console.h>
 #include "ros/ros.h"
 
-#include <cmath>
 
 
 int wallParallel(Team1::Robot& robot);
@@ -21,15 +20,10 @@ int avoidObstacles(Team1::Robot& robot, wallDirectionEnum dir);
 int wallFollow( Team1::Robot& robot, wallDirectionEnum wall_direction ) {
     // Parallelize with wall
     int wall_turn = wallParallel(robot);
-
-    ROS_INFO("[wallFollow]");
-
     if ( wall_turn > 0 )
-        return wall_turn;
+        ROS_INFO("***** Robot is PARALLEL *****");
     // if ( (wall_turn == WALL_NOT_FOUND) || (wall_turn == NO_MOVE) ) return WALL_NOT_FOUND;
     robot.spinOnce();
-
-    ROS_INFO("[wallFollow] -> avoidObstacles");
 
     // Obstacle Avoidance Algorithm
     int direction = avoidObstacles(robot, wall_direction);
@@ -63,30 +57,27 @@ int wallParallel(Team1::Robot& robot) {
     //     wall_angle = getWallAngleFromLaserScan(robot);
     // }
 
-    int err;
-
     std::cout << "Distance to wall: " << middle_value << std::endl;
     std::cout << "Wall Angle: " << wall_angle << std::endl;
 
     if ( std::isinf(wall_angle) ) {
         ROS_WARN("Wall angle is inf!!!\n");
-        return NO_MOVE;
+        return -1;
     }
 
     if (wall_angle < 0){
         ROS_INFO("Turn CW");
-        err = turnRobotBy(robot, -wall_angle);
-        return !err ? REACHED_TARGET_RIGHT : err;
+        turnRobotBy(robot, -wall_angle);
+        return 1;
     } else if (wall_angle > 0){
         ROS_INFO("Turn CCW");
-        err = turnRobotBy(robot, -wall_angle);
-        return !err ? REACHED_TARGET_LEFT : err;
+        turnRobotBy(robot, -wall_angle);
+        return 1;
     } else if (wall_angle == 0){
         ROS_INFO("Already PARALLEL");
-        return REACHED_TARGET_CENTER; // Already parallel
+        return 1;
     }
-    ROS_WARN("[wallParallel] WALL_NOT_FOUND");
-    return WALL_NOT_FOUND;
+    return -1; 
 }
 
 // Function to make the robot avoid obstacles
@@ -101,8 +92,6 @@ int avoidObstacles(Team1::Robot& robot, wallDirectionEnum dir) {
     std::vector<float> laser_ranges = robot.getRanges();
     // printVectorFloats(laser_ranges);
 
-    ROS_INFO("[avoidObstacles]");
-
     if (!laser_ranges.empty()) {
 
         float middle_value = laser_ranges[laser_ranges.size() / 2];
@@ -116,34 +105,47 @@ int avoidObstacles(Team1::Robot& robot, wallDirectionEnum dir) {
         if (dir == any){
             if (middle_value > MAX_DISTANCE){
                 ROS_INFO("Move FORWARD");
-                return moveForwardsBy(robot, fabs(middle_value - MAX_DISTANCE), MAX_DISTANCE) || REACHED_TARGET;
+                moveForwardsBy(robot, middle_value - MAX_DISTANCE, MAX_DISTANCE);
+                return 0; 
+                // return moveForwardsBy(robot, middle_value - MAX_DISTANCE, MAX_DISTANCE) || REACHED_TARGET;
             } else if (right_value >= left_value){
                 ROS_INFO("TURN RIGHT");
                 move_res = turnRobotBy(robot, 90);
-                if ( move_res > 0 ) return move_res;
                 robot.spinOnce();
                 laser_ranges = robot.getRanges();
                 middle_value = laser_ranges[laser_ranges.size() / 2];
-                return moveForwardsBy(robot, fabs(middle_value - MAX_DISTANCE), MAX_DISTANCE) || REACHED_TARGET_RIGHT;
+                moveForwardsBy(robot, middle_value - MAX_DISTANCE, MAX_DISTANCE) ;
+                return -2;
             } else if (right_value < left_value){
                 ROS_INFO("TURN LEFT");
                 move_res = turnRobotBy(robot, -90);
-                if ( move_res > 0 ) return move_res;
                 robot.spinOnce();
                 laser_ranges = robot.getRanges();
                 middle_value = laser_ranges[laser_ranges.size() / 2];
-                return moveForwardsBy(robot, fabs(middle_value - MAX_DISTANCE), MAX_DISTANCE) || REACHED_TARGET_LEFT;
+                moveForwardsBy(robot, middle_value - MAX_DISTANCE, MAX_DISTANCE);
+                return -1;
             }
 
         } else if (dir == left){
             if (middle_value <= MAX_DISTANCE){
                 ROS_INFO("TURN LEFT");
-                return turnRobotBy(robot, -90) || REACHED_TARGET_LEFT;
+                move_res = turnRobotBy(robot, -90);
+                robot.spinOnce();
+                laser_ranges = robot.getRanges();
+                middle_value = laser_ranges[laser_ranges.size() / 2];
+                moveForwardsBy(robot, middle_value - MAX_DISTANCE, MAX_DISTANCE);
+                return -1;
+                
             }
         } else if (dir == right){
             if (middle_value <= MAX_DISTANCE){
                 ROS_INFO("TURN RIGHT");
-                return turnRobotBy(robot, 90) || REACHED_TARGET_RIGHT;
+                move_res = turnRobotBy(robot, 90);
+                robot.spinOnce();
+                laser_ranges = robot.getRanges();
+                middle_value = laser_ranges[laser_ranges.size() / 2];
+                moveForwardsBy(robot, middle_value - MAX_DISTANCE, MAX_DISTANCE) ;
+                return -2;
             }
         }
     }
