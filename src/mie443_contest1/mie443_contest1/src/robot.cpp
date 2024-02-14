@@ -9,6 +9,8 @@
  * Implements methods to control the kobuki robot base... See documentation at:
  * http://wiki.ros.org/kobuki/Tutorials/Kobuki%27s%20Control%20System#How_it_works
  *
+ *
+ * NOTE: BumperException is thrown even on 'Timeouts' in the BLOCKING movements.
 */
 
 /**
@@ -45,6 +47,7 @@
 #include <cmath>
 #include <math.h>
 #include <vector>
+#include <chrono>
 // #include <stdio.h>
 #include <iostream>
 
@@ -80,6 +83,7 @@
 
 // T1_ROBOT_ANGLE_BUFFER is used in checking for rootaattion "overflow"
 #define T1_ROBOT_ANGLE_BUFFER 0.2
+#define MOVE_TIME_BUFFER      3 /* number of seconds on top of predicted time to complete motion to block before throwing a BumperException */
 
 // std::numeric_limits<float>::infinity()
 
@@ -87,6 +91,10 @@
  * BumperException is thrown when bumper is pressed when travelling.
 */
 class BumperException : std::exception {};
+
+// For storing timestamps...
+typedef std::chrono::time_point<std::chrono::system_clock> _sys_clock_t;
+
 
 namespace Team1 {
     class Robot {
@@ -273,18 +281,27 @@ namespace Team1 {
             }
 
             /**
-             * rotateClockwiseToPrivate
+             * rotateClockwiseToPrivate BLOCKING
              *
              * @param velocity     [deg/s]
              * @param target_angle [deg]   must be greater than pos_theta, add 360 to it if necessary
             */
             void rotateClockwiseToPrivate( double velocity, double target_angle ) {
-                double initial_difference;
-                if ( pos_theta >= target_angle ) throw std::invalid_argument("[Robot::rotateClockwiseToPrivate] -> target_angle must be greater than current angle!\n");
-                if ( velocity == 0 ) throw std::invalid_argument("[Robot::rotateCounterClockwiseToPrivate] -> velocity cannot be zero");
+                double initial_difference, expected_duration;
+                _sys_clock_t start_time;
+                target_angle = clampAngle(target_angle);
+                if ( pos_theta >= target_angle ) target_angle += 360.;
+                if ( velocity == 0 )             throw BumperException(); // Throw something that is caught for Contest 1 TODO: Improve
                 initial_difference = target_angle - pos_theta;
+                expected_duration  = fabs((target_angle - pos_theta) / velocity) + MOVE_TIME_BUFFER;
+                start_time = getTimeNow();
                 jogClockwiseSafe( fabs(velocity) );
                 while ( target_angle > pos_theta ) {
+                    if ( secondsSince( start_time ) > expected_duration ) {
+                        ROS_ERROR("[Robot.rotateClockwiseXxx] -> timeout!\n");
+                        stopMotion();
+                        throw BumperException();
+                    }
                     checkBumpers();
                     spinOnce();
                     // If difference between current and target has increased, assume angle rotated past 180. degrees
@@ -295,18 +312,27 @@ namespace Team1 {
             }
 
             /**
-             * rotateCounterClockwiseToPrivate
+             * rotateCounterClockwiseToPrivate BLOCKING
              *
              * @param velocity     [deg/s]
              * @param target_angle [deg]   must be less than pos_theta, subtract 360 from it if necessary
             */
             void rotateCounterClockwiseToPrivate( double velocity, double target_angle ) {
-                double initial_difference;
-                if ( pos_theta <= target_angle ) throw std::invalid_argument("[Robot::rotateCounterClockwiseToPrivate] -> target_angle must be less than current angle!\n");
-                if ( velocity == 0 ) throw std::invalid_argument("[Robot::rotateCounterClockwiseToPrivate] -> velocity cannot be zero");
+                double initial_difference, expected_duration;
+                _sys_clock_t start_time;
+                target_angle = clampAngle(target_angle);
+                if ( pos_theta <= target_angle ) target_angle -= 360.;
+                if ( velocity == 0 )             throw BumperException(); // Throw something that is caught for Contest 1 TODO: Improve
                 initial_difference = target_angle - pos_theta;
+                expected_duration  = fabs((target_angle - pos_theta) / velocity) + MOVE_TIME_BUFFER;
+                start_time = getTimeNow();
                 jogClockwiseSafe( -fabs(velocity) );
                 while ( target_angle < pos_theta ) {
+                    if ( secondsSince( start_time ) > expected_duration ) {
+                        ROS_ERROR("[Robot.rotateClockwiseXxx] -> timeout!\n");
+                        stopMotion();
+                        throw BumperException();
+                    }
                     checkBumpers();
                     spinOnce();
                     // If difference between current and target has decreased, assume angle rotated past -180. degrees
@@ -328,6 +354,41 @@ namespace Team1 {
                 motion_set.angular.z = -clock_speed; // Adjust for wrong direction of rotation...
                 publishVelocity();
             }
+
+
+            /**
+             * === TIME CONTROL ===
+            */
+
+           /**
+            * getTimeNow will return the 'system' formatted timestamp
+            *
+            * @returns _sys_clock_t variable representing the current clock/timestamp
+           */
+            _sys_clock_t getTimeNow( void ) {
+                return std::chrono::system_clock::now();
+            }
+
+            /**
+             * secondsSince will return the number of seconds since the given time
+             *
+             * @param timestamp the time to calculate seconds elapsed from
+            */
+            unsigned long long secondsSince( _sys_clock_t timestamp ) {
+                return std::chrono::duration_cast<std::chrono::seconds>(getTimeNow() - timestamp).count();
+            }
+
+            /**
+             * nanosecondsSince will return the number of nanoseconds since the given time
+             *
+             * @param timestamp the time to calculate elapsed nanoseconds from
+            */
+            unsigned long long nanosecondsSince( _sys_clock_t timestamp ) {
+                return std::chrono::duration_cast<std::chrono::nanoseconds>(getTimeNow() - timestamp).count();
+            }
+
+
+
 
         public:
             /* === PUBLIC GETTERS === */
@@ -447,14 +508,22 @@ namespace Team1 {
              * @throws std::invalid_argument -> If the distance is less than 0
             */
             void moveForwards( double velocity, double distance ) {
-                double start_x, start_y;
+                double start_x, start_y, expected_duration;
+                _sys_clock_t start_time;
                 if ( (velocity == 0) || (distance == 0) ) return;
                 spinOnce(); // Update the current x and y coordinates
                 start_x = pos_x;
                 start_y = pos_y;
                 if ( distance < 0 ) throw std::invalid_argument("[Robot::moveForwards] distance must be greater than zero!\n");
+                expected_duration = fabs(distance / velocity) + MOVE_TIME_BUFFER;
+                start_time        = getTimeNow();
                 jogForwardsSafe( velocity );
                 while ( getEuclideanDistance(start_x, start_y, pos_x, pos_y) < distance ) {
+                    if ( secondsSince(start_time) > expected_duration ) {
+                        ROS_ERROR("[Robot.rotateClockwiseXxx] -> timeout!\n");
+                        stopMotion();
+                        throw BumperException();
+                    }
                     checkBumpers(); // Stop and throw BumperException if bumpers triggered
                     spinOnce();     // Update pos_x and pos_y
                 }
