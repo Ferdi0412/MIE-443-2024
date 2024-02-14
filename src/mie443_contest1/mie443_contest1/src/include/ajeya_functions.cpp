@@ -27,6 +27,71 @@
 #include <iostream>
 #include <vector>
 
+int moveForwardsByRev2( Team1::Robot& robot, double target_distance, float wall_distance ) {
+    double start_x, start_y;
+    std::vector<float> laser_scan;
+
+    // Update positions
+    robot.spinOnce();
+
+    // Store starting positions
+    start_x = robot.getX();
+    start_y = robot.getY();
+
+    std::cout << "Moving forwards by REV2 --- Running..." << std::endl;
+
+
+    // Try to start forwards motion...
+    try {
+        if ( target_distance > 0 ){
+            robot.jogForwardsSafe( LINEAR_VELOCITY );
+        }
+        else if ( target_distance < 0 ){
+            robot.jogForwardsSafe( -LINEAR_VELOCITY );
+        }
+        else{
+            return REACHED_TARGET;
+            std::cout << "Moving forwards by REV2 --- REACHED TARGET..." << std::endl;
+        }
+    }
+    catch (BumperException) {
+        std::cout << "Moving forwards by REV2 --- BUMPED into something..." << std::endl;
+        
+        return WALL_BUMPED;
+
+    }
+
+    // During motion... Until target_distance is reached...
+    while ( robot.distanceToPoint( start_x, start_y ) < target_distance ) {
+        robot.spinOnce();
+
+        // Check bumpers
+        try {
+            robot.checkBumpers();
+        } catch (BumperException) {
+            std::cout << "Moving forwards by REV2 --- BUMPED into something..." << std::endl;
+
+            return WALL_BUMPED;
+        }
+
+        // Check distance in laser_scan
+        laser_scan = robot.getRanges();
+
+        // Calculated distance to wall in front
+        if ( distanceToWallHeadOn( robot ) <= wall_distance ) {
+            std::cout << "Moving forwards by REV2 --- ..." << std::endl;
+
+            robot.stopMotion();
+            
+            return WALL_IN_FRONT;
+        }
+    }
+
+    // If no early stop... stop motion and return that target location was reached...
+    robot.stopMotion();
+    return REACHED_TARGET;
+}
+
 bool checkIfFacingCorner( Team1::Robot& robot , int MIN_DISTANCE){
 
     // very niche case - facing a corner head on

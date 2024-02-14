@@ -33,6 +33,22 @@
 // Linear approximation dependency
 #include "include/lin_approx.cpp"
 
+
+// ========= DO NOT UNCOMMENT =========
+// ========= ONLY FOR REFERENCE =========
+
+// // MOVEMENT RESULTS
+// #define REACHED_TARGET_LEFT    -1 // wallFollow success
+// #define REACHED_TARGET_RIGHT   -2 // wallFollow success
+// #define REACHED_TARGET_CENTER  -3 // wallFollow success
+// #define REACHED_TARGET          0
+// #define WALL_BUMPED             1 // GREATER THAN 0 INDICATES ERROR/EXCEPTIONS
+// #define WALL_IN_FRONT           2
+// #define WALL_NOT_FOUND          3
+// #define NO_MOVE                 4
+
+
+
 // ========= AUXILLIARY =========
 #define WALL_DISTANCE 0.2
 
@@ -91,8 +107,6 @@ int main ( int argc, char **argv ) {
     // loop until program_duration [seconds] is reached
     while ( ros::ok() && secondsElapsed() <= program_duration ) {
         robot.spinOnce(); // Update values....
-
-        double distance_to_wall_head_on = distanceToWallHeadOn(robot);
         /**
          * === MOVEMENTS FAILED ===
         */
@@ -108,6 +122,9 @@ int main ( int argc, char **argv ) {
             }
             // Do nothing if wall scan stopped motion -> allow the wallFollow to work if needed...
             else if ( move_res == WALL_IN_FRONT ) ;
+            else {
+                ROS_ERROR("UNCAUGHT 'ERROR': %d...\n", move_res);
+            }
         }
 
         /** ALL -> consider this
@@ -131,12 +148,12 @@ int main ( int argc, char **argv ) {
         }
 
         // STARTUP/NORMAL CYCLE
-        if ( wallInFront( robot ) && distance_to_wall_head_on < WALL_DISTANCE) {
+        if ( wallInFront( robot ) ) {
             ROS_INFO("=== wallInFront ===\n");
-            // move_res = wallFollow( robot, direction );
+            move_res = wallFollow( robot, direction );
             continue;
         }
-        else if ( emptyInFront( robot ) || distance_to_wall_head_on < WALL_DISTANCE) {
+        else if ( emptyInFront( robot ) ) {
             ROS_INFO("=== emptyInFront ===\n");
             moveForwardsBy( robot, 0.2, WALL_DISTANCE );
             continue;
@@ -148,7 +165,7 @@ int main ( int argc, char **argv ) {
         }
         else {
             ROS_INFO("=== scanForArea ===\n");
-            move_res = scanForArea( robot );
+            move_res = scanMotion( robot );
 
             // If scanForArea failed
             if ( move_res > 0 )
@@ -156,35 +173,7 @@ int main ( int argc, char **argv ) {
             continue;
         }
 
-        /**
-         * === STARTUP ===
-         * 1. Check for wall   -> if true, wallFollow move in that direction until wall
-         * 1b. Check if open in front ->
-         * 2. Check for corner -> if true, turn 45 degrees and next cycle
-         * 3. scanForArea      -> move in that direction until wall
-         *                     -> if scanForArea issue -> randomMotion -> move in that direction until wall
-        */
-
-        /**
-         * === NORMAL CYCLE ===
-         * SAME AS STARTUP
-        */
-
-        /**
-         * === BUMPED TOO OFTEN ===
-         * - Store vector/fixed sized queue of timestamps
-         * -> if first element too recent, run this...
-         *
-         * 3 bumps -> within 10 seconds (something on ground, or stuck in corner)
-         *
-         * 1. turn 180
-         * 2. small random rotation -> +/- 45 degrees???
-        */
-
-        /**
-         * === BUMP INTO OBJECT BUT NO SCAN ===
-         * - account for object on ground
-        */
+        
 
         robot.sleepOnce();
     }
