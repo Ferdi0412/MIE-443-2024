@@ -287,9 +287,16 @@ namespace Team1 {
              * @param target_angle [deg]   must be greater than pos_theta, add 360 to it if necessary
             */
             void rotateClockwiseToPrivate( double velocity, double target_angle ) {
-                ROS_INFO("[Robot.rotatingClockwise]\n");
                 double initial_difference, expected_duration;
                 _sys_clock_t start_time;
+                stopMotion();
+                robot.spinOnce();
+                if ( getVelClockAct() < 0 ) ROS_INFO("[Robot.rotatingClockwise] -> waiting to stop motion...\n");
+                while ( getVelClockAct() < 0 ) {
+                    spinOnce();
+                    sleepOnce();
+                }
+                ROS_INFO("[Robot.rotatingClockwise]\n");
                 target_angle = clampAngle(target_angle);
                 if ( pos_theta >= target_angle ) target_angle += 360.;
                 if ( velocity == 0 )             throw BumperException(); // Throw something that is caught for Contest 1 TODO: Improve
@@ -319,9 +326,17 @@ namespace Team1 {
              * @param target_angle [deg]   must be less than pos_theta, subtract 360 from it if necessary
             */
             void rotateCounterClockwiseToPrivate( double velocity, double target_angle ) {
-                ROS_INFO("[Robot.rotatingCounterClockwise]\n");
+
                 double initial_difference, expected_duration;
                 _sys_clock_t start_time;
+                stopMotion();
+                robot.spinOnce();
+                if ( getVelClockAct() > 0 ) ROS_INFO("[Robot.rotatingCounterClockwise] -> waiting to stop motion...\n");
+                while ( getVelClockAct() > 0 ) {
+                    spinOnce();
+                    sleepOnce();
+                }
+                ROS_INFO("[Robot.rotatingCounterClockwise]\n");
                 target_angle = clampAngle(target_angle);
                 if ( pos_theta <= target_angle ) target_angle -= 360.;
                 if ( velocity == 0 )             throw BumperException(); // Throw something that is caught for Contest 1 TODO: Improve
