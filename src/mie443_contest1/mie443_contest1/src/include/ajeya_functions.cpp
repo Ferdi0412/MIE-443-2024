@@ -27,6 +27,48 @@
 #include <iostream>
 #include <vector>
 
+double distanceToWallHeadOn( Team1::Robot& robot ){
+
+    // the_vector stores all the laserScan readings
+    const std::vector<float> the_vector = robot.getRanges();
+    // std::cout << "No. of laser data points: " << the_vector.size() << std::endl;
+
+    float left_scan_value = std::isnan(the_vector.front()) ? std::numeric_limits<float>::infinity() : the_vector.front();
+    std::cout << "<<<--- Port Side: " << left_scan_value;
+
+    // Head-on distance is the middle value of the peripheral field of view
+    int vector_size = the_vector.size();
+    float middle_scan_value = (vector_size > 0 && !std::isnan(the_vector[vector_size / 2])) ? the_vector[vector_size / 2] : std::numeric_limits<float>::infinity();
+    std::cout << "      ^^^ Fore Side: " << middle_scan_value;
+
+    // Starboard side scanned value
+    float right_scan_value = std::isnan(the_vector.back()) ? std::numeric_limits<float>::infinity() : the_vector.back();
+    std::cout << " ^^^      Starboard Side: " << right_scan_value;
+
+    std::cout << " --->>>" << std::endl;
+
+    int start_index = std::max(0, vector_size / 2 - 5); // Ensure start_index doesn't go negative
+    int end_index = std::min(vector_size, start_index + 10);
+
+    // Compute the average of the middle ten values
+    double middle_scan_avg = 0.0;
+    int num_valid_values = 0;
+    for (int i = start_index; i < end_index; ++i) {
+        if (!std::isnan(the_vector[i])) {
+            middle_scan_avg += the_vector[i];
+            num_valid_values++;
+        }
+    }
+    if (num_valid_values > 0) {
+        middle_scan_avg /= static_cast<double>(num_valid_values);
+    } else {
+        middle_scan_avg = std::numeric_limits<double>::infinity();
+    }
+
+    return middle_scan_avg;
+
+}
+
 int moveForwardsByRev2( Team1::Robot& robot, double target_distance, float wall_distance ) {
     double start_x, start_y;
     std::vector<float> laser_scan;
@@ -157,47 +199,7 @@ bool checkIfFacingCorner( Team1::Robot& robot , int MIN_DISTANCE){
 
 }
 
-double distanceToWallHeadOn( Team1::Robot& robot ){
 
-    // the_vector stores all the laserScan readings
-    const std::vector<float> the_vector = robot.getRanges();
-    // std::cout << "No. of laser data points: " << the_vector.size() << std::endl;
-
-    float left_scan_value = std::isnan(the_vector.front()) ? std::numeric_limits<float>::infinity() : the_vector.front();
-    std::cout << "<<<--- Port Side: " << left_scan_value;
-
-    // Head-on distance is the middle value of the peripheral field of view
-    int vector_size = the_vector.size();
-    float middle_scan_value = (vector_size > 0 && !std::isnan(the_vector[vector_size / 2])) ? the_vector[vector_size / 2] : std::numeric_limits<float>::infinity();
-    std::cout << "      ^^^ Fore Side: " << middle_scan_value;
-
-    // Starboard side scanned value
-    float right_scan_value = std::isnan(the_vector.back()) ? std::numeric_limits<float>::infinity() : the_vector.back();
-    std::cout << " ^^^      Starboard Side: " << right_scan_value;
-
-    std::cout << " --->>>" << std::endl;
-
-    int start_index = std::max(0, vector_size / 2 - 5); // Ensure start_index doesn't go negative
-    int end_index = std::min(vector_size, start_index + 10);
-
-    // Compute the average of the middle ten values
-    double middle_scan_avg = 0.0;
-    int num_valid_values = 0;
-    for (int i = start_index; i < end_index; ++i) {
-        if (!std::isnan(the_vector[i])) {
-            middle_scan_avg += the_vector[i];
-            num_valid_values++;
-        }
-    }
-    if (num_valid_values > 0) {
-        middle_scan_avg /= static_cast<double>(num_valid_values);
-    } else {
-        middle_scan_avg = std::numeric_limits<double>::infinity();
-    }
-
-    return middle_scan_avg;
-
-}
 
 bool wallHeadOn( Team1::Robot& robot , int MIN_DISTANCE){
 
