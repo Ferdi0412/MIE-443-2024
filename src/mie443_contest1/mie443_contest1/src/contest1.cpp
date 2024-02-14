@@ -100,14 +100,16 @@ int main ( int argc, char **argv ) {
             // Handle cases such as bumper triggered here...
             // Rotate after bumping into a wall
             if ( move_res == WALL_BUMPED ) { // EMMA -> Go through and check logic
+                ROS_INFO("=== WALL BUMPED ===\n");
                 storeBumperTimestamp();
-                if ( wallInFront( robot ) && distanceToWall( robot ) > 0.1 ) {
-                    move_res = rotateAfterBumper( robot );
-                }
-                else move_res = rotateAfterBumper( robot );
+                // if ( wallInFront( robot ) && distanceToWall( robot ) > 0.1 ) {
+                //     move_res = rotateAfterBumper( robot );
+                // }
+                // else
+                move_res = rotateAfterBumper( robot );
             }
             // Do nothing if wall scan stopped motion -> allow the wallFollow to work if needed...
-            else if ( move_res == WALL_IN_FRONT ) ;
+            else if ( move_res == WALL_IN_FRONT ) ROS_INFO("=== WALL IN FRONT (do nothing) ===\n");
             else {
                 ROS_ERROR("UNCAUGHT 'ERROR': %d...\n", move_res);
             }
@@ -203,7 +205,7 @@ int main ( int argc, char **argv ) {
         if ( timeSinceFirstBumper() ) {
             randomMotion( robot, -180, 180 );
         }
-        
+
         // Update timestamps on wall bumps
         if ( move_res == WALL_BUMPED ) {
             storeBumperTimestamp();
@@ -211,12 +213,12 @@ int main ( int argc, char **argv ) {
             continue;
         }
 
-        
-        
+
+
         move_res = moveForwardsBy( robot, 1, 0 );
         continue;
 
-        
+
 
 
     }
