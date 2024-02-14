@@ -515,12 +515,12 @@ namespace Team1 {
                 start_x = pos_x;
                 start_y = pos_y;
                 if ( distance < 0 ) throw std::invalid_argument("[Robot::moveForwards] distance must be greater than zero!\n");
-                expected_duration = fabs(distance / velocity) + MOVE_TIME_BUFFER;
+                expected_duration = 3 * fabs(distance / velocity) + MOVE_TIME_BUFFER; // More likely to actually fail on rotation
                 start_time        = getTimeNow();
                 jogForwardsSafe( velocity );
                 while ( getEuclideanDistance(start_x, start_y, pos_x, pos_y) < distance ) {
                     if ( secondsSince(start_time) > expected_duration ) {
-                        ROS_ERROR("[Robot.rotateClockwiseXxx] -> timeout!\n");
+                        ROS_ERROR("[Robot.moveForwards] -> timeout!\n");
                         stopMotion();
                         throw BumperException();
                     }
