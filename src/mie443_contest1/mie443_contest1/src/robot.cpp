@@ -287,6 +287,7 @@ namespace Team1 {
              * @param target_angle [deg]   must be greater than pos_theta, add 360 to it if necessary
             */
             void rotateClockwiseToPrivate( double velocity, double target_angle ) {
+                ROS_INFO("[Robot.rotatingClockwise]\n");
                 double initial_difference, expected_duration;
                 _sys_clock_t start_time;
                 target_angle = clampAngle(target_angle);
@@ -318,6 +319,7 @@ namespace Team1 {
              * @param target_angle [deg]   must be less than pos_theta, subtract 360 from it if necessary
             */
             void rotateCounterClockwiseToPrivate( double velocity, double target_angle ) {
+                ROS_INFO("[Robot.rotatingCounterClockwise]\n");
                 double initial_difference, expected_duration;
                 _sys_clock_t start_time;
                 target_angle = clampAngle(target_angle);
