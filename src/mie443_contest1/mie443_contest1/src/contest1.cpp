@@ -35,6 +35,7 @@
 
 // ========= AUXILLIARY =========
 #define WALL_DISTANCE 0.2
+#define MINUTE 60
 
 typedef unsigned long long time_elapsed_t;
 
@@ -75,7 +76,7 @@ int main ( int argc, char **argv ) {
     ros::init(argc, argv, "contest1");
 
     ros::NodeHandle nh;
-    Team1::Robot robot( nh, 2);
+    Team1::Robot robot( nh, 50);
 
     // Sleep to ensure is initialized correctly
     ros::Duration(0.5).sleep();
@@ -89,7 +90,7 @@ int main ( int argc, char **argv ) {
 
     // === MAIN ===
     // loop until program_duration [seconds] is reached
-    while ( ros::ok() && secondsElapsed() <= program_duration ) {
+    while ( ros::ok() && secondsElapsed() <= (program_duration - MINUTE) ) {
         robot.spinOnce(); // Update values....
         /**
          * === MOVEMENTS FAILED ===
@@ -99,6 +100,7 @@ int main ( int argc, char **argv ) {
             // Handle cases such as bumper triggered here...
             // Rotate after bumping into a wall
             if ( move_res == WALL_BUMPED ) { // EMMA -> Go through and check logic
+                storeBumperTimestamp();
                 if ( wallInFront( robot ) && distanceToWall( robot ) > 0.1 ) {
                     move_res = rotateAfterBumper( robot );
                 }
@@ -188,6 +190,35 @@ int main ( int argc, char **argv ) {
         */
 
         robot.sleepOnce();
+    }
+
+    /**
+     * START OF SECOND PHASE!
+    */
+
+    move_res = REACHED_TARGET;
+
+    ROS_WARN("=== SECOND PHASE ===\n");
+    while ( ros::ok() && secondsElapsed() <= program_duration ) {
+        if ( timeSinceFirstBumper() ) {
+            randomMotion( robot, -180, 180 );
+        }
+        
+        // Update timestamps on wall bumps
+        if ( move_res == WALL_BUMPED ) {
+            storeBumperTimestamp();
+            move_res = rotateAfterBumper( robot );
+            continue;
+        }
+
+        
+        
+        move_res = moveForwardsBy( robot, 1, 0 );
+        continue;
+
+        
+
+
     }
 
 
