@@ -95,7 +95,7 @@ int main ( int argc, char **argv ) {
          * === MOVEMENTS FAILED ===
         */
         if ( move_res > 0 ) { // If move_res > 0 -> some movement failed/returned early
-            ROS_INFO("Handling movement 'exception'...\n");
+            ROS_INFO("Handling movement 'exception' ( %d )...\n", move_res);
             // Handle cases such as bumper triggered here...
             // Rotate after bumping into a wall
             if ( move_res == WALL_BUMPED ) { // EMMA -> Go through and check logic
