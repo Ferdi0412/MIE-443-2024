@@ -132,7 +132,7 @@ int main ( int argc, char **argv ) {
             move_res = turnRobotBy( robot, 180 );
             if ( move_res > 0 ) continue; // Go to the MOVEMENTS FAILED section...
             move_res = randomMotion( robot, -45, 45 );
-            continue;
+            // continue; // IGNORE THESE ERRORS FOR NOW...
         }
 
         // STARTUP/NORMAL CYCLE
