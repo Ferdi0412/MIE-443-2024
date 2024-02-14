@@ -83,7 +83,7 @@
 
 // T1_ROBOT_ANGLE_BUFFER is used in checking for rootaattion "overflow"
 #define T1_ROBOT_ANGLE_BUFFER 0.2
-#define MOVE_TIME_BUFFER      3 /* number of seconds on top of predicted time to complete motion to block before throwing a BumperException */
+#define MOVE_TIME_BUFFER      7 /* number of seconds on top of predicted time to complete motion to block before throwing a BumperException */
 
 // std::numeric_limits<float>::infinity()
 
