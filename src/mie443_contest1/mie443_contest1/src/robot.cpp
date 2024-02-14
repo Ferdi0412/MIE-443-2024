@@ -292,9 +292,12 @@ namespace Team1 {
                 _sys_clock_t start_time;
                 stopMotion();
                 spinOnce();
-                if ( getVelTheta() < ROBOT_ANGLE_VEL_BUFFER )
+                if ( getVelTheta() < ROBOT_ANGLE_VEL_BUFFER ) {
                     ROS_INFO("[Robot.rotatingClockwise] -> waiting to stop motion...\n");
-                while ( getVelTheta() < ROBOT_ANGLE_VEL_BUFFER ) {
+                    start_time = getTimeNow();
+                }
+
+                while ( (getVelTheta() < ROBOT_ANGLE_VEL_BUFFER) && (secondsSince(start_time) < 1) ) {
                     spinOnce();
                     sleepOnce();
                 }
@@ -333,9 +336,12 @@ namespace Team1 {
                 _sys_clock_t start_time;
                 stopMotion();
                 spinOnce();
-                if ( getVelTheta() > ROBOT_ANGLE_VEL_BUFFER )
-                    ROS_INFO("[Robot.rotatingCounterClockwise] -> waiting to stop motion...\n");
-                while ( getVelTheta() > ROBOT_ANGLE_VEL_BUFFER ) {
+                if ( getVelTheta() > ROBOT_ANGLE_VEL_BUFFER ) {
+                    ROS_INFO("[Robot.rotatingClockwise] -> waiting to stop motion...\n");
+                    start_time = getTimeNow();
+                }
+
+                while ( (getVelTheta() > ROBOT_ANGLE_VEL_BUFFER) && (secondsSince(start_time) < 1) ) {
                     spinOnce();
                     sleepOnce();
                 }
