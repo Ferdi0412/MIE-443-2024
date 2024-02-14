@@ -134,7 +134,7 @@ int scanForArea(Team1::Robot& robot){
     }
 catch (BumperException)
 {
-    rotateAfterBumper(robot);
+    //rotateAfterBumper(robot);
     return WALL_BUMPED;
 }
 
@@ -148,7 +148,7 @@ int randomMotion(Team1::Robot& robot, double minValue, double maxValue){
             robot.moveForwards(0.25,printLaserAvg(robot,robot.getRanges()) - 0.2);
         }
         catch (BumperException){
-            rotateAfterBumper(robot);
+            //rotateAfterBumper(robot);
             return WALL_BUMPED;
         }
     return REACHED_TARGET;
@@ -162,7 +162,7 @@ int scanMotion(Team1::Robot& robot){
             robot.moveForwards(0.25, printLaserAvg(robot,robot.getRanges()) -  0.2);
         }
         catch (BumperException){
-            rotateAfterBumper(robot);
+            //rotateAfterBumper(robot);
             return WALL_BUMPED;
         }
     return REACHED_TARGET;
