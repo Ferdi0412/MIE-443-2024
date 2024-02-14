@@ -67,7 +67,7 @@ int wallParallel(Team1::Robot& robot) {
 
     if (wall_angle < 0){
         ROS_INFO("Turn CW");
-        turnRobotBy(robot, -wall_angle) 
+        turnRobotBy(robot, -wall_angle);
         return 1;
     } else if (wall_angle > 0){
         ROS_INFO("Turn CCW");
