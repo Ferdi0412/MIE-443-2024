@@ -84,6 +84,7 @@
 // T1_ROBOT_ANGLE_BUFFER is used in checking for rootaattion "overflow"
 #define T1_ROBOT_ANGLE_BUFFER 1
 #define MOVE_TIME_BUFFER      7 /* number of seconds on top of predicted time to complete motion to block before throwing a BumperException */
+#define ROBOT_ANGLE_VEL_BUFFER 0.1
 
 // std::numeric_limits<float>::infinity()
 
@@ -291,8 +292,9 @@ namespace Team1 {
                 _sys_clock_t start_time;
                 stopMotion();
                 spinOnce();
-                if ( getVelTheta() < 0 ) ROS_INFO("[Robot.rotatingClockwise] -> waiting to stop motion...\n");
-                while ( getVelTheta() < 0 ) {
+                if ( getVelTheta() < ROBOT_ANGLE_VEL_BUFFER )
+                    ROS_INFO("[Robot.rotatingClockwise] -> waiting to stop motion...\n");
+                while ( getVelTheta() < ROBOT_ANGLE_VEL_BUFFER ) {
                     spinOnce();
                     sleepOnce();
                 }
@@ -331,8 +333,9 @@ namespace Team1 {
                 _sys_clock_t start_time;
                 stopMotion();
                 spinOnce();
-                if ( getVelTheta() > 0 ) ROS_INFO("[Robot.rotatingCounterClockwise] -> waiting to stop motion...\n");
-                while ( getVelTheta() > 0 ) {
+                if ( getVelTheta() > ROBOT_ANGLE_VEL_BUFFER )
+                    ROS_INFO("[Robot.rotatingCounterClockwise] -> waiting to stop motion...\n");
+                while ( getVelTheta() > ROBOT_ANGLE_VEL_BUFFER ) {
                     spinOnce();
                     sleepOnce();
                 }
