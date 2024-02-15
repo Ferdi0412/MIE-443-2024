@@ -114,7 +114,7 @@ int avoidObstacles(Team1::Robot& robot, wallDirectionEnum dir) {
         std::cout << "Right Value" << right_value << std::endl;
 
         if (dir == any){
-            if (middle_value > MAX_DISTANCE){
+            if (middle_value > MAX_DISTANCE && middle_value > left_value && middle_value > right_value){
                 ROS_INFO("Move FORWARD");
                 return moveForwardsBy(robot, fabs(middle_value - MAX_DISTANCE), MAX_DISTANCE) || REACHED_TARGET;
             } else if (right_value >= left_value){
@@ -134,6 +134,7 @@ int avoidObstacles(Team1::Robot& robot, wallDirectionEnum dir) {
                 middle_value = laser_ranges[laser_ranges.size() / 2];
                 return moveForwardsBy(robot, fabs(middle_value - MAX_DISTANCE), MAX_DISTANCE) || REACHED_TARGET_LEFT;
             }
+            return moveForwardsBy(robot,0.2, MAX_DISTANCE) || REACHED_TARGET;
 
         } else if (dir == left){
             if (middle_value <= MAX_DISTANCE){
