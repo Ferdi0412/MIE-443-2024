@@ -48,7 +48,7 @@ float getWallAngleFromLaserScanNonStraight( Team1::Robot& robot );
  * @param angle the clockwise-positive angle
  * @returns REACHED_TARGET if no errors, WALL_BUMPED if bumped a wall
 */
-int turnRobotBy( Team1::Robot& robot, double angle )
+int turnRobotBy( Team1::Robot& robot, double angle );
 
 
 
