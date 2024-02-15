@@ -1,3 +1,9 @@
+# Setup
+In this package there are a couple files, however it will run as intended with the initial **CMakeLists.txt** setup. The files inside the **include/** directory are included directly into contest1.cpp, the same with **robot.cpp**. Run as you would the **contest1.cpp** from the contest 1 package...
+
+# Notes to team
+The following sections were made to communicate with the team.
+
 # robot.cpp
 This file creates the Robot class, under the Team1 namespace. IMPORTANT NOTE: I have clockwise and counter-clockwise flipped in my methods, will fix this later rather than now...
 
