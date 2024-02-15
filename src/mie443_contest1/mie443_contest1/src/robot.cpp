@@ -332,7 +332,7 @@ namespace Team1 {
                         ROS_ERROR("[Robot.rotateClockwiseXxx] -> timeout!\n");
                         stopMotion();
                         // throw BumperException(); // Throw something easily caught for contest 1, TODO: Add new appropriate exception class
-                        return;
+                        return; // Silence error during contest1 -> Hail mary.... IDK what caused it to never move...
                     }
 
                     // Check for bumper collisions
@@ -383,7 +383,7 @@ namespace Team1 {
                         ROS_ERROR("[Robot.rotateClockwiseXxx] -> timeout!\n");
                         stopMotion();
                         // throw BumperException();
-                        return;
+                        return; // Silence error during contest1 -> Hail mary.... IDK what caused it to never move...
                     }
                     checkBumpers();
                     spinOnce();
