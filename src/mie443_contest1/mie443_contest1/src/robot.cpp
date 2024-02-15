@@ -309,10 +309,11 @@ namespace Team1 {
                 }
 
                 // Do some value handling of target_angle
-                ROS_INFO("[Robot.rotatingClockwise]\n");
+                ROS_INFO("[Robot.rotatingClockwise] -> Angle %.2f\n", target_angle);
                 target_angle = clampAngle(target_angle);
                 if ( pos_theta >= target_angle ) target_angle += 360.; // Need to move past 0 degrees, add 360 for "cycle" check later...
-                if ( velocity == 0 )             throw BumperException(); // Throw something that is caught for Contest 1 TODO: Add new appropriate exception class
+                if ( velocity == 0 ) return; // Test....
+                // if ( velocity == 0 )             throw BumperException(); // Throw something that is caught for Contest 1 TODO: Add new appropriate exception class
 
                 // Calculate angle to rotate, and time needed to do so
                 initial_difference = target_angle - pos_theta;
@@ -330,7 +331,8 @@ namespace Team1 {
                     if ( secondsSince( start_time ) > expected_duration ) {
                         ROS_ERROR("[Robot.rotateClockwiseXxx] -> timeout!\n");
                         stopMotion();
-                        throw BumperException(); // Throw something easily caught for contest 1, TODO: Add new appropriate exception class
+                        // throw BumperException(); // Throw something easily caught for contest 1, TODO: Add new appropriate exception class
+                        return;
                     }
 
                     // Check for bumper collisions
@@ -368,10 +370,10 @@ namespace Team1 {
                     spinOnce();
                     sleepOnce();
                 }
-                ROS_INFO("[Robot.rotatingCounterClockwise]\n");
+                ROS_INFO("[Robot.rotatingCounterClockwise] -> Angle %.2f\n", target_angle);
                 target_angle = clampAngle(target_angle);
                 if ( pos_theta <= target_angle ) target_angle -= 360.;
-                if ( velocity == 0 )             throw BumperException(); // Throw something that is caught for Contest 1 TODO: Improve
+                if ( velocity == 0 )             return; // For now... // throw BumperException(); // Throw something that is caught for Contest 1 TODO: Improve
                 initial_difference = target_angle - pos_theta;
                 expected_duration  = fabs((target_angle - pos_theta) / velocity) + MOVE_TIME_BUFFER;
                 start_time = getTimeNow();
@@ -380,7 +382,8 @@ namespace Team1 {
                     if ( secondsSince( start_time ) > expected_duration ) {
                         ROS_ERROR("[Robot.rotateClockwiseXxx] -> timeout!\n");
                         stopMotion();
-                        throw BumperException();
+                        // throw BumperException();
+                        return;
                     }
                     checkBumpers();
                     spinOnce();
