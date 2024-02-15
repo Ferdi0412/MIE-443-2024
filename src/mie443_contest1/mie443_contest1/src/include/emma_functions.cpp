@@ -21,6 +21,9 @@
 // Team1::Robot import
 #include "../robot.cpp"
 
+#define EMMA_LIN_SPEED 0.1
+#define EMMA_ROT_SPEED 45
+
 double printVectorFloats( const std::vector<float>& the_vector ) {
     // std::cout << the_vector.size();
     double midValue;
@@ -75,11 +78,11 @@ int rotateAfterBumper(Team1::Robot& robot){ //tests
 try{
             if (robot.getBumperRight() == true){
                 robot.moveForwards(-0.25,0.2);
-                robot.rotateClockwiseBy(60, -30);
+                robot.rotateClockwiseBy(EMMA_ROT_SPEED, -30);
             }
             else if (robot.getBumperLeft() == true){
                 robot.moveForwards(-0.25,0.2);
-                robot.rotateClockwiseBy(60, 30);
+                robot.rotateClockwiseBy(EMMA_ROT_SPEED, 30);
             }
             else {
             robot.moveForwards(-0.25,0.2);
@@ -103,7 +106,7 @@ int scanForArea(Team1::Robot& robot){
     int bestDir = 0;
     float fourtyfivedegreeLength = 0;
     float ninetydegreeLength = 0;
-    robot.rotateClockwiseBy(45, -45);
+    robot.rotateClockwiseBy(EMMA_ROT_SPEED, -45);
     robot.spinOnce();
     fourtyfivedegreeLength = printLaserAvg(robot,robot.getRanges());
      if (fourtyfivedegreeLength > 2)
@@ -111,7 +114,7 @@ int scanForArea(Team1::Robot& robot){
         ROS_INFO("Distance > 2");
             return REACHED_TARGET;
             }
-    robot.rotateClockwiseBy(45, 90);
+    robot.rotateClockwiseBy(EMMA_ROT_SPEED, 90);
     robot.spinOnce();
     ninetydegreeLength = printLaserAvg(robot,robot.getRanges());
     ROS_INFO("45 degree is: %f", fourtyfivedegreeLength);
@@ -144,7 +147,7 @@ int scanForAreaOld(Team1::Robot& robot){
     for (int i=0; i<2;  i++){
         ROS_INFO("i is %i", i);
         ROS_INFO("degree rot is %i", scanArray[i]);
-        robot.rotateClockwiseBy(45, scanArray[i]);
+        robot.rotateClockwiseBy(EMMA_ROT_SPEED, scanArray[i]);
         robot.spinOnce();
         maxArr[i] = printLaserAvg(robot,robot.getRanges());
         ROS_INFO("output: %f",maxArr[i]);
@@ -168,11 +171,11 @@ int scanForAreaOld(Team1::Robot& robot){
                 bestDir = -90;
                 ROS_INFO("best dir is: %i", bestDir);
                 }
-            
+
             else {bestDir = 0;
             ROS_INFO("best dir is: %i", bestDir);
             }
-    
+
     ROS_INFO("Direction to go: %d", bestDir);
     return bestDir;
     }
@@ -188,8 +191,8 @@ int randomMotion(Team1::Robot& robot, double minValue, double maxValue){
         try {
             float degreeVal = getRandomValue(-minValue,maxValue);
             ROS_INFO("Degree is: %f",degreeVal);
-            robot.rotateClockwiseBy(45, degreeVal);
-            robot.moveForwards(0.25,printLaserAvg(robot,robot.getRanges()) - 0.2);
+            robot.rotateClockwiseBy(EMMA_ROT_SPEED, degreeVal);
+            robot.moveForwards(EMMA_LIN_SPEED ,printLaserAvg(robot,robot.getRanges()) - 0.2);
         }
         catch (BumperException){
             //rotateAfterBumper(robot);
@@ -201,8 +204,8 @@ int randomMotion(Team1::Robot& robot, double minValue, double maxValue){
 int scanMotion(Team1::Robot& robot){
         try {
             int degreeRot = scanForArea(robot);
-            robot.rotateClockwiseBy(45, degreeRot);
-            robot.moveForwards(0.25, printLaserAvg(robot,robot.getRanges()) -  0.2);
+            robot.rotateClockwiseBy(EMMA_ROT_SPEED, degreeRot);
+            robot.moveForwards(EMMA_LIN_SPEED, printLaserAvg(robot,robot.getRanges()) -  0.2);
         }
         catch (BumperException){
             //rotateAfterBumper(robot);
@@ -218,7 +221,7 @@ int randomBias(Team1::Robot& robot){
         std::cout << "distance is";
         std::cout << printVectorFloats(robot.getRanges());
         try {
-            robot.moveForwards(0.25,printVectorFloats(robot.getRanges()) - 0.5 );
+            robot.moveForwards(EMMA_LIN_SPEED, printVectorFloats(robot.getRanges()) - 0.5 );
             ROS_INFO("Moving Forward");
         }
         catch (BumperException){

@@ -18,10 +18,10 @@
 #define LINEAR_LIMIT 0.5
 
 // Define a constant rotational velocity, to make it easy to change if needed...
-#define ROTATIONAL_VELOCITY 50
+#define ROTATIONAL_VELOCITY 45
 
 // Define a constant linear velocity, to make it easy to change if needed...
-#define LINEAR_VELOCITY 0.2
+#define LINEAR_VELOCITY 0.1
 
 
 /**
