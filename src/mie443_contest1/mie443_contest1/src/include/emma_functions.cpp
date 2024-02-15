@@ -94,29 +94,77 @@ catch (BumperException)
     return REACHED_TARGET;
 }
 
+
+
 int scanForArea(Team1::Robot& robot){
+    try {
+    ROS_INFO("SCANNING");
+    robot.spinOnce();
+    int bestDir = 0;
+    float fourtyfivedegreeLength = 0;
+    float ninetydegreeLength = 0;
+    robot.rotateClockwiseBy(45, -45);
+    robot.spinOnce();
+    fourtyfivedegreeLength = printLaserAvg(robot,robot.getRanges());
+     if (fourtyfivedegreeLength > 2)
+        {
+        ROS_INFO("Distance > 2");
+            return REACHED_TARGET;
+            }
+    robot.rotateClockwiseBy(45, 90);
+    robot.spinOnce();
+    ninetydegreeLength = printLaserAvg(robot,robot.getRanges());
+    ROS_INFO("45 degree is: %f", fourtyfivedegreeLength);
+    ROS_INFO("90 degree is: %f", ninetydegreeLength);
+    if (fourtyfivedegreeLength > ninetydegreeLength){
+         bestDir = -90;
+    }
+    else {bestDir  = 0;
+    }
+    ROS_INFO("best dir is: %i", bestDir);
+    return bestDir;
+    }
+catch (BumperException)
+{
+    //rotateAfterBumper(robot);
+    return WALL_BUMPED;
+}
+
+}
+
+int scanForAreaOld(Team1::Robot& robot){
     try {
     ROS_INFO("SCANNING");
     robot.spinOnce();
     float maxArr[2];
     int bestDir = 0;
     int scanArray[2] = {-45,90};
-    double longLength = 0;
+    float longLength = 0;
+    int dir = 0;;
     for (int i=0; i<2;  i++){
+        ROS_INFO("i is %i", i);
+        ROS_INFO("degree rot is %i", scanArray[i]);
         robot.rotateClockwiseBy(45, scanArray[i]);
-        robot.sleepOnce();
         robot.spinOnce();
         maxArr[i] = printLaserAvg(robot,robot.getRanges());
         ROS_INFO("output: %f",maxArr[i]);
         if (maxArr[i] > 2)
-        {return REACHED_TARGET;
-            exit;}
+        {
+        ROS_INFO("Distance > 2");
+            return REACHED_TARGET;
+            }
         }
     for (int n=0;n<2; n++){
         if (longLength < maxArr[n]){
-            std:: cout << longLength << maxArr[n];
+        ROS_INFO("Length is: %f", longLength);
+        ROS_INFO("Array max is: %f",maxArr[n]);
             longLength = maxArr[n];
-            if (n == 0){
+             dir = n;
+            }
+            else{std:: cout << "n  is: " << n << "avg distance not longer";}
+        }
+
+            if (dir == 0){
                 bestDir = -90;
                 ROS_INFO("best dir is: %i", bestDir);
                 }
@@ -124,10 +172,6 @@ int scanForArea(Team1::Robot& robot){
             else {bestDir = 0;
             ROS_INFO("best dir is: %i", bestDir);
             }
-
-            }
-            else{std:: cout << "n  is: " << n << "avg distance not longer";}
-        }
     
     ROS_INFO("Direction to go: %d", bestDir);
     return bestDir;
@@ -157,7 +201,6 @@ int randomMotion(Team1::Robot& robot, double minValue, double maxValue){
 int scanMotion(Team1::Robot& robot){
         try {
             int degreeRot = scanForArea(robot);
-            robot.sleepOnce();
             robot.rotateClockwiseBy(45, degreeRot);
             robot.moveForwards(0.25, printLaserAvg(robot,robot.getRanges()) -  0.2);
         }
