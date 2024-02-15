@@ -1,4 +1,8 @@
-// Import guard -> helps when compiling...
+/**
+ * Implementing functions to help with getting wall angles from vector of distances...
+ *
+ * The "straightness check" is implemented by finding the Mean Squared Error of the linear approximation of the scan...
+*/
 #ifndef LIN_APPROX_CPP
 #define LIN_APPROX_CPP
 
@@ -7,11 +11,14 @@
 #include <limits>
 #include <cmath>
 
+// The following lines will run several print statements used for debugging the linearApproximation function...
+// #define DEBUG_LIN_APPROX
 #ifdef DEBUG_LIN_APPROX
 // FOR DEBUGGING!
 #include <iostream>
 #endif
 
+// Auxilliary unit conversions..
 #ifndef RAD2DEG
 #define RAD2DEG(rad) ((rad) * 180. / M_PI)
 #endif
@@ -20,6 +27,8 @@
 #define DEG2RAD(deg) ((deg) * M_PI / 180.)
 #endif
 
+
+//The two following functions are not intended for use other than here, for easy changes to the values they return...
 /**
  * Intended to be private...
  * _invalidLinApprox returns a value for R-squared, to indicate that the operation failed...
@@ -48,17 +57,25 @@ bool _invalidScanElement( float scan_element ) {
 float getMean( const laser_scan_t& input_vector, unsigned int start_index, unsigned int end_index ) {
     double sum_y = 0, n_elements = 0;
 
+    // Check valid indexes provided
     if ( (end_index > input_vector.size()) || (start_index >= end_index) || (start_index >= input_vector.size()) )
         return std::numeric_limits<float>::infinity();
 
+    // Calculate aggregates
     for ( unsigned int i = 0; i < (end_index - start_index); i++ ) {
+        // If the element is not a valid reading, skip it...
+        if ( _invalidScanElement(input_vector[start_index + i]) ) continue;
+
+        // If it is valid, aggregate over it...
         sum_y += input_vector[start_index + i];
         n_elements++;
     }
 
+    // Ensure some values were in fact iterated over...
     if ( n_elements == 0 )
         return std::numeric_limits<float>::infinity();
 
+    // Return the average
     return (float) (sum_y / n_elements);
 }
 
@@ -104,7 +121,7 @@ lin_approx_t linearApproximation( const laser_scan_t& input_vector, unsigned int
     approx_n           = end_index - start_index;
     start_offset       = start_index;
 
-    // Calculate aggregates...
+    // Calculate aggregates for the SLOPE...
     for ( unsigned int i = 0; i < approx_n; i++ ) {
         float curr_element;
 
@@ -140,20 +157,22 @@ lin_approx_t linearApproximation( const laser_scan_t& input_vector, unsigned int
     slope     = ( sum_xy - sum_x * y_mean ) / ( sum_x_squared - sum_x * x_mean );
     intercept = y_mean - slope * x_mean;
 
-    // Calculate mean squared error
+    // Calculate mean squared error (MSE -> used for straightness checks...)
     for ( unsigned int i = 0; i < approx_n; i++ ) {
         float curr_element, prediction;
 
         // If encountered an invalid element, skip it...
         if ( _invalidScanElement(input_vector[ start_offset + i ]) ) continue;
 
+        // Update the mean_squared_error
         curr_element = input_vector[ start_offset + i ];
         prediction   = (slope * i) + intercept;
-
+        // We already know how many valid elements there are...
+        // divide by n_elements to directly get the average of the squared errors...
         mean_squared_error += pow(curr_element - prediction, 2) / n_elements;
     }
 
-    // Adjust span for actual span of scan
+    // Adjust span for actual span of scan (if angle_increments is non-zero)
     if ( angle_increments != 0. ) {
         angle_increments = fabs(angle_increments);
         width_per_increment = tan(DEG2RAD(angle_increments)) * (intercept + slope * approx_n); // Get average distance times tan(angle) (o/a * a)
@@ -216,6 +235,9 @@ float getIntercept( const lin_approx_t& linear_object ) {
 
 /**
  * getMeanSquaredError returns the mean squared error...
+ *
+ * NOTE: Not intended for use other than testing correctness -> Use instead something like "isStraightLine"
+ * as this should be sufficient for most use cases...
 */
 float getMeanSquaredError( const lin_approx_t& linear_object ) {
     return std::get<2>(linear_object);

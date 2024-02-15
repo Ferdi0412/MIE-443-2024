@@ -1,4 +1,7 @@
-// Import guard -> helps when compiling...
+/**
+ * A set of functions to take the points in the vector of floats provided by the laser scan,
+ * and approximate a straight line of best fit, with "straightness checks".
+*/
 #ifndef LIN_APPROX_HPP
 #define LIN_APPROX_HPP
 

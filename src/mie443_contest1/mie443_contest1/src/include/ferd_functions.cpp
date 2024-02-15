@@ -13,10 +13,20 @@
 #include <limits>
 #include <cmath>
 
+// Linear limit is used for the Mean Squared Error for checking if a line approximation is over a "straight" segment
+// in front of the laser scanner
 #define LINEAR_LIMIT 0.5
+
+// Define a constant rotational velocity, to make it easy to change if needed...
 #define ROTATIONAL_VELOCITY 50
+
+// Define a constant linear velocity, to make it easy to change if needed...
 #define LINEAR_VELOCITY 0.2
 
+
+/**
+ * Some conversions...
+*/
 #ifndef RAD2DEG
 #define RAD2DEG(rad) ((rad) * 180. / M_PI)
 #endif
@@ -26,21 +36,30 @@
 #endif
 
 
+/**
+ * Define which portion of the laser scan to take as the "front-center"...
+ *
+ * Take the 4/9th to 5/9th elements...
+*/
 #ifndef NUM_SCAN_SEGM
 #define NUM_SCAN_SEGM 9
 #endif
-
-
 #define SCAN_START 4
 #define SCAN_END   5
 
 /**
  * === LOCAL ===
 */
+
+/**
+ * distanceToScanCenter returns the distance read at the center-most single element in the laser scan...
+*/
 double distanceToScanCenter( Team1::Robot& robot );
 
 /**
  * === PUBLIC ===
+ *
+ * For descriptions of the below, find them in the assumed_functions file...
 */
 
 
