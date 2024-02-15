@@ -299,7 +299,7 @@ namespace Team1 {
                 stopMotion();
                 spinOnce();
                 // If the velocity of the robot is not yet sufficiently low, give it 1 second to try to stop
-                if ( fabsgetVelTheta() < -ROBOT_ANGLE_VEL_BUFFER ) {
+                if ( getVelTheta() < -ROBOT_ANGLE_VEL_BUFFER ) {
                     ROS_INFO("[Robot.rotatingClockwise] -> waiting to stop motion...\n");
                     start_time = getTimeNow();
                 }
