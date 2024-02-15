@@ -281,6 +281,11 @@ namespace Team1 {
                 return atan2( delta_y, delta_x );
             }
 
+
+            /**
+             * === MOTION CONTROL ===
+            */
+
             /**
              * rotateClockwiseToPrivate BLOCKING
              *
@@ -290,8 +295,10 @@ namespace Team1 {
             void rotateClockwiseToPrivate( double velocity, double target_angle ) {
                 double initial_difference, expected_duration;
                 _sys_clock_t start_time;
+                // Stop any existing motion, update values...
                 stopMotion();
                 spinOnce();
+                // If the velocity of the robot is not yet sufficiently low, give it 1 second to try to stop
                 if ( fabsgetVelTheta() < -ROBOT_ANGLE_VEL_BUFFER ) {
                     ROS_INFO("[Robot.rotatingClockwise] -> waiting to stop motion...\n");
                     start_time = getTimeNow();
@@ -300,26 +307,42 @@ namespace Team1 {
                     spinOnce();
                     sleepOnce();
                 }
+
+                // Do some value handling of target_angle
                 ROS_INFO("[Robot.rotatingClockwise]\n");
                 target_angle = clampAngle(target_angle);
-                if ( pos_theta >= target_angle ) target_angle += 360.;
-                if ( velocity == 0 )             throw BumperException(); // Throw something that is caught for Contest 1 TODO: Improve
+                if ( pos_theta >= target_angle ) target_angle += 360.; // Need to move past 0 degrees, add 360 for "cycle" check later...
+                if ( velocity == 0 )             throw BumperException(); // Throw something that is caught for Contest 1 TODO: Add new appropriate exception class
+
+                // Calculate angle to rotate, and time needed to do so
                 initial_difference = target_angle - pos_theta;
                 expected_duration  = fabs((target_angle - pos_theta) / velocity) + MOVE_TIME_BUFFER;
+
+                // Store start time and start motion
                 start_time = getTimeNow();
                 jogClockwiseSafe( fabs(velocity) );
+
+                // Monitor if the target_angle has been reached, and the time for motion
                 while ( target_angle > pos_theta ) {
+                    // If too much time is taken, stop the motion and throw an exception. This is a TIMEOUT,
+                    // in case robot gets stuck for some reason, meaning odometry doesn't change,
+                    // meaning the target_angle never reaches/passes pos_theta, and so this function never returns
                     if ( secondsSince( start_time ) > expected_duration ) {
                         ROS_ERROR("[Robot.rotateClockwiseXxx] -> timeout!\n");
                         stopMotion();
-                        throw BumperException();
+                        throw BumperException(); // Throw something easily caught for contest 1, TODO: Add new appropriate exception class
                     }
-                    checkBumpers();
-                    spinOnce();
-                    // If difference between current and target has increased, assume angle rotated past 180. degrees
+
+                    // Check for bumper collisions
+                    checkBumpers(); // Throws BumperException if bumpers are triggered
+                    spinOnce();     // Update values
+
+                    // If difference between current and target has increased, assume angle rotated past 180 (0) degrees
                     if ( (target_angle - pos_theta) > (initial_difference + T1_ROBOT_ANGLE_BUFFER) )
                         target_angle -= 360.;
                 }
+
+                // Target reached, stop rotation
                 stopMotion();
             }
 
@@ -330,7 +353,8 @@ namespace Team1 {
              * @param target_angle [deg]   must be less than pos_theta, subtract 360 from it if necessary
             */
             void rotateCounterClockwiseToPrivate( double velocity, double target_angle ) {
-
+                // For in-depth annotation/comments, find corresponding lines in rotateClockwiseToPrivate,
+                // the only difference here is that direction is flipped
                 double initial_difference, expected_duration;
                 _sys_clock_t start_time;
                 stopMotion();
@@ -367,16 +391,22 @@ namespace Team1 {
                 stopMotion();
             }
 
-            /** === MOTION CONTROL === */
             /**
              * setMotion will set and publish the velocity components relative to the turtlebot base
+             *
+             * The motion (velocities) are set using a Twist object stored in the robot class,
+             * and which is published to the appropriate topic with every Team1::Robot::spinOnce(...) call.
+             * This function just sets the fields of the Twist object that will be published, and then forces a publish
+             * of the topic to occur.
              *
              * @param fwd_speed   is the linear speed (in m/s) to travel forwards
              * @param clock_speed is the angular speed (in rad/s) to travel clockwise
             */
             void setMotion( double fwd_speed, double clock_speed ) {
+                // Update Twist/velocity object
                 motion_set.linear.x  = fwd_speed;
-                motion_set.angular.z = -clock_speed; // Adjust for wrong direction of rotation...
+                motion_set.angular.z = -clock_speed; // Z is defined with counter-clockwise-positive
+                // Publish Twist/velocity object to appropriate topic...
                 publishVelocity();
             }
 
@@ -416,7 +446,9 @@ namespace Team1 {
 
 
         public:
-            /* === PUBLIC GETTERS === */
+            /**
+             * === PUBLIC GETTERS ===
+            */
             double getX()     { return pos_x; }
             double getY()     { return pos_y; }
             double getTheta() { return pos_theta; }
@@ -447,20 +479,30 @@ namespace Team1 {
 
             const std::vector<float>& getRanges()      { return ranges; }
 
-            /* === PUBLIC SETTERS === */
+
+
+            /**
+             * === PUBLIC SETTERS (sort of... lol) ===
+            */
+
             /**
              * calibrateLinearMotion
              *
              * Add a clockwise rotation speed to adjust for any mismatch in power between left and right wheels.
              * Will be applied as a factor to the linear speed to set the rotational speed for motion.
              *
-             * @param clockwise_offset  [(deg/s) / (m/s)]
+             * @param clockwise_offset in degrees per meter of linear motion [(deg/s) / (m/s) := (deg/m)]
             */
             void calibrateLinearMotion( double clockwise_offset ) { linear_calibration = DEG2RAD(clockwise_offset); }
 
-            /* === LASER METHODS === */
+
+
             /**
-             * getDesiredLaserCount
+             * === LASER METHODS ===
+            */
+
+            /**
+             * getDesiredLaserCount -> taken p. much from one of the tutorials... Not used anywhere to my knowledge...
              *
              * @param desired_angle for which to calculate laser points required
              * @returns number of lasers needed to get said angle
@@ -469,14 +511,21 @@ namespace Team1 {
                 return desired_angle / getAngleIncrement();
             }
 
-            /* === ROS METHODS === */
+            /**
+             * === ROS METHODS ===
+            */
+
             /**
              * spinOnceROS will update class values with any topic changes/messages (and publish topics)
             */
             void spinOnce( void ) {
+                // Publish velocity on every spin, so the robot keeps moving at the desired velocity...
                 publishVelocity();
+                // Update subscriptions...
                 ros::spinOnce();
             }
+
+
 
             /**
              * sleepOnce will sleep for the rest of a "cycle" -> defined by the spin_rate
@@ -484,6 +533,8 @@ namespace Team1 {
             void sleepOnce( void ) {
                 spin_rate.sleep();
             }
+
+
 
             /**
              * sleepFor will sleep for a given duration
@@ -494,13 +545,19 @@ namespace Team1 {
                 ros::Duration(duration).sleep();
             }
 
-            /* === MOTION CONTROL === */
+
+
+            /**
+             * === MOTION CONTROL ===
+            */
+
             /**
              * stopMotion will stop all motion of the robot
             */
             void stopMotion( void ) {
                 setMotion(0, 0);
             }
+
 
             /**
              * jogForwards will start a forwards motion
@@ -511,6 +568,7 @@ namespace Team1 {
                 setMotion( velocity, linear_calibration * velocity );
             }
 
+
             /**
              * jogForwardsSafe will start a forwards motion, and check if bumpers are triggered in the forwards direction
              *
@@ -518,10 +576,13 @@ namespace Team1 {
              * @throws BumperException
             */
             void jogForwardsSafe( double velocity ) {
+                // If any bumpers triggered and motion is in the forwards direction (ie. in direction of bumpers),
+                // throw a BumperException();
                 if ( (velocity > 0) && getBumperAny() )
                     throw BumperException();
-                setMotion( velocity, linear_calibration * velocity );
+                jogForwards( velocity );
             }
+
 
             /**
              * moveForwards will move the robot forwards, and check if bumpers are triggered during the motion
@@ -535,25 +596,42 @@ namespace Team1 {
             void moveForwards( double velocity, double distance ) {
                 double start_x, start_y, expected_duration;
                 _sys_clock_t start_time;
+                // If velocity is 0 or distance is 0, quick return...
                 if ( (velocity == 0) || (distance == 0) ) return;
-                spinOnce(); // Update the current x and y coordinates
+
+                // Update the current x and y coordinates
+                spinOnce();
                 start_x = pos_x;
                 start_y = pos_y;
+
+                // If distance is negative, throw an invalid_argument....
                 if ( distance < 0 ) throw std::invalid_argument("[Robot::moveForwards] distance must be greater than zero!\n");
+
+                // Calculate time used to travel (multiply by 3 because using system time, and Gazebo runs slow when
+                // VM is doing a lot, meaning 1 second in Gazebo is much longer than system time...)
                 expected_duration = 3 * fabs(distance / velocity) + MOVE_TIME_BUFFER; // More likely to actually fail on rotation
                 start_time        = getTimeNow();
+
+                // Start forwards motion
                 jogForwardsSafe( velocity );
+
+                // Until the distance the robot has travelled from the starting position is greater than distance,
+                // keep checking that it doesn't take to long (assume it's stuck), and check that the bumpers
+                // are not triggered.
                 while ( getEuclideanDistance(start_x, start_y, pos_x, pos_y) < distance ) {
                     if ( secondsSince(start_time) > expected_duration ) {
                         ROS_ERROR("[Robot.moveForwards] -> timeout!\n");
                         stopMotion();
-                        throw BumperException();
+                        throw BumperException(); // TODO: Use more appropriate/new exception class
                     }
                     checkBumpers(); // Stop and throw BumperException if bumpers triggered
                     spinOnce();     // Update pos_x and pos_y
                 }
+
+                // Once motion has completed, stop the robot motion
                 stopMotion();
             }
+
 
             /**
              * distanceToPoint will return the euclidean distance from the current position to a point (NOTE: No overflow handling)
@@ -565,6 +643,7 @@ namespace Team1 {
                 return getEuclideanDistance( pos_x, pos_y, target_x, target_y );
             }
 
+
             /**
              * jogClockwise will start a clockwise rotation, and check if bumpers in that direction are triggered
              *
@@ -574,9 +653,10 @@ namespace Team1 {
                 setMotion( 0, DEG2RAD(velocity) );
             }
 
+
             /**
              * jogClockwiseSafe will start a clockwise rotation, and check if bumpers in that direction are triggered
-             *DEG2RAD
+             *
              * @param velocity rotational velocity [deg/s]
              * @throws BumperException
             */
@@ -587,6 +667,7 @@ namespace Team1 {
                 // If no problems with bumpers...
                 setMotion( 0, DEG2RAD(velocity) );
             }
+
 
             /**
              * rotateClockwiseTo will rotate the robot clockwise (or counter-clockwise) until it reaches a given angle
@@ -606,6 +687,7 @@ namespace Team1 {
                 else if ( (velocity < 0) && (pos_theta < target_angle) ) rotateCounterClockwiseToPrivate( velocity, target_angle - 360 );
             }
 
+
             /**
              * rotateClockwiseBy will rotate the robot clockwise (or counter-clockwise) by a given angle
              * BLOCKING -> it will not return until rotation has been completed
@@ -623,6 +705,7 @@ namespace Team1 {
                     rotateClockwiseTo( -fabs(velocity), pos_theta + angle );
             }
 
+
             /**
              * getAngleTo will calculate smallest clockwise-positive angle to rotate to align the robot with a given orientation
              *
@@ -631,6 +714,7 @@ namespace Team1 {
             double getAngleTo( double target_orientation ) {
                 return getAngleBetween( pos_theta, target_orientation );
             }
+
 
             /**
              * getAngleToPoint will calculate smallest clockwise-positive angle to rotate to face a point
@@ -644,6 +728,7 @@ namespace Team1 {
                 return getAngleToRelativePoint( (target_x - pos_x), (target_y - pos_y) );
             }
 
+
             /**
              * getAngleToRelativePoint will calculate the smallest clockwise-positive to rotate to face a point at dist_x and dist_y from the current position
              * NOTE: No overflow handling is done...
@@ -654,6 +739,7 @@ namespace Team1 {
             double getAngleToRelativePoint( double dist_x, double dist_y ) {
                 return getAngleBetween(pos_theta, getAngleToFromNormal( dist_x, dist_y ));
             }
+
 
             /**
              * makeClockwise will translate an angle such that it is greater than 0
@@ -667,6 +753,7 @@ namespace Team1 {
                 return angle;
             }
 
+
             /**
              * makeCounterClockwise will translate an angle such that it is less than 0
              *
@@ -678,6 +765,7 @@ namespace Team1 {
                     return -360 + angle;
                 return angle;
             }
+
 
             /**
              * getAngleToLaserPoint returns the angle from the center of the laser scan to a laser point in the scane
@@ -691,6 +779,7 @@ namespace Team1 {
                 return getAngleMin() + (laserpoint_index * getAngleIncrement());
             }
 
+
             /**
              * checkBumpers will read the bumper states, and stop motion if any are triggered
              *
@@ -703,6 +792,7 @@ namespace Team1 {
                 }
             }
 
+
             /**
              * waitOnLaserRanges will BLOCK until a valid laser scan is retrieved
             */
@@ -712,7 +802,11 @@ namespace Team1 {
                 laserCallback(ros::topic::waitForMessage<sensor_msgs::LaserScan>(SCAN_TOPIC, subscription_node_handler));
             }
 
-            /* === CONSTRUCTORS/DESTRUCTORS === */
+
+            /**
+             * === CONSTRUCTORS/DESTRUCTORS ===
+            */
+
             /**
              * Robot class constructor
              *
