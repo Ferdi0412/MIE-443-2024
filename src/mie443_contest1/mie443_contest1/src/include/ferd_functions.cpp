@@ -21,7 +21,7 @@
 #define ROTATIONAL_VELOCITY 45
 
 // Define a constant linear velocity, to make it easy to change if needed...
-#define LINEAR_VELOCITY 0.1
+#define LINEAR_VELOCITY 0.15
 
 
 /**
