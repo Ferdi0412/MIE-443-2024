@@ -53,7 +53,7 @@ time_elapsed_t timeSinceFirstBumper( void );
 
 static std::chrono::time_point<std::chrono::system_clock> program_start;
 
-static time_elapsed_t program_duration = 480;
+const static time_elapsed_t program_duration = 480;
 
 int move_res = 0;
 
