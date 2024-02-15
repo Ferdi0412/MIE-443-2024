@@ -108,6 +108,7 @@ int main ( int argc, char **argv ) {
 
     // === MAIN ===
     // loop until program_duration [seconds] is reached
+    ROS_WARN("=== MAIN PHASE ===\n");
     while ( ros::ok() && secondsElapsed() <= (program_duration - MINUTE) ) {
         robot.spinOnce(); // Update values....
         /**
