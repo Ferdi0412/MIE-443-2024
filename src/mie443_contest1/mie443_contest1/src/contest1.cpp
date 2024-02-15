@@ -89,7 +89,7 @@ int main ( int argc, char **argv ) {
     robot.waitOnLaserRanges(); // FERDI -> To implement
 
     ROS_WARN("=== INITIAL RANDOM PHASE ===\n");
-    while ( ros::ok() && secondsElapsed() <= (MINUTE * 0.5) ) {
+    while ( ros::ok() && secondsElapsed() <= (MINUTE * 1.) ) {
         if ( timeSinceFirstBumper() ) {
             randomMotion( robot, -180, 180 );
         }
