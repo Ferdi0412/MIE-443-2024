@@ -90,10 +90,6 @@ int main ( int argc, char **argv ) {
 
     ROS_WARN("=== INITIAL RANDOM PHASE ===\n");
     while ( ros::ok() && secondsElapsed() <= (MINUTE * 1.) ) {
-        if ( timeSinceFirstBumper() ) {
-            randomMotion( robot, -180, 180 );
-        }
-
         // Update timestamps on wall bumps
         if ( move_res == WALL_BUMPED ) {
             storeBumperTimestamp();
@@ -101,7 +97,7 @@ int main ( int argc, char **argv ) {
             continue;
         }
 
-        move_res = moveForwardsBy( robot, 1, 0 );
+        move_res = scanMotion( robot );;
         continue;
 
     }
