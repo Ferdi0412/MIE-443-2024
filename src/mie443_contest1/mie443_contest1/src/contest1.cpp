@@ -88,6 +88,24 @@ int main ( int argc, char **argv ) {
     // Add in to wait on laser_ranges
     robot.waitOnLaserRanges(); // FERDI -> To implement
 
+    ROS_WARN("=== INITIAL RANDOM PHASE ===\n");
+    while ( ros::ok() && secondsElapsed() <= (MINUTE * 0.5) ) {
+        if ( timeSinceFirstBumper() ) {
+            randomMotion( robot, -180, 180 );
+        }
+
+        // Update timestamps on wall bumps
+        if ( move_res == WALL_BUMPED ) {
+            storeBumperTimestamp();
+            move_res = rotateAfterBumper( robot );
+            continue;
+        }
+
+        move_res = moveForwardsBy( robot, 1, 0 );
+        continue;
+
+    }
+
     // === MAIN ===
     // loop until program_duration [seconds] is reached
     while ( ros::ok() && secondsElapsed() <= (program_duration - MINUTE) ) {
@@ -213,16 +231,10 @@ int main ( int argc, char **argv ) {
             continue;
         }
 
-
-
         move_res = moveForwardsBy( robot, 1, 0 );
         continue;
 
-
-
-
     }
-
 
     // === PROGRAM END ===
     robot.stopMotion();
