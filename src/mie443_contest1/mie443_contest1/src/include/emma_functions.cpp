@@ -21,7 +21,7 @@
 // Team1::Robot import
 #include "../robot.cpp"
 
-#define EMMA_LIN_SPEED 0.1
+#define EMMA_LIN_SPEED 0.15
 #define EMMA_ROT_SPEED 45
 
 double printVectorFloats( const std::vector<float>& the_vector ) {
