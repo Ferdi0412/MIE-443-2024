@@ -16,25 +16,37 @@ find_package(orocos_kdl REQUIRED)
 
 catkin_package()
 
-include_directories(include  
-    ${catkin_INCLUDE_DIRS}  
+include_directories(include
+    ${catkin_INCLUDE_DIRS}
     ${OpenCV_INCLUDE_DIRS})
 
 # Contest 2 Executable
-add_executable(contest2 
+add_executable(contest2
     src/contest2.cpp
     src/boxes.cpp
     src/navigation.cpp
     src/robot_pose.cpp
     src/imagePipeline.cpp)
-target_link_libraries(contest2 
-    ${catkin_LIBRARIES}  
-    ${OpenCV_LIBRARIES}  
+target_link_libraries(contest2
+    ${catkin_LIBRARIES}
+    ${OpenCV_LIBRARIES}
     orocos-kdl)
 
 # Webcam Publisher Executable
-add_executable(webcam_publisher 
+add_executable(webcam_publisher
     src/webcam_publisher.cpp)
-target_link_libraries(webcam_publisher  
-    ${catkin_LIBRARIES}  
+target_link_libraries(webcam_publisher
+    ${catkin_LIBRARIES}
     ${OpenCV_LIBRARIES})
+
+# Test executable
+add_executable(priv_test
+    src/priv-test.cpp
+    src/boxes.cpp
+    src/navigation.cpp
+    src/robot_pose.cpp
+    src/imagePipeline.cpp)
+target_link_libraries(priv_test
+    ${catkin_LIBRARIES}
+    ${OpenCV_LIBRARIES}
+    orocos-kdl)
