@@ -12,6 +12,12 @@ Project for Thursday Team 1 for MIE443 in Winter 2023/2024. This assumes you are
 - Open-spaces
 - Biased random-walk
 
+# Contest 2
+For [contest 2](src/mie443_contest2/mie443_contest2/src), we will ...
+
+## Startup
+To startup, you can use GAZEBO to simulate robot motion...
+
 # Contest 1
 For [contest 1](src/mie443_contest1/mie443_contest1/src/README.md), we will start off evaluating wall-following, open-space and biased random-walk navigation strategies.
 ~~If time permits, we will look into frontier-search to find unexplored areas from the **gmapping** node.~~
