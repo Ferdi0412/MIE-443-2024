@@ -13,3 +13,11 @@ To test, modify the [src/priv-test.cpp](src/priv-test.cpp) file. This will **NOT
 ```shell
 rosrun mie443_contest2 priv_test
 ```
+
+## Gazebo
+To open gazerbo, run the following command:
+
+```shell
+roslaunch mie443_contest2 turtlebot_world.launch world:=1
+```
+
