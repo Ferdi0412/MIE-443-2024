@@ -1,5 +1,5 @@
 base_dir=$(dirname "$(readlink -f "$0")")
-cd base_dir           # Go to reset-build.sh file's directory
+cd "$base_dir"           # Go to reset-build.sh file's directory
 
 
 sudo rm -rf build     # Remove all build files created by catkin_make
