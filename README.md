@@ -147,10 +147,9 @@ git commit -m "Short Message" -m  "Long Message" # For short AND long message
 ## To push local revision history to remote
 git push
 
-## == CATKIN SETUP ==
-## Before running catkin_make, ensure the source is initialized
-cd $REPOSITORY_ROOT/src
-catkin_init_workspace
+## == REPOSITORY SETUP ==
+## To setup the project upon first cloning, run the following
+bash setup.sh
 
 ## == CATKIN BUILD ==
 ## To build the project, run the following:
@@ -165,8 +164,5 @@ source devel/setup.sh
 ## == RESET BUILD ==
 ## In case of strange errors, this may sometimes fix them:
 cd $REPOSITORY_ROOT
-sudo rm -rf build     # Remove all build files created by catkin_make
-sudo rm -rf devel     # Remove all devel files created by catkin_make
-catkin_make           # Re-build projecct
-source devel/setup.sh # re-source
+bash reset-buil.sh
 ```
