@@ -14,7 +14,7 @@
  *
  * The following functions should make controlling the time the program runs for...
 */
-typedef std::chrono::time_point<std::chrono::system_clock> timer_t;
+typedef std::chrono::time_point<std::chrono::system_clock> aux_timer_t;
 
 /**
  * setMainStartTime must run once at the start of the program, for the other TIME functions to work
@@ -31,23 +31,23 @@ uint64_t mainTimerSecondsElapsed( void );
 /**
  * getTimer will return a timer
  *
- * @returns <timer_t> a timer
+ * @returns <aux_timer_t> a timer
 */
-timer_t getTimer( void );
+aux_timer_t getTimer( void );
 
 /**
  * getSecondsElapsed will return the number of seconds since getTimer was run
  *
  * @returns <uint64_t> the number of seconds
 */
-uint64_t getSecondsElapsed( timer_t input_timer );
+uint64_t getSecondsElapsed( aux_timer_t input_timer );
 
 /**
  * getMillisecondsElapsed will return the number of milliseconds since getTimer was run
  *
  * @returns <uint64_t> the number of milliseconds
 */
-uint64_t getMillisecondsElapsed( time_t input_timer );
+uint64_t getMillisecondsElapsed( aux_timer_t input_timer );
 
 
 
