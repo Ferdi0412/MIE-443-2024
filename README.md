@@ -5,7 +5,7 @@ Project for Thursday Team 1 for MIE443 in Winter 2023/2024. This assumes you are
 For [contest 2](src/mie443_contest2/mie443_contest2).
 
 ## Startup
-To startup, you can use GAZEBO to simulate robot motion...
+To startup, you can use GAZEBO to simulate robot motion.
 
 # Contest 1
 For [contest 1](src/mie443_contest1/mie443_contest1/src/README.md).
@@ -30,10 +30,7 @@ roslaunch turtlebot_rviz_launchers view_navigation.launch
 rosrun map_server map_saver -f your_map_name
 ```
 
-## Team1Robot
-This is a class for controlling the robot movements, and will wrap the topic calls, for simplicity sake. For details, checkout the [contest 1 README](src/mie443_contest1/mie443_contest1/src/README.md).
-
-## ROS Commands
+# ROS Commands
 To move the robot in gazebo, you can use the following:
 ```shell
 roslaunch turtlebot_teleop keyboard_teleop.launch
