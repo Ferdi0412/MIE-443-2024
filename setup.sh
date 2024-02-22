@@ -80,7 +80,9 @@ else
     echo ""
 fi
 
-
+## Re-source terminal
+cd "${base_dir}"
+source devel/setup.sh > /dev/null # re-source
 
 #################
 ### SHORTCUTS ###
