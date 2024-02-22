@@ -11,6 +11,74 @@ contest2_dir="src/mie443_contest2/mie443_contest2"
 # Print repository's base_dir to ensure it works correctly
 echo ""
 echo "base_dir := ${base_dir}"
+echo ""
+
+
+
+#################
+### FUNCTIONS ###
+# Returns TRUE if a command-line executable is available
+is_command_available() {
+    command_to_check="$1"
+    if command -v "$command_to_check" &> /dev/null
+    then
+        return 0 # 0 means no error/TRUE
+    else
+        return 1 # 1 means error/FALSE
+    fi
+}
+
+exit_if_command_unavailable() {
+    command_to_check="$1"
+    if ! is_command_available "$command_to_check"; then
+        echo ""
+        echo "!!! WARNING !!!"
+        echo "${command_to_check} is not available..."
+        echo "exiting now..."
+        exit 1
+    fi
+}
+
+
+
+####################
+### CATKIN SETUP ###
+cd "${base_dir}"
+
+if ! [ -e "src/CMakeLists.txt" ]; then
+    exit_if_command_unavailable "catkin_init_workspace"
+
+    echo "[Catkin Setup] Running catkin_init_workspace..."
+    cd src
+    catkin_init_workspace > /dev/null
+    cd ..
+    echo ""
+else
+    echo "[Catkin Setup] Workspace already initialized..."
+    echo ""
+fi
+
+if ! [ -d "build" ] || ! [ -d "devel" ]; then
+    exit_if_command_unavailable "catkin_make"
+
+    rm -rf build &> /dev/null
+    rm -rf devel &> /dev/null
+    echo "[Catkin Setup] Do you wish to run catkin_make [y/n]?"
+    read confirmation
+    if [ "$confirmation" = "y" ]; then
+        echo "[Catkin Setup] Running catkin_make..."
+        echo ""
+        catkin_make
+        echo "[Catkin Setup] catkin_make completed..."
+        echo ""
+    else
+        echo "[Catkin Setup] Not running catkin_make, run this manually later to build project..."
+        echo ""
+    fi
+else
+    echo "[Catkin Setup] Project already built..."
+    echo ""
+fi
 
 
 
@@ -20,14 +88,18 @@ echo "base_dir := ${base_dir}"
 cd "${base_dir}"
 
 if ! [ -L "priv-c1" ]; then
-    echo "Creating shortcut: priv-c1..."
-    ln -s "${contest1_dir}" priv-c1
+    echo "[Shortcuts] Creating shortcut: priv-c1..."
+    ln -s "${contest1_dir}" priv-c1 > /dev/null
+    echo ""
 fi
 
 if ! [ -L "priv-c2" ]; then
-    echo "Creating shortcut: priv-c2..."
-    ln -s "${contest2_dir}" priv-c2
+    echo "[Shortcuts] Creating shortcut: priv-c2..."
+    ln -s "${contest2_dir}" priv-c2 > /dev/null
+    echo ""
 fi
+
+
 
 #################
 ### GIT STUFF ###
@@ -38,6 +110,10 @@ git update-index --assume-unchanged "${contest2_dir}/src/priv-test.cpp"
 
 
 
-echo "DONE..."
+###########
+### END ###
 echo ""
+echo "[setup.sh] DONE..."
+echo ""
+
 
