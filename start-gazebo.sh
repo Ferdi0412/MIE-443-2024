@@ -76,5 +76,7 @@ done
 
 ############
 ### MAIN ###
+echo ""
 echo "roslaunch 'mie443_contest$contest' turtlebot_world.launch 'world:=$world'"
+echo ""
 roslaunch "mie443_contest$contest" turtlebot_world.launch "world:=$world"
