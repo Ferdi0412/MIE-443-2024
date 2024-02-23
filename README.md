@@ -7,6 +7,47 @@ For [contest 2](src/mie443_contest2/mie443_contest2).
 ## Startup
 To startup, you can use GAZEBO to simulate robot motion.
 
+```shell
+## For all terminals:
+cd ~/catkin_ws # Make sure all commands are run from root of this repository
+
+##################
+### SIMULATION ###
+##################
+## Terminal 1
+bash start-gazebo.sh # Add "-h" for help with options
+
+## Terminal 2
+bash start-amcl.sh # Add "-h" for help with options
+
+## Terminal 3
+bash start-rviz.sh
+
+## Terminal 4 [OPTIONAL]
+rosrun mie443_contest2 webcam_publisher 0 # Run this if you need the webcam_publisher node
+
+## Terminal 5
+rosrun mie443_contest2 priv_test # Run this to run the test node
+
+###############
+### CONTEST ###
+###############
+## Terminal 1
+bash start-robot.sh
+
+## Terminal 2
+bash start-amcl.sh --map_file <path_to_map>.yaml # Replace <path_to_map> with the path to the desired map file
+
+## Terminal 3
+bash start-rviz.sh
+
+## Terminal 4 [TBD if this is actually needed...]
+rosrun mie443_contest2 webcam_publisher 0
+
+## Terminal 5
+rosrun mie443_contest2 mie443_contest2
+```
+
 # Contest 1
 For [contest 1](src/mie443_contest1/mie443_contest1/src/README.md).
 
