@@ -55,15 +55,15 @@ while [ $# -gt 0 ]; do
             ;;
         -h)
             echo "Usage: $0 [OPTIONS]"
-            echo "To set the GAZEBO world:"
+            echo "1. To set the GAZEBO world (default: $world):"
             echo "|-> [--world <value>]"
             echo "|-> [-w <value>]"
             echo "|-> [world=<value>]"
-            echo "To select the contest:"
+            echo "2. To select the contest (default: $contest):"
             echo "|-> [--contest <value>]"
             echo "|-> [-c <value>]"
             echo "|-> [contest=<value>]"
-            echo "For help:"
+            echo "3. For help:"
             echo "|-> [--help]"
             echo "|-> [-h]"
             exit 0

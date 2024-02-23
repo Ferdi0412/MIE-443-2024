@@ -4,7 +4,6 @@
 ### DEFAULT VARIABLES ###
 user=$(whoami)
 map_file="/home/$user/catkin_ws/src/mie443_contest2/mie443_contest2/maps/map_1.yaml"
-contest=2
 
 #################
 ### FUNCTIONS ###
@@ -44,11 +43,11 @@ while [ $# -gt 0 ]; do
             ;;
         -h)
             echo "Usage: $0 [OPTIONS]"
-            echo "To set the map file/directory:"
+            echo "1. To set the map file/directory (default: $map_file):"
             echo "|-> [--map_file <value>]"
             echo "|-> [-m <value>]"
             echo "|-> [map_file=<value>]"
-            echo "For help:"
+            echo "2. For help:"
             echo "|-> [--help]"
             echo "|-> [-h]"
             exit 0
