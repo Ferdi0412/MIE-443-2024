@@ -2,7 +2,8 @@
 
 #########################
 ### DEFAULT VARIABLES ###
-world=1
+user=$(whoami)
+map_file="/home/$user/catkin_ws/src/mie443_contest2/mie443_contest2/maps/map_1.yaml"
 contest=2
 
 #################
@@ -29,40 +30,24 @@ command_in_new_terminal() {
 ### SET PARAMS ###
 while [ $# -gt 0 ]; do
     case "$1" in
-        --world | -w)
+        --map_file | -m)
             if check_length "$2"; then
-                world="$2"
+                map_file="$2"
                 shift 2
             else
                 shift 1
             fi
             ;;
-        --contest | -c)
-            if check_length "$2"; then
-                contest="$2"
-                shift 2
-            else
-                shift 1
-            fi
-            ;;
-        world=*)
-            world="${1#*=}"
-            shift 1
-            ;;
-        contest=*)
-            contest="${1#*=}"
+        map_file=*)
+            map_file="${1#*=}"
             shift 1
             ;;
         -h)
             echo "Usage: $0 [OPTIONS]"
-            echo "To set the GAZEBO world:"
-            echo "|-> [--world <value>]"
-            echo "|-> [-w <value>]"
-            echo "|-> [world=<value>]"
-            echo "To select the contest:"
-            echo "|-> [--contest <value>]"
-            echo "|-> [-c <value>]"
-            echo "|-> [contest=<value>]"
+            echo "To set the map file/directory:"
+            echo "|-> [--map_file <value>]"
+            echo "|-> [-m <value>]"
+            echo "|-> [map_file=<value>]"
             echo "For help:"
             echo "|-> [--help]"
             echo "|-> [-h]"
@@ -76,7 +61,7 @@ done
 
 ############
 ### MAIN ###
-command="roslaunch mie443_contest$contest turtlebot_world.launch world:=$world"
+command="roslaunch turtlebot_gazebo amcl_demo.launch map_file:=\"$map_file\""
 echo ""
 echo "$command"
 echo ""
