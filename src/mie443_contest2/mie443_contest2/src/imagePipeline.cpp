@@ -10,7 +10,9 @@ ImagePipeline::ImagePipeline(ros::NodeHandle& n, std::string image_topic) {
 }
 
 ImagePipeline::ImagePipeline(ros::NodeHandle& n) {
-    ImagePipeline::ImagePipeline(n, IMAGE_TOPIC);
+    image_transport::ImageTransport it(n);
+    sub = it.subscribe(IMAGE_TOPIC, 1, &ImagePipeline::imageCallback, this);
+    isValid = false;
 }
 
 void ImagePipeline::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
