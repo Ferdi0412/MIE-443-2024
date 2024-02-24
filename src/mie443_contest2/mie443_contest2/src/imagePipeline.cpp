@@ -32,8 +32,8 @@ cv::Mat ImagePipeline::draw_nothing( const cv::Mat& img, unsigned int template_n
 /**
  * === CALLBAK SETTERS ===
 */
-void ImagePipeline::setTemplateSearcher(bool (*matcher_callback)(const cv::Mat&, unsigned int, const cv::Mat&)) {
-    matcher_function = matcher_callback;
+void ImagePipeline::setTemplateSearcher(bool (*search_callback)(const cv::Mat&, unsigned int, const cv::Mat&)) {
+    search_function = search_callback;
 }
 
 void ImagePipeline::setImageDrawer( cv::Mat (*draw_callback)(const cv::Mat&, unsigned int, const cv::Mat&)) {
