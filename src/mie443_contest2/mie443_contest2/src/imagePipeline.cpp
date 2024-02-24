@@ -81,7 +81,7 @@ int ImagePipeline::getTemplateID(Boxes& boxes) {
         // Use: boxes.templates
         for ( unsigned int i = 0; i < boxes.templates.size(); i++ ) {
             cv::Mat template_img = boxes.templates[i];
-            if ( ImagePipeline::matcher_function(img, i, template_img) ) {
+            if ( ImagePipeline::search_function(img, i, template_img) ) {
                 cv::Mat matched_img = draw_function(img, i, template_img);
                 cv::imshow("match", matched_img);
                 cv::waitKey(10);
