@@ -76,48 +76,54 @@ namespace Ferdi {
     }
 }
 
-namespace OrbSearch {
-    static cv::Ptr<cv::ORB>      orb = cv::ORB::create();
-    static cv::FlannBasedMatcher orb_matcher;
-
-    static std::vector<cv::Mat>                   box_descriptors;
-    static std::vector<std::vector<cv::KeyPoint>> box_keypoints;
-
-    static cv::Mat                   latest_img_descriptor;
-    static std::vector<cv::KeyPoint> latest_img_keypoints;
-    static std::vector<cv::DMatch>   latest_matches;
-
-    bool initialize(const Boxes& boxes) {
-        for ( unsigned int i = 0; i < boxes.templates.size(); i++ ) {
-            cv::Mat template_descriptor, template_img;
-            std::vector<cv::KeyPoint> template_keypoints;
-            template_img = boxes.templates[i];
-            assert(template_img.channels() == 1);
-            orb->detectAndCompute( template_img, cv::Mat(), template_keypoints, template_descriptor );
-            box_descriptors.push_back( template_descriptor );
-            box_keypoints.push_back( template_keypoints );
-        }
-    }
-
-    cv::Mat makeGrayscale( const cv::Mat& img ) {
-        cv::Mat output_img;
-        cv::cvtColor(img, output_img, cv::COLOR_BGR2GRAY);
-        return output_img;
-    }
-
-    bool search_templates( const cv::Mat& img, unsigned int template_no, const cv::Mat& template_img ) {
-        orb->detectAndCompute( makeGrayscale(img), cv::Mat(), latest_img_keypoints, latest_img_descriptor );
-        orb_matcher.match(box_descriptors[template_no], latest_img_descriptor, latest_matches);
-        return latest_matches.size() > 0;
-    }
-
-    cv::Mat draw_matches( const cv::Mat& img, unsigned int template_no, const cv::Mat& template_img ) {
-        cv::Mat drawing;
-        cv::drawMatches( template_img, box_keypoints[template_no], makeGrayscale(img), latest_img_keypoints, matches, drawing );
-        return drawing;
-    }
-
-
+namespace SurfSearch {
+    static cv::Ptr<cv::SURF> surf = cv::SURF::create();
+    static cv::Ptr<cv::FlassBasedMatcher> surf_matcher = cv::FlannBasedMatcher::create();
 }
+
+// ORB appears to be unavailable for the OpenCV release we are using...
+// namespace OrbSearch {
+//     static cv::Ptr<cv::ORB>      orb = cv::ORB::create();
+//     static cv::FlannBasedMatcher orb_matcher;
+
+//     static std::vector<cv::Mat>                   box_descriptors;
+//     static std::vector<std::vector<cv::KeyPoint>> box_keypoints;
+
+//     static cv::Mat                   latest_img_descriptor;
+//     static std::vector<cv::KeyPoint> latest_img_keypoints;
+//     static std::vector<cv::DMatch>   latest_matches;
+
+//     bool initialize(const Boxes& boxes) {
+//         for ( unsigned int i = 0; i < boxes.templates.size(); i++ ) {
+//             cv::Mat template_descriptor, template_img;
+//             std::vector<cv::KeyPoint> template_keypoints;
+//             template_img = boxes.templates[i];
+//             assert(template_img.channels() == 1);
+//             orb->detectAndCompute( template_img, cv::Mat(), template_keypoints, template_descriptor );
+//             box_descriptors.push_back( template_descriptor );
+//             box_keypoints.push_back( template_keypoints );
+//         }
+//     }
+
+//     cv::Mat makeGrayscale( const cv::Mat& img ) {
+//         cv::Mat output_img;
+//         cv::cvtColor(img, output_img, cv::COLOR_BGR2GRAY);
+//         return output_img;
+//     }
+
+//     bool search_templates( const cv::Mat& img, unsigned int template_no, const cv::Mat& template_img ) {
+//         orb->detectAndCompute( makeGrayscale(img), cv::Mat(), latest_img_keypoints, latest_img_descriptor );
+//         orb_matcher.match(box_descriptors[template_no], latest_img_descriptor, latest_matches);
+//         return latest_matches.size() > 0;
+//     }
+
+//     cv::Mat draw_matches( const cv::Mat& img, unsigned int template_no, const cv::Mat& template_img ) {
+//         cv::Mat drawing;
+//         cv::drawMatches( template_img, box_keypoints[template_no], makeGrayscale(img), latest_img_keypoints, matches, drawing );
+//         return drawing;
+//     }
+
+
+// }
 
 #endif
