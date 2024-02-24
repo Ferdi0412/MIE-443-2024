@@ -32,11 +32,11 @@ cv::Mat ImagePipeline::draw_nothing( const cv::Mat& img, unsigned int template_n
 /**
  * === CALLBAK SETTERS ===
 */
-void ImagePipeline::setMatcher(bool (*matcher_callback)(const cv::Mat&, unsigned int, const cv::Mat&)) {
+void ImagePipeline::setTemplateSearcher(bool (*matcher_callback)(const cv::Mat&, unsigned int, const cv::Mat&)) {
     matcher_function = matcher_callback;
 }
 
-void ImagePipeline::setDrawer( cv::Mat (*draw_callback)(const cv::Mat&, unsigned int, const cv::Mat&)) {
+void ImagePipeline::setImageDrawer( cv::Mat (*draw_callback)(const cv::Mat&, unsigned int, const cv::Mat&)) {
     draw_function = draw_callback;
 }
 
@@ -61,7 +61,7 @@ void ImagePipeline::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
 /**
  * === SEARCH FUNCTIONS ===
 */
-int ImagePipeline::getTemplateID_test(Boxes& boxes) {
+int ImagePipeline::getTemplateID(Boxes& boxes) {
     int template_id = -1;
 
     // Class error handling
