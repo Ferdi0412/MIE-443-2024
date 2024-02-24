@@ -50,7 +50,7 @@ namespace Ferdi {
     cv::Mat draw_templates( const cv::Mat& img, const cv::Mat& template_img) {
         cv::Mat drawing = img.clone();
         for ( cv::Point p : latest_locations )
-            cv::rectangle( drawing, p, cv::Point(p.x + template_img.cols, p.y + template_img.rows), Scalar(0, 0, 255), 4 );
+            cv::rectangle( drawing, p, cv::Point(p.x + template_img.cols, p.y + template_img.rows), cv::Scalar(0, 0, 255), 4 );
         return drawing;
     }
 }
