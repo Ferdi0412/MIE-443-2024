@@ -1,6 +1,15 @@
 # Contest 2
 Here we are building files to traverse an unknown environtment, to move and image targets at known locations.
 
+## Contest files
+The following files were provided with the contest package:
+1. boxes
+2. imagePipeline
+3. navigation
+4. robot_pose
+5. contest2.cpp
+6. webcam_publisher.cpp
+
 ## Header files
 Add these to the [include](include) directory.
 
