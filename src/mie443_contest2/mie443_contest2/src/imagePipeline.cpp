@@ -21,7 +21,7 @@ ImagePipeline::ImagePipeline(ros::NodeHandle& n){
 
 
 
-void ImagePipeline::setMatcher(bool (*matcher_callback)(const cv::Mat&, const &cv::Mat)) {
+void ImagePipeline::setMatcher(bool (*matcher_callback)(const cv::Mat&, const cv::Mat&)) {
     matcher_function = matcher_callback;
 }
 
