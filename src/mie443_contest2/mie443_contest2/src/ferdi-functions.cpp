@@ -36,7 +36,7 @@ namespace Ferdi {
      * @a Uses a threshold value of <0.8> to match
     */
     bool search_templates( const cv::Mat& img, const cv::Mat& template_img ) {
-        return match_templates( img, template_img ) > 0;
+        return match_templates( img, template_img, cv::TM_CCOEFF_NORMED, 0.8 ) > 0;
     }
 
     /**
