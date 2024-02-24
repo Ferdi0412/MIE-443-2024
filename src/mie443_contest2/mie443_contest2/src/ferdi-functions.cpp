@@ -10,7 +10,7 @@ namespace Ferdi {
 
     /**
      * Ferdi::makeGrayscale returns a grayscale version of a 3 channel image
-     * 
+     *
      * @param img the image to return a grayscale clone of
      * @returns grayscale clone of input
     */
@@ -52,7 +52,7 @@ namespace Ferdi {
      * @a Uses the <TM_CCOEFF_NORMED> match method
      * @a Uses a threshold value of <0.5> to match
     */
-    bool search_templates( const cv::Mat& img, const cv::Mat& template_img ) {
+    bool search_templates( const cv::Mat& img, unsigned int template_no, const cv::Mat& template_img ) {
         return match_templates( img, template_img, cv::TM_CCOEFF_NORMED, 0.5 ) > 0;
     }
 
@@ -64,7 +64,7 @@ namespace Ferdi {
      * @param img the image to match
      * @param template_img the template to match
     */
-    cv::Mat draw_templates( const cv::Mat& img, const cv::Mat& template_img) {
+    cv::Mat draw_templates( const cv::Mat& img, unsigned int template_no, const cv::Mat& template_img) {
         cv::Mat drawing = img.clone();
         std::cout << latest_locations;
         // for ( cv::Point p : latest_locations )

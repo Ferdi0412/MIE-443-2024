@@ -16,8 +16,8 @@ class ImagePipeline {
         /**
          * The following variable will be used as a variable to return if an image is a match of a template
         */
-        bool (*matcher_function)(const cv::Mat&, const cv::Mat&) = &match_nothing;
-        cv::Mat (*draw_function)(const cv::Mat&, const cv::Mat&) = &draw_nothing;
+        bool (*search_function)(const cv::Mat&, unsigned int, const cv::Mat&) = &match_nothing;
+        cv::Mat (*draw_function)(const cv::Mat&, unsigned int, const cv::Mat&) = &draw_nothing;
 
     public:
         /**
@@ -27,9 +27,9 @@ class ImagePipeline {
         const char* webcam_topic = "camera/image";
 
     private:
-        static bool match_nothing( const cv::Mat& img, const cv::Mat& template_img );
+        static bool match_nothing( const cv::Mat& img, unsigned int template_no, const cv::Mat& template_img );
 
-        static cv::Mat draw_nothing( const cv::Mat& img, const cv::Mat& template_img );
+        static cv::Mat draw_nothing( const cv::Mat& img, unsigned int template_no, const cv::Mat& template_img );
 
     public:
         /**
@@ -48,20 +48,28 @@ class ImagePipeline {
         ImagePipeline(ros::NodeHandle& n);
 
         /**
-         * setMatcher will set a callback method that takes the image and a template to return a bool on whether it's a match or not
+         * setTemplateSearcher will set a callback method that takes the image and a template to return a bool on whether it's a match or not
          *
-         * @param matcher_callback(img, template) a callback that takes the most recent image and a template and returns true if the template is detected in the image
+         * @param search_callback(img, template_no, template_img) a callback that takes the most recent image and a template and returns true if the template is detected in the image
         */
-        void setMatcher(bool (*matcher_callback)(const cv::Mat&, const cv::Mat&));
+        void setTemplateSearcher(bool (*search_callback)(const cv::Mat&, unsigned int, const cv::Mat&));
 
         /**
-         * setDrawer will set a callback that takes an image and a template and draw a rectangle given a match
+         * setImageDrawer will set a callback that takes an image and a template and update it to visualize matches
          *
-         * @param draw_callback(img, template) a callback that takes the most recent image and a template and adds a rectangle to outline the match
+         * @param draw_callback(img, template_no, template_img) a callback that takes the most recent image and a template and adds a rectangle to outline the match
         */
-        void setDrawer(cv::Mat (*draw_callback)(const cv::Mat&, const cv::Mat&));
+        void setImageDrawer(cv::Mat (*draw_callback)(const cv::Mat&, unsigned int, const cv::Mat&));
 
+        /**
+         * imageCallback runs to update the subscription
+        */
         void imageCallback(const sensor_msgs::ImageConstPtr& msg);
+
+        /**
+         * getTemplateID is the default provided image match function
+         *
+         * @param boxes the boxes class that defines the templates to search for
+        */
         int getTemplateID(Boxes& boxes);
-        int getTemplateID_test(Boxes& boxes);
 };
