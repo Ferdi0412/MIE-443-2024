@@ -35,8 +35,9 @@ namespace Ferdi {
      * @returns a count of the matches
     */
     unsigned int match_templates( const cv::Mat& img, const cv::Mat& template_img, int match_method, double threshold ) {
-        std::cout << "Depth img: " << img.depth() << std::endl << "Depth tpl: " << template_img.depth() << std::endl << "Channels img: " << img.channels() << std::endl << "Channels tpl: " << template_img.channels() << std::endl;
+        // std::cout << "Depth img: " << img.depth() << std::endl << "Depth tpl: " << template_img.depth() << std::endl << "Channels img: " << img.channels() << std::endl << "Channels tpl: " << template_img.channels() << std::endl;
         cv::matchTemplate( makeGrayscale(img), template_img, latest_res, match_method );
+        std::cout << latest_res;
         cv::findNonZero( latest_res > threshold, latest_locations );
         return latest_locations.total();
     }
@@ -49,10 +50,10 @@ namespace Ferdi {
      * @param template_img the template to match
      *
      * @a Uses the <TM_CCOEFF_NORMED> match method
-     * @a Uses a threshold value of <0.8> to match
+     * @a Uses a threshold value of <0.5> to match
     */
     bool search_templates( const cv::Mat& img, const cv::Mat& template_img ) {
-        return match_templates( img, template_img, cv::TM_CCOEFF_NORMED, 0.8 ) > 0;
+        return match_templates( img, template_img, cv::TM_CCOEFF_NORMED, 0.5 ) > 0;
     }
 
     /**
