@@ -3,8 +3,22 @@
 
 #include <imagePipeline.h>
 
+#include <iostream>
+
 namespace Ferdi {
     static cv::Mat latest_res, latest_locations;
+
+    /**
+     * Ferdi::makeGrayscale returns a grayscale version of a 3 channel image
+     * 
+     * @param img the image to return a grayscale clone of
+     * @returns grayscale clone of input
+    */
+    cv::Mat makeGrayscale( const cv::Mat& img ) {
+        cv::Mat output_img;
+        cv::cvtColor(img, output_img, cv::COLOR_BGR2GRAY);
+        return output_img;
+    }
 
     /**
      * Ferdi::match_templates tries to match img to template_img
@@ -14,13 +28,15 @@ namespace Ferdi {
      *
      * @param img          the image to match
      * @param template_img the template to match
-     * @param match_method the method to use in matching
+     * @param match_method the error: no matching function for call to ‘cv::Mat::begin()’
+         for ( cv::Point p : latest_locations )method to use in matching
      * @param threshold    the threshold to use in matching
      *
      * @returns a count of the matches
     */
     unsigned int match_templates( const cv::Mat& img, const cv::Mat& template_img, int match_method, double threshold ) {
-        cv::matchTemplate( img, template_img, latest_res, match_method );
+        std::cout << "Depth img: " << img.depth() << std::endl << "Depth tpl: " << template_img.depth() << std::endl << "Channels img: " << img.channels() << std::endl << "Channels tpl: " << template_img.channels() << std::endl;
+        cv::matchTemplate( makeGrayscale(img), template_img, latest_res, match_method );
         cv::findNonZero( latest_res > threshold, latest_locations );
         return latest_locations.total();
     }
@@ -49,8 +65,9 @@ namespace Ferdi {
     */
     cv::Mat draw_templates( const cv::Mat& img, const cv::Mat& template_img) {
         cv::Mat drawing = img.clone();
-        for ( cv::Point p : latest_locations )
-            cv::rectangle( drawing, p, cv::Point(p.x + template_img.cols, p.y + template_img.rows), cv::Scalar(0, 0, 255), 4 );
+        std::cout << latest_locations;
+        // for ( cv::Point p : latest_locations )
+        //     cv::rectangle( drawing, p, cv::Point(p.x + template_img.cols, p.y + template_img.rows), cv::Scalar(0, 0, 255), 4 );
         return drawing;
     }
 }
