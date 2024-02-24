@@ -1,9 +1,13 @@
 #include <ros/package.h>
 #include <boxes.h>
 
-bool Boxes::load_coords() {
+bool Boxes::load_coords( ) {
+    return Boxes::load_coords( "coords.xml" );
+}
+
+bool Boxes::load_coords( std::string file_name ) {
     std::string filePath = ros::package::getPath("mie443_contest2") + 
-                           std::string("/boxes_database/coords.xml");
+                           std::string("/boxes_database/") + file_name;
     cv::FileStorage fs(filePath, cv::FileStorage::READ);
     if(fs.isOpened()) {
         cv::FileNode node;

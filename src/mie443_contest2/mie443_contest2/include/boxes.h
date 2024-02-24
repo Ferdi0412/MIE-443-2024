@@ -11,5 +11,6 @@ class Boxes {
 		std::vector<std::vector<float>> coords;
 	public:
 		bool load_coords();
+		bool load_coords( std::string );
 		bool load_templates();
 };
