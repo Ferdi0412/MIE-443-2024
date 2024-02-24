@@ -36,7 +36,7 @@ namespace Ferdi {
      * @a Uses a threshold value of <0.8> to match
     */
     bool search_templates( const cv::Mat& img, const cv::Mat& template_img ) {
-        return match_templates( img, template_img, ) > 0;
+        return match_templates( img, template_img ) > 0;
     }
 
     /**
@@ -48,7 +48,7 @@ namespace Ferdi {
      * @param template_img the template to match
     */
     cv::Mat draw_templates( const cv::Mat& img, const cv::Mat& template_img) {
-        cv::Mat drawing = img.copy();
+        cv::Mat drawing = img.clone();
         for ( cv::Point p : latest_locations )
             cv::rectangle( drawing, p, cv::Point(p.x + template_img.cols, p.y + template_img.rows), Scalar(0, 0, 255), 4 );
         return drawing;
