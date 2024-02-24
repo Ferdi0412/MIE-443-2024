@@ -16,8 +16,8 @@ class ImagePipeline {
         /**
          * The following variable will be used as a variable to return if an image is a match of a template
         */
-        bool (*matcher_function)(cv::Mat, cv::Mat) = &match_nothing;
-        cv::Mat (*draw_rect_function)(cv::Mat, cv::Mat) = &draw_nothing;
+        bool (*matcher_function)(const cv::Mat&, const cv::Mat&) = &match_nothing;
+        cv::Mat (*draw_function)(const cv::Mat&, const cv::Mat&) = &draw_nothing;
 
     public:
         /**
@@ -27,9 +27,9 @@ class ImagePipeline {
         const char* webcam_topic = "camera/image";
 
     private:
-        static bool match_nothing( cv::Mat img, cv::Mat template_img );
+        static bool match_nothing( const cv::Mat& img, const cv::Mat& template_img );
 
-        static cv::Mat draw_nothing( cv::Mat img, cv::Mat template_img );
+        static cv::Mat draw_nothing( const cv::Mat& img, const cv::Mat& template_img );
 
     public:
         /**
@@ -52,14 +52,14 @@ class ImagePipeline {
          *
          * @param matcher_callback(img, template) a callback that takes the most recent image and a template and returns true if the template is detected in the image
         */
-        void setMatcher(bool (*matcher_callback)(cv::Mat, cv::Mat));
+        void setMatcher(bool (*matcher_callback)(const cv::Mat&, const cv::Mat&));
 
         /**
-         * setDrawRectangle will set a callback that takes an image and a template and draw a rectangle given a match
+         * setDrawer will set a callback that takes an image and a template and draw a rectangle given a match
          *
-         * @param draw_rect_callback(img, template) a callback that takes the most recent image and a template and adds a rectangle to outline the match
+         * @param draw_callback(img, template) a callback that takes the most recent image and a template and adds a rectangle to outline the match
         */
-        void setDrawRectangle(cv::Mat (*draw_rect_callback)(cv::Mat, cv::Mat));
+        void setDrawer(cv::Mat (*draw_callback)(const cv::Mat&, const cv::Mat&));
 
         void imageCallback(const sensor_msgs::ImageConstPtr& msg);
         int getTemplateID(Boxes& boxes);

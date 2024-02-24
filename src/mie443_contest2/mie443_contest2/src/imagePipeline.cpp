@@ -21,8 +21,12 @@ ImagePipeline::ImagePipeline(ros::NodeHandle& n){
 
 
 
-void ImagePipeline::setMatcher(bool (*matcher_callback)(cv::Mat, cv::Mat)) {
+void ImagePipeline::setMatcher(bool (*matcher_callback)(const cv::Mat&, const &cv::Mat)) {
     matcher_function = matcher_callback;
+}
+
+void ImagePipeline::setDrawer( cv::Mat (*draw_callback)(const cv::Mat&, const cv::Mat&)) {
+    draw_function = draw_callback;
 }
 
 
@@ -78,7 +82,7 @@ int ImagePipeline::getTemplateID_test(Boxes& boxes) {
         for ( unsigned int i = 0; i < boxes.templates.size(); i++ ) {
             cv::Mat template_img = boxes.templates[i];
             if ( ImagePipeline::matcher_function(img, template_img) ) {
-                cv::Mat matched_img = draw_rect_function(img, template_img);
+                cv::Mat matched_img = draw_function(img, template_img);
                 cv::imshow("match", matched_img);
                 cv::waitKey(10);
                 return i;
@@ -93,12 +97,12 @@ int ImagePipeline::getTemplateID_test(Boxes& boxes) {
 
 
 
-bool ImagePipeline::match_nothing( cv::Mat img, cv::Mat template_img ) {
+bool ImagePipeline::match_nothing( const cv::Mat& img, const cv::Mat& template_img ) {
     return false;
 }
 
 
 
-cv::Mat ImagePipeline::draw_nothing( cv::Mat img, cv::Mat template_img ) {
+cv::Mat ImagePipeline::draw_nothing( const cv::Mat& img, const cv::Mat& template_img ) {
     return img;
 }
