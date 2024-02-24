@@ -3,10 +3,14 @@
 #define IMAGE_TYPE sensor_msgs::image_encodings::BGR8
 #define IMAGE_TOPIC "camera/rgb/image_raw" // kinect:"camera/rgb/image_raw" webcam:"camera/image"
 
-ImagePipeline::ImagePipeline(ros::NodeHandle& n) {
+ImagePipeline::ImagePipeline(ros::NodeHandle& n, std::string image_topic) {
     image_transport::ImageTransport it(n);
-    sub = it.subscribe(IMAGE_TOPIC, 1, &ImagePipeline::imageCallback, this);
+    sub = it.subscribe(image_topic, 1, &ImagePipeline::imageCallback, this);
     isValid = false;
+}
+
+ImagePipeline::ImagePipeline(ros::NodeHandle& n) {
+    ImagePipeline::ImagePipeline(n, IMAGE_TOPIC);
 }
 
 void ImagePipeline::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
@@ -20,7 +24,7 @@ void ImagePipeline::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
         std::cout << "ERROR: Could not convert from " << msg->encoding.c_str()
                   << " to " << IMAGE_TYPE.c_str() << "!" << std::endl;
         isValid = false;
-    }    
+    }
 }
 
 int ImagePipeline::getTemplateID(Boxes& boxes) {
@@ -37,6 +41,6 @@ int ImagePipeline::getTemplateID(Boxes& boxes) {
         // Use: boxes.templates
         cv::imshow("view", img);
         cv::waitKey(10);
-    }  
+    }
     return template_id;
 }
