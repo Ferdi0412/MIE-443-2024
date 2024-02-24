@@ -14,10 +14,22 @@ class ImagePipeline {
         image_transport::Subscriber sub;
 
         /**
+         * The following variable will be used as a variable to return if an image is a match of a template
+        */
+        bool (*matcher_function)(cv::Mat, cv::Mat) = &match_nothing;
+        cv::Mat (*draw_rect_function)(cv::Mat, cv::Mat) = &draw_nothing;
+
+    public:
+        /**
          * The following variables can be used to connect to different topics
         */
         const char* kinect_topic = "camera/rgb/image_raw";
         const char* webcam_topic = "camera/image";
+
+    private:
+        static bool match_nothing( cv::Mat img, cv::Mat template_img );
+
+        static cv::Mat draw_nothing( cv::Mat img, cv::Mat template_img );
 
     public:
         /**
@@ -35,6 +47,21 @@ class ImagePipeline {
         */
         ImagePipeline(ros::NodeHandle& n);
 
+        /**
+         * setMatcher will set a callback method that takes the image and a template to return a bool on whether it's a match or not
+         *
+         * @param matcher_callback(img, template) a callback that takes the most recent image and a template and returns true if the template is detected in the image
+        */
+        void setMatcher(bool (*matcher_callback)(cv::Mat, cv::Mat));
+
+        /**
+         * setDrawRectangle will set a callback that takes an image and a template and draw a rectangle given a match
+         *
+         * @param draw_rect_callback(img, template) a callback that takes the most recent image and a template and adds a rectangle to outline the match
+        */
+        void setDrawRectangle(cv::Mat (*draw_rect_callback)(cv::Mat, cv::Mat));
+
         void imageCallback(const sensor_msgs::ImageConstPtr& msg);
         int getTemplateID(Boxes& boxes);
+        int getTemplateID_test(Boxes& boxes);
 };
