@@ -5,6 +5,8 @@ bool Boxes::load_coords( ) {
     return Boxes::load_coords( "gazebo_coords.xml" );
 }
 
+
+
 bool Boxes::load_coords( std::string file_name ) {
     std::string filePath = ros::package::getPath("mie443_contest2") +
                            std::string("/boxes_database/") + file_name;
@@ -47,9 +49,17 @@ bool Boxes::load_coords( std::string file_name ) {
     return true;
 }
 
+
+
 bool Boxes::load_templates() {
+    return Boxes::load_templates( "templates.xml" );
+}
+
+
+
+bool Boxes::load_templates( std::string file_name ) {
     std::string filePath = ros::package::getPath("mie443_contest2") +
-                           std::string("/boxes_database/templates.xml");
+                           std::string("/boxes_database/") + file_name;
     cv::FileStorage fs(filePath, cv::FileStorage::READ);
     if(fs.isOpened()) {
         cv::FileNode node = fs["templates"];;
