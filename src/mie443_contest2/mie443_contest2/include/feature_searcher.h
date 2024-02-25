@@ -39,18 +39,18 @@ enum FeatureDetector {
     ORB,
     SURF,
     AKAZE
-}
+};
 
 enum FeatureMatcher {
     BRUTE_FORCE,
     FLANN
-}
+};
 
 class FeatureSearcher {
     private:
         // Searcher/matcher setup
-        cv::Ptr<cv::DescriptorMatcher> feature_matcher  = NULL;
-        cv::Ptr<cv::Feature2D>         feature_detector = NULL;
+        cv::Ptr<cv::DescriptorMatcher> feature_matcher;
+        cv::Ptr<cv::Feature2D>         feature_detector;
 
         // Setup-dependent
         double match_threshold         = 1;    // How many of the features need to be matched with the template
@@ -126,7 +126,7 @@ class FeatureSearcher {
          *
          * @param use_filter -> true will make the class use the Lowe filter, false will make class not use it
         */
-        void useLoweFilter( bool use_filter )
+        void useLoweFilter( bool use_filter );
 
         /**
          * setFeatureMatchThreshold will set what portion of the features of the template must match to be a "match"
@@ -157,6 +157,6 @@ class FeatureSearcher {
          * @returns the annotated image
         */
         cv::Mat drawImg( const cv::Mat& img, unsigned int template_no, const cv::Mat& template_img );
-}
+};
 
 #endif
