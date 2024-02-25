@@ -60,7 +60,14 @@ void FeatureSearcher::initializeTemplates( const Boxes& boxes ) {
 
 cv::Mat FeatureSearcher::makeGrayscale( const cv::Mat& img ) {
     cv::Mat output_img;
-    cv::cvtColor(img, output_img, cv::COLOR_BGR2GRAY);
+    if ( img.channels() == 1 )
+        output_img = img.clone();
+    else if ( img.channels() == 3 )
+        cv::cvtColor(img, output_img, cv::COLOR_BGR2GRAY);
+    else {
+        std::cout << "makeGrayscale received a non-1 and non-3 channel image!" << std::endl;
+        exit(-1);
+    }
     return output_img;
 }
 
@@ -125,6 +132,6 @@ cv::Mat FeatureSearcher::drawImg( const cv::Mat& img, unsigned int template_no, 
     // Both of the above must happen in applyLoweFilter...
 
     cv::Mat drawn_img;
-    cv::drawMatches( template_img, template_keypoints[template_no], img, latest_img_keypoints, latest_matched_features, drawn_img );
+    cv::drawMatches( makeGrayscale(template_img), template_keypoints[template_no], makeGrayscale(img), latest_img_keypoints, latest_matched_features, drawn_img );
     return drawn_img;
 }
