@@ -26,6 +26,9 @@
 
 // Base OpenCV dependencies
 #include <opencv2/core.hpp>
+#include <image_transport/image_transport.h>
+// #include <cv.h>
+// #include <cv_bridge/cv_bridge.h>
 
 // OpenCV feature search/match dependencies
 #include "opencv2/features2d.hpp"
@@ -62,9 +65,10 @@ class FeatureSearcher {
         std::vector<std::vector<cv::KeyPoint>> template_keypoints;
 
         // Latest iteration features
-        cv::Mat                   latest_img_descriptor;
-        std::vector<cv::KeyPoint> latest_img_keypoints;
-        std::vector<cv::DMatch>   latest_matched_features;
+        cv::Mat                                latest_img_descriptor;
+        std::vector<cv::KeyPoint>              latest_img_keypoints;
+        std::vector<cv::DMatch>                latest_matched_features;
+        std::vector<std::vector<cv::DMatch>>   latest_knn_matched_features;
 
 
 
@@ -78,7 +82,7 @@ class FeatureSearcher {
         cv::Mat makeGrayscale( const cv::Mat& img );
 
         // Methods for matching
-        std::vector<cv::DMatch> applyLoweFilter( const std::vector<cv::DMatch>& all_matches );
+        std::vector<cv::DMatch> applyLoweFilter( const std::vector<std::vector<cv::DMatch>>& all_matches );
 
 
 
@@ -111,7 +115,7 @@ class FeatureSearcher {
          *
          * @note this should clear the feature_matcher and feature_detector from memory...
         */
-        ~FeatureSearcher( void );
+        // ~FeatureSearcher( void );
 
         /* === SETTINGS === */
         /**

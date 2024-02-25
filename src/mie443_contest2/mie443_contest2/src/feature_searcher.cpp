@@ -49,9 +49,9 @@ void FeatureSearcher::initializeTemplates( const Boxes& boxes ) {
         cv::Mat                   box_descriptor, template_image;
         std::vector<cv::KeyPoint> box_keypoints;
 
-        template_img = makeGrayscale(boxes.templates[i]);
+        template_image = makeGrayscale(boxes.templates[i]);
 
-        feature_detector->detectAndCompute( template_img, box_keypoints, box_descriptor );
+        feature_detector->detectAndCompute( template_image, cv::Mat(), box_keypoints, box_descriptor );
 
         template_descriptors.push_back( box_descriptor );
         template_keypoints.push_back( box_keypoints );
@@ -64,12 +64,12 @@ cv::Mat FeatureSearcher::makeGrayscale( const cv::Mat& img ) {
     return output_img;
 }
 
-std::vector<cv::DMatch> FeatureSearcher::applyLoweFilter( const std::vector<cv::DMatch>& all_matches ) {
+std::vector<cv::DMatch> FeatureSearcher::applyLoweFilter( const std::vector<std::vector<cv::DMatch>>& all_matches ) {
     // Implemented following https://docs.opencv.org/3.4/d5/d6f/tutorial_feature_flann_matcher.html
     // TODO: Read more about Lowe's filter
     std::vector<cv::DMatch> good_matches;
     for ( size_t i = 0; i < all_matches.size(); i++ ) {
-        if ( all_matches[i][0].distance < ratio_thresh * all_matches[i][1].distance )
+        if ( all_matches[i][0].distance < lowe_threshold * all_matches[i][1].distance )
             good_matches.push_back(all_matches[i][0]);
     }
     return good_matches;
@@ -90,11 +90,6 @@ FeatureSearcher::FeatureSearcher( const Boxes& boxes, cv::Ptr<cv::Feature2D> fea
     initializeTemplates( boxes );
 }
 
-~FeatureSearcher::FeatureSearcher( void ) {
-    delete feature_matcher;
-    delete feature_detector;
-}
-
 
 /* === SETTINGS === */
 void FeatureSearcher::setLoweThreshold( double new_threshold ) {
@@ -113,10 +108,13 @@ void FeatureSearcher::setFeatureMatchThreshold( double new_threshold ) {
 
 /* === IMAGE SEARCH === */
 bool FeatureSearcher::checkForTemplate( const cv::Mat& img, unsigned int template_no, const cv::Mat& template_img ) {
-    feature_detector->detactAndCompute( makeGrayscale(img), latest_img_keypoints, latest_img_descriptor );
-    feature_matcher->knn_match( template_descriptors[template_no], latest_img_descriptor, latest_matched_features, 2);
-    if ( apply_lowe_filter )
-        latest_matched_features = applyLoweFilter(latest_matched_features);
+    feature_detector->detectAndCompute( makeGrayscale(img), cv::Mat(), latest_img_keypoints, latest_img_descriptor );
+    if ( apply_lowe_filter ) {
+        feature_matcher->knnMatch( template_descriptors[template_no], latest_img_descriptor, latest_knn_matched_features, 2);
+        latest_matched_features = applyLoweFilter(latest_knn_matched_features);
+    }
+    else
+        feature_matcher->match( template_descriptors[template_no], latest_img_descriptor, latest_matched_features );
     return latest_matched_features.size() > match_threshold; // TODO: Find a useful threshold value...
 }
 
@@ -127,6 +125,6 @@ cv::Mat FeatureSearcher::drawImg( const cv::Mat& img, unsigned int template_no, 
     // Both of the above must happen in applyLoweFilter...
 
     cv::Mat drawn_img;
-    cv::drawMatches( template_img, template_descriptors[template_no], img, latest_img_descriptor, latest_matched_features, drawn_img );
+    cv::drawMatches( template_img, template_keypoints[template_no], img, latest_img_keypoints, latest_matched_features, drawn_img );
     return drawn_img;
 }
