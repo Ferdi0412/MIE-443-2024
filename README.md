@@ -5,8 +5,6 @@ Project for Thursday Team 1 for MIE443 in Winter 2023/2024. This assumes you are
 For [contest 2](src/mie443_contest2/mie443_contest2).
 
 ## Startup
-To startup, you can use GAZEBO to simulate robot motion.
-
 ```shell
 ## For all terminals:
 cd ~/catkin_ws # Make sure all commands are run from root of this repository
@@ -20,7 +18,7 @@ bash start-gazebo.sh # Add "-h" for help with options
 ## Terminal 2
 bash start-amcl.sh # Add "-h" for help with options
 
-## Terminal 3
+## Terminal 3 [OPTIONAL]
 bash start-rviz.sh
 
 ## Terminal 4 [OPTIONAL]
@@ -52,23 +50,42 @@ rosrun mie443_contest2 mie443_contest2
 For [contest 1](src/mie443_contest1/mie443_contest1/src/README.md).
 
 ## Startup
-If you want to simulate, us GAZEBO, otherwise use ROBOT to connect to the physical turtlebot.
 ```shell
-# Build            -> Before running
+## For all terminals:
 cd ~/catkin_ws
-catkin_make
-# GAZEBO           -> Terminal 1
-roslaunch mie443_contest1 turtlebot_world.launch world:=1
-# ROBOT            -> Terminal 1
-roslaunch turtlebot_bringup minimal.launch
-# Script           -> Terminal 2
+
+##################
+### SIMULATION ###
+##################
+## Terminal 1
+bash start-gazebo.sh --world 1 --contest 1
+
+## Terminal 2
+bash start-gmapping.sh
+
+## Terminal 3 [OPTIONAL]
+bash start-rviz.sh
+
+## Terminal 4
 rosrun mie443_contest1 contest1
-# GMAPPING         -> Termianl 3
-roslaunch mie443_contest1 gmapping.launch
-# RVIZ [OPTIONAL ] -> Terminal 4
-roslaunch turtlebot_rviz_launchers view_navigation.launch
-# SAVE MAP         -> After running
-rosrun map_server map_saver -f your_map_name
+
+###############
+### CONTEST ###
+###############
+## Terminal 1
+bash start-robot.sh
+
+## Terminal 2
+bash start-gmapping.sh
+
+## Termianl 3
+bash start-rviz.sh
+
+## Terminal 4
+rosrun mie443_contest1 contest1
+
+## Terminal 5 [AFTER contest1 ends]
+rosrun map_server map_saver -f <file_name>
 ```
 
 # ROS Commands
