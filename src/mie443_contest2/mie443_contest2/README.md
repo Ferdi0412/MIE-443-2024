@@ -30,3 +30,135 @@ To open gazerbo, run the following command:
 roslaunch mie443_contest2 turtlebot_world.launch world:=1
 ```
 
+# OpenCV Feature Matching
+
+## Steps
+
+### 1. Detect Features
+Here we detect features of the image input (and of the templates to compare it with). This step provides 2 components:
+
+1. The **position** of the key features.
+2. A **descriptor** of the key features.
+
+<br>An example of how this is done is as follows:
+
+```C++
+// Assume this is given
+cv::Mat img_to_match;
+
+// Create an instance of the orb class (using a cv::Ptr -> OpenCV convention)
+cv::Ptr<cv::ORB> orb_feature_detector = cv::ORB::create();
+
+// You need the following parameters to store the results
+cv::Mat                   img_feature_descriptors;
+std::vector<cv::KeyPoint> img_feature_positions;
+
+// // Run the detectAndCompute method (NOTE: using a '->' instead of '.' as we have a pointer to the object)
+orb_feature_detector->detectAndCompute(
+    makeGrayscale(img),
+    cv::Mat(),
+    img_feature_positions,
+    img_feature_descriptors
+);
+```
+
+<br>There are a couple options for the feature_detector model. The following are promising alternatives to explore:
+
+1. SURF  `cv::xfeatures2d::SURF`
+2. ORB   `cv::ORB`
+3. AKAZE `cv::AKAZE`
+
+<br>There are some more alternatives, but these appear to be some of those that should best handle translated/rotated features when matching in later steps.
+
+### 2. Feature Matching
+Here we compare and match the features between the template image and the input image. This assumes that the features have been detected for both images. Here is an example of how to do this:
+
+```C++
+// If using LOWE filter, assign the following
+#define LOWE_THRESHOLD 0.7
+
+// Assume the following is given
+cv::Mat template_desc;
+cv::Mat img_desc;
+
+// Create an instance of the flannBasedMatcher class (using a cv::Ptr -> OpenCV convention)
+cv::Ptr<cv::FlannBasedMatcher> flann_feature_matcher = cv::FlannBasedMatcher::create();
+
+// You need the following parameter(s) to store the results
+cv::vector<cv::DMatch> filtered_matches;
+cv::vector<cv::vector<cv::DMatch>> unfiltered_matches;
+
+// Option 1: Use the matcher's match method
+flann_feature_matcher->match( template_desc, img_desc, filtered_matches );
+
+// Option 2: Use the k-nearest-neighbour match, and apply a Lowe filter
+//           For more details see: https://docs.opencv.org/3.4/d5/d6f/tutorial_feature_flann_matcher.html
+flann_feature_matcher->match( template_desc, img_desc, unfiltered_matches );
+
+for ( size_t i = 0; i < unfiltered_matches.size(); i++ ) {
+    if ( unfiltered_matches[i][0].distance < LOWE_THRESHOLD * unfiltered_matches[i][1].distance )
+        filtered_matches.push_back(unfiltered_matches[i][0]);
+}
+```
+
+<br>Above we see something called the **Lowe filter**. This is a method referenced in a lot of documentation online on feature matching. Worth exploring.
+
+<br>Again, we have some options for the matcher object:
+
+1. Flann `cv::FlannBasedMatcher`
+2. Brute-Force `cv::BFMatcher`
+
+### 3. Checking number of matched features
+The best approach to comparing *"goodness"* of match between images using feature matching, is to check the number of matched features (I cannot find a "goodness" of feature-match).
+
+```C++
+// Have a number of features to match as a threshold
+#define NUMBER_TO_MATCH
+
+// Check the number of features matched
+if ( filtered_matches.size > NUMBER_TO_MATCH )
+    std::cout << "You have a match!";
+
+else
+    std::cout << "No dice :(";
+```
+
+### 4. Displaying matches
+You can either display the features of a given image:
+
+```C++
+// You need a new variable to store the output image
+cv::Mat image_to_display;
+
+// Annotate the features found
+cv::drawKeypoints(
+    makeGrayscale(input_img),
+    input_feature_positions,
+    image_to_display
+);
+
+// Display the image
+cv::imshow("Key-features", image_to_display);
+cv::waitKey(10);
+```
+
+<br>Or you can display the matched features between images:
+
+```C++
+// You need a new variable to store the output image
+cv::Mat image_to_display;
+
+// Annotate the matched features
+cv::drawMatches(
+    makeGrayscale(template_img),
+    template_feature_positions,
+    makeGrayscale(input_img),
+    input_feature_positions,
+    filtered_matches,
+    image_to_display
+);
+
+// Display the images
+cv::imshow("Matches", image_to_display);
+cv::waitKey(10);
+```
