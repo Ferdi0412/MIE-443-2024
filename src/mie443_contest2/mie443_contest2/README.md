@@ -70,11 +70,41 @@ orb_feature_detector->detectAndCompute(
 
 <br>There are some more alternatives, but these appear to be some of those that should best handle translated/rotated features when matching in later steps.
 
+<br>You may have noticed that **makeGrayscale** is used often. This is not an actual function from OpenCV, and is not strictly necessary, but it appears to be best practice, according to online doccumentation.
+
+```C++
+// Function to return a grayscale copy of the input image
+cv::Mat makeGrayscale( const cv::Mat& input_img ) {
+    cv::Mat new_img;
+
+    // If only 1 channel -> already a grayscale image -> return copy of input as-is
+    if ( img.channels() == 1 )
+        return input_img.clone();
+
+    // If 3 channels -> presumably BGR (typically used over RGB in OpenCV it appears) -> create a grayscale copy of it
+    else if ( img.channels() == 3 )
+        cv::cvtColor( input_img, new_img, cv::COLOR_BGR2GRAY );
+
+    // If 4 channels -> presumably BGRA -> create grayscale copy of it
+    else if ( img.channels() == 4 )
+        cv::cvtColor( input_img, new_imag, cv::COLOR_BGRA2GRAY );
+
+    // If you find other useful cases, feel free to expand it...
+    // Otherwise find some way to handle base case...
+    // Maybe return an empty grayscale image?
+    // Maybe throw an exception?
+    else
+        throw std::exception("Could not find a useful conversion of colour image to grayscale!");
+
+    return new_img;
+}
+```
+
 ### 2. Feature Matching
 Here we compare and match the features between the template image and the input image. This assumes that the features have been detected for both images. Here is an example of how to do this:
 
 ```C++
-// If using LOWE filter, assign the following
+// If using LOWE filter, assign some threshold
 #define LOWE_THRESHOLD 0.7
 
 // Assume the following is given
@@ -113,7 +143,7 @@ The best approach to comparing *"goodness"* of match between images using featur
 
 ```C++
 // Have a number of features to match as a threshold
-#define NUMBER_TO_MATCH
+#define NUMBER_TO_MATCH 45
 
 // Check the number of features matched
 if ( filtered_matches.size > NUMBER_TO_MATCH )
