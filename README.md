@@ -120,7 +120,7 @@ rostopic info /{node_name}
 ```
 
 # Workspace Setup
-Treat this as the ***catkin_ws*** directory from class. When first installed, ensure that the root directory is set up, and run catkin_make.
+Treat this as the ***catkin_ws*** directory from class. When first installed, ensure that the root directory is set up, and run catkin_make. This setup requires Ubuntu 16.04 Xenial Xerus, and the setup steps installs ROS Kinetic.
 
 ## Cloning repository
 To clone the repository, follow the following steps:
@@ -151,6 +151,9 @@ You will need to have used the course-provided setup file to install dependencie
 ##################################
 ### 3. COURSE-DEPENDENCY FIXES ###
 ##################################
+# Run course dependencies
+bash turtlebot_script.sh
+
 # If the course-provided script does not fully work, run these 4 lines, then re-try
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F42ED6FBAB17C654
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key EB3E94ADBE1229CF
