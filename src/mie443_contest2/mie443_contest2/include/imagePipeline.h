@@ -66,11 +66,11 @@ class ImagePipeline {
         void setImageDrawer(cv::Mat (*draw_callback)(const cv::Mat&, unsigned int, const cv::Mat&));
 
         /**
-         * setBoxMatcher will set a callback that takes an image and the boxes object to match the input img
+         * setMatchFunction will set a callback that takes an image and the boxes object to match the input img
          *
          * @param match_callback(img, boxes) a callback that takes the most recent image to match to a template in boxes
         */
-        void setBoxMatcher(int (*match_callback)(const cv::Mat&, const std::vector<cv::Mat>&));
+        void setMatchFunction(int (*match_callback)(const cv::Mat&, const std::vector<cv::Mat>&));
 
         /**
          * imageCallback runs to update the subscription

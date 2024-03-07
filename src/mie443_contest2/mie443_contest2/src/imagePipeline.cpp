@@ -44,7 +44,7 @@ void ImagePipeline::setImageDrawer( cv::Mat (*draw_callback)(const cv::Mat&, uns
     draw_function = draw_callback;
 }
 
-void ImagePipeline::setBoxMatcher( int (*match_callback)(const cv::Mat&, const std::vector<cv::Mat>&)) {
+void ImagePipeline::setMatchFunction( int (*match_callback)(const cv::Mat&, const std::vector<cv::Mat>&)) {
     match_function = match_callback;
 }
 
