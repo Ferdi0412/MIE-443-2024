@@ -62,6 +62,12 @@ int main(int argc, char** argv) {
     // contest count down timer
     mainTimerStart();
 
+    int my_callback( const cv::Mat& kinect_img, const std::vector<cv::Mat>& logos ) {
+        // Image Processsing LOGIC
+        return -1;
+    }
+
+    imagePipeline.setBoxMatcher(&my_callback)
 
     /**
      * === MAIN BODY ===
@@ -72,7 +78,7 @@ int main(int argc, char** argv) {
         /***YOUR CODE HERE***/
         // Use: boxes.coords
         // Use: robotPose.x, robotPose.y, robotPose.phi
-        imagePipeline.getTemplateID(boxes);
+        imagePipeline.getTemplateID_v2(boxes);
         ros::Duration(0.01).sleep();
     }
     return 0;

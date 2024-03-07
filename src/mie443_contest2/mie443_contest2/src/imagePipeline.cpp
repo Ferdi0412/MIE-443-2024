@@ -1,7 +1,7 @@
 #include <imagePipeline.h>
 
 #define IMAGE_TYPE sensor_msgs::image_encodings::BGR8
-#define IMAGE_TOPIC "camera/rgb/image_raw" // kinect:"camera/rgb/image_raw" webcam:"camera/image"
+#define IMAGE_TOPIC "camera/rgb/image_raw" //Kinect:"camera/rgb/image_raw" webcam:"camera/image"
 
 /**
  * === CONSTRUCTORS ===
@@ -122,7 +122,7 @@ int ImagePipeline::getTemplateID_v2( const Boxes& boxes ) {
     }
     // Image search
     else {
-        template_id = match_function(img, boxes.templates);
+        template_id = match_function(img, boxes.templates); // should search video feed for the matching image tags from the vector
     }
     return template_id;
 }
