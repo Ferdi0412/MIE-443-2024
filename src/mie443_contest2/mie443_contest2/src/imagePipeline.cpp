@@ -29,7 +29,7 @@ cv::Mat ImagePipeline::draw_nothing( const cv::Mat& img, unsigned int template_n
     return img;
 }
 
-int ImagePipeline::match_no_boxes( const cv::Mat& img, const std::vector<cv::Mat&> template_imgs ) {
+int ImagePipeline::match_no_boxes( const cv::Mat& img, const std::vector<cv::Mat>& template_imgs ) {
     return -1;
 }
 
