@@ -126,3 +126,7 @@ int ImagePipeline::getTemplateID_v2( const Boxes& boxes ) {
     }
     return template_id;
 }
+
+cv::Mat ImagePipeline::getKinectImage( void ) {
+    return img;
+}

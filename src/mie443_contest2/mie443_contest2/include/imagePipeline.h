@@ -97,4 +97,11 @@ class ImagePipeline {
          * @returns -1 on fail, otherwise the index/id of the box matched from boxes
         */
         int getTemplateID_v2( const Boxes& boxes );
+
+        /**
+         * getKinectImage returns the kinect image
+         * 
+         * @note no safety stuff...
+        */
+        cv::Mat getKinectImage( void );
 };
