@@ -67,12 +67,11 @@ class ImagePipeline {
          * getTemplateID is the default provided image match function
          *
          * @param boxes the boxes class that defines the templates to search for
-         * @implements search_function as set using setTemplateSearcher
-         * @implements draw_function   as set using setImageDrawer
+         * @implements match_function as set using setMatchCallback
          *
          * @returns -1 on fail, otherwise the index/id of the box matched from boxes
         */
-        int getTemplateID(Boxes& boxes);
+        int getTemplateID(const Boxes& boxes);
 
         /**
          * getKinectImage returns the kinect image

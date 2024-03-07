@@ -27,6 +27,10 @@
 // The following is a standard "system" import
 #include <chrono>
 
+// OpenCV
+#include <opencv2/core.hpp>
+#include <cv.h>
+#include <cv_bridge/cv_bridge.h>
 
 
 /**
@@ -62,12 +66,12 @@ int main(int argc, char** argv) {
     // contest count down timer
     mainTimerStart();
 
-    int my_callback( const cv::Mat& kinect_img, const std::vector<cv::Mat>& logos ) {
-        // Image Processsing LOGIC
-        return -1;
-    }
-
-    // imagePipeline.setBoxMatcher(&my_callback)
+    /**
+     * === SETUP ===
+     * Add any setup here...
+    */
+    // The next line stores what callback runs whenever getTemplateID(...) is run:
+    // imagePipeline.setMatchFunction(...);
 
     /**
      * === MAIN BODY ===
@@ -78,7 +82,19 @@ int main(int argc, char** argv) {
         /***YOUR CODE HERE***/
         // Use: boxes.coords
         // Use: robotPose.x, robotPose.y, robotPose.phi
-        imagePipeline.getTemplateID_v2(boxes);
+        
+        // To run the image recognition:
+        // imagePipeline.getTemplateID(boxes);
+        
+        // Display the current image from kinect sensor
+        cv::Mat img = imagePipeline.getKinectImage();
+        if(img.empty() || img.rows <= 0 || img.cols <= 0)
+            ;
+        else {
+            cv::imshow("Raw image", img);
+            cv::waitKey(10);
+        }
+            
         ros::Duration(0.01).sleep();
     }
     return 0;
