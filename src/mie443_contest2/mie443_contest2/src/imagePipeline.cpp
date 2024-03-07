@@ -36,14 +36,6 @@ int ImagePipeline::match_no_boxes( const cv::Mat& img, const std::vector<cv::Mat
 /**
  * === CALLBAK SETTERS ===
 */
-void ImagePipeline::setTemplateSearcher(bool (*search_callback)(const cv::Mat&, unsigned int, const cv::Mat&)) {
-    search_function = search_callback;
-}
-
-void ImagePipeline::setImageDrawer( cv::Mat (*draw_callback)(const cv::Mat&, unsigned int, const cv::Mat&)) {
-    draw_function = draw_callback;
-}
-
 void ImagePipeline::setMatchFunction( int (*match_callback)(const cv::Mat&, const std::vector<cv::Mat>&)) {
     match_function = match_callback;
 }
@@ -69,44 +61,7 @@ void ImagePipeline::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
 /**
  * === SEARCH FUNCTIONS ===
 */
-int ImagePipeline::getTemplateID(Boxes& boxes) {
-    int template_id = -1;
-
-    // Class error handling
-    if(!isValid) {
-        std::cout << "ERROR: INVALID IMAGE!" << std::endl;
-    }
-    // Empty image handling
-    else if(img.empty() || img.rows <= 0 || img.cols <= 0) {
-        std::cout << "ERROR: VALID IMAGE, BUT STILL A PROBLEM EXISTS!" << std::endl;
-        std::cout << "img.empty():" << img.empty() << std::endl;
-        std::cout << "img.rows:" << img.rows << std::endl;
-        std::cout << "img.cols:" << img.cols << std::endl;
-    }
-    // Image search
-    else {
-        /***YOUR CODE HERE***/
-        // Use: boxes.templates
-        for ( unsigned int i = 0; i < boxes.templates.size(); i++ ) {
-            cv::Mat template_img = boxes.templates[i];
-            if ( ImagePipeline::search_function(img, i, template_img) ) {
-                cv::Mat matched_img = draw_function(img, i, template_img);
-                cv::imshow("match", matched_img);
-                cv::waitKey(10);
-                // Exit on first match...
-                return i;
-            }
-        }
-        /***END YOUR CODE***/
-
-        // Commented out to only show image upon a match...
-        // cv::imshow("view", img);
-        // cv::waitKey(10);
-    }
-    return template_id;
-}
-
-int ImagePipeline::getTemplateID_v2( const Boxes& boxes ) {
+int ImagePipeline::getTemplateID( const Boxes& boxes ) {
     int template_id = -1;
 
     // Class error handling
@@ -123,6 +78,9 @@ int ImagePipeline::getTemplateID_v2( const Boxes& boxes ) {
     // Image search
     else {
         template_id = match_function(img, boxes.templates); // should search video feed for the matching image tags from the vector
+
+        cv::imshow("Kinect image", img);
+        cv::waitKey(10);
     }
     return template_id;
 }

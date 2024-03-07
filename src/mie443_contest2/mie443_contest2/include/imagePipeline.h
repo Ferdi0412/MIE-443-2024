@@ -52,20 +52,6 @@ class ImagePipeline {
         ImagePipeline(ros::NodeHandle& n);
 
         /**
-         * setTemplateSearcher will set a callback method that takes the image and a template to return a bool on whether it's a match or not
-         *
-         * @param search_callback(img, template_no, template_img) a callback that takes the most recent image and a template and returns true if the template is detected in the image
-        */
-        void setTemplateSearcher(bool (*search_callback)(const cv::Mat&, unsigned int, const cv::Mat&));
-
-        /**
-         * setImageDrawer will set a callback that takes an image and a template and update it to visualize matches
-         *
-         * @param draw_callback(img, template_no, template_img) a callback that takes the most recent image and a template and adds a rectangle to outline the match
-        */
-        void setImageDrawer(cv::Mat (*draw_callback)(const cv::Mat&, unsigned int, const cv::Mat&));
-
-        /**
          * setMatchFunction will set a callback that takes an image and the boxes object to match the input img
          *
          * @param match_callback(img, boxes) a callback that takes the most recent image to match to a template in boxes
@@ -89,18 +75,8 @@ class ImagePipeline {
         int getTemplateID(Boxes& boxes);
 
         /**
-         * getTemplateID_v2 is the new provided image match function
-         *
-         * @note it has the exact same implementation as getTemplateID, but uses different functions to match
-         * @implements match_function as set using the setBoxMatcher
-         *
-         * @returns -1 on fail, otherwise the index/id of the box matched from boxes
-        */
-        int getTemplateID_v2( const Boxes& boxes );
-
-        /**
          * getKinectImage returns the kinect image
-         * 
+         *
          * @note no safety stuff...
         */
         cv::Mat getKinectImage( void );
