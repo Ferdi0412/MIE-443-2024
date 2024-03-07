@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    imagePipeline.setBoxMatcher(&my_callback)
+    // imagePipeline.setBoxMatcher(&my_callback)
 
     /**
      * === MAIN BODY ===
