@@ -106,7 +106,7 @@ int ImagePipeline::getTemplateID(Boxes& boxes) {
     return template_id;
 }
 
-int ImagePipeline::getTemplateID_v2(Boxes& boxes) {
+int ImagePipeline::getTemplateID_v2( const Boxes& boxes ) {
     int template_id = -1;
 
     // Class error handling
