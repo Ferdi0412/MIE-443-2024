@@ -29,6 +29,10 @@ cv::Mat ImagePipeline::draw_nothing( const cv::Mat& img, unsigned int template_n
     return img;
 }
 
+int ImagePipeline::match_no_boxes( const cv::Mat& img, const std::vector<cv::Mat&> template_imgs ) {
+    return -1;
+}
+
 /**
  * === CALLBAK SETTERS ===
 */
@@ -38,6 +42,10 @@ void ImagePipeline::setTemplateSearcher(bool (*search_callback)(const cv::Mat&, 
 
 void ImagePipeline::setImageDrawer( cv::Mat (*draw_callback)(const cv::Mat&, unsigned int, const cv::Mat&)) {
     draw_function = draw_callback;
+}
+
+void ImagePipeline::setBoxMatcher( int (*match_callback)(const cv::Mat&, const std::vector<cv::Mat>&)) {
+    match_function = match_callback;
 }
 
 /**
@@ -94,6 +102,27 @@ int ImagePipeline::getTemplateID(Boxes& boxes) {
         // Commented out to only show image upon a match...
         // cv::imshow("view", img);
         // cv::waitKey(10);
+    }
+    return template_id;
+}
+
+int ImagePipeline::getTemplateID_v2(Boxes& boxes) {
+    int template_id = -1;
+
+    // Class error handling
+    if(!isValid) {
+        std::cout << "ERROR: INVALID IMAGE!" << std::endl;
+    }
+    // Empty image handling
+    else if(img.empty() || img.rows <= 0 || img.cols <= 0) {
+        std::cout << "ERROR: VALID IMAGE, BUT STILL A PROBLEM EXISTS!" << std::endl;
+        std::cout << "img.empty():" << img.empty() << std::endl;
+        std::cout << "img.rows:" << img.rows << std::endl;
+        std::cout << "img.cols:" << img.cols << std::endl;
+    }
+    // Image search
+    else {
+        template_id = match_function(img, boxes.templates);
     }
     return template_id;
 }
