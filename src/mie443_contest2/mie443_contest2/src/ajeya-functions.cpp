@@ -3,6 +3,7 @@
 
 // #include <imagePipeline.h>
 #include <boxes.h>
+#include <robot_pose.h>
 #include <nav_msgs/GetPlan.h>
 #include <vector>
 #include <iostream>
