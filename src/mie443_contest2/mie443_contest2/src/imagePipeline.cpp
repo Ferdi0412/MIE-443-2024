@@ -87,6 +87,6 @@ int ImagePipeline::getTemplateID( const Boxes& boxes ) {
     return template_id;
 }
 
-cv::Mat ImagePipeline::getKineticImage(void){
+cv::Mat ImagePipeline::getKinectImage(void){
     return img;
 }
