@@ -84,6 +84,11 @@ int ImagePipeline::getTemplateID( const Boxes& boxes ) {
         std::cout << "Template ID: " << template_id << std::endl; 
         cv::imshow("Kinect image", img);
         cv::waitKey(10);
+        
     }
     return template_id;
+}
+
+cv::Mat ImagePipeline::getKineticImage(void){
+    return img;
 }
