@@ -36,7 +36,8 @@ int main(int argc, char** argv) {
         /***YOUR CODE HERE***/
         // Use: boxes.coords
         // Use: robotPose.x, robotPose.y, robotPose.phi
-        imagePipeline.getTemplateID(boxes);
+        template_id = imagePipeline.getTemplateID(boxes);
+        std::cout<< "Template Id: " << template_id;
         ros::Duration(0.01).sleep();
     }
     return 0;
