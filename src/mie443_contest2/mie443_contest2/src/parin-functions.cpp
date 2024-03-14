@@ -1,14 +1,15 @@
+#ifndef PARIN_FUNCTIONS_CPP
+#define PARIN_FUNCTIONS_CPP
+
 #include <iostream>
+
 #include "opencv2/core.hpp"
-#ifdef HAVE_OPENCV_XFEATURES2D
-#include "opencv2/calib3d.hpp"
-#include "opencv2/highgui.hpp"
-#include "opencv2/imgproc.hpp"
 #include "opencv2/features2d.hpp"
 #include "opencv2/xfeatures2d.hpp"
 
-#ifndef PARIN_FUNCTIONS_CPP
-#define PARIN_FUNCTIONS_CPP
+#include "opencv2/calib3d.hpp"
+#include "opencv2/highgui.hpp"
+#include "opencv2/imgproc.hpp"
 
 #include <imagePipeline.h>
 # include "boxes.h"
@@ -17,11 +18,6 @@ using namespace cv;
 using namespace cv::xfeatures2d;
 using std::cout;
 using std::endl;
-
-const char* keys =
-"{ help h | | Print help message. }"
-"{ input1 | box.png | Path to input image 1. }"
-"{ input2 | box_in_scene.png | Path to input image 2. }";
 
 // You need to initailize the featured detecotr (to identify features) and matcher (to compare images)
 static cv::Ptr<cv::Feature2D>         feature_detector;
@@ -32,6 +28,23 @@ static std::vector<std::vector<cv::KeyPoint>> keypoints_all_templates;
 static std::vector<cv::Mat>                   descriptors_all_templates;
 static std::vector<cv::Mat>                   grayscale_templates;
 
+static float ratio_thresh = 0.75;
+
+cv::Mat make_grayscale_copy( const cv::Mat& non_grayscale ) {
+    // Enforce grayscale transform
+    cv::Mat grayscale_img;
+    // Check what colors are in the inputted image...
+    if ( non_grayscale.channels() == 1 )
+        return non_grayscale.clone(); // Already grayscale
+    else if ( non_grayscale.channels() == 3 )
+        cv::cvtColor( non_grayscale, grayscale_img, cv::COLOR_BGR2GRAY );
+    else if ( non_grayscale.channels() == 4 )
+        cv::cvtColor( non_grayscale, grayscale_img, cv::COLOR_BGRA2GRAY );
+    else
+        std::cout << "MAKE_GRAYSCALE_COPY: Unrecognized color channels!";
+    return grayscale_img;
+}
+
 
 
 void initialize_feature_detector( const std::vector<cv::Mat>& box_templates, int min_hessian = 400 ) {
@@ -41,8 +54,8 @@ void initialize_feature_detector( const std::vector<cv::Mat>& box_templates, int
 
     for ( size_t i = 0; i < box_templates.size(); i++ ) {
         std::vector<cv::KeyPoint> keypoints_this_template;
-        std::Mat                  descriptors_this_template;
-        cv::Mat img_template = grayscale_img(box_templates[i]);
+        cv::Mat                   descriptors_this_template;
+        cv::Mat img_template = make_grayscale_copy(box_templates[i]);
 
         // Setup descriptors and keypoints...
         feature_detector->detectAndCompute( img_template, cv::Mat(), keypoints_this_template, descriptors_this_template );
@@ -60,21 +73,6 @@ void initialize_feature_detector( const std::vector<cv::Mat>& box_templates, int
 // int initialize_feature_detector( const std::vector<cv::Mat>& box_templates  ) {
 //     initialize_feature_detector( box_templates, 400 ); // min_hessian default is 400
 // }
-
-cv::Mat make_grayscale_copy( const cv::Mat& non_grayscale ) {
-    // Enforce grayscale transform
-    cv::Mat grayscale_img;
-    // Check what colors are in the inputted image...
-    if ( non_grayscale.channels() == 1 )
-        return non_grayscale.clone(); // Already grayscale
-    else if ( non_grayscale.channels() == 3 )
-        cv::cvtColor( non_grayscale, grayscale_img, cv::COLOR_BGR2GRAY );
-    else if ( non_grayscale.channels() == 4 )
-        cv::cvtColor( non_grayscale, grayscale_img, cv::COLOR_BGRA2GRAY );
-    else
-        std::cout << "MAKE_GRAYSCALE_COPY: Unrecognized color channels!";
-    return grayscale_img;
-}
 
 
 
@@ -104,11 +102,11 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
     }
 
     // You also need a grayscale copy of the input image
-    cv::Mat& img_scene = make_grayscale_copy(img);
+    cv::Mat img_scene = make_grayscale_copy(img);
 
     // finding keypoints in both the object image and the scene image
     // There is the option to input a "filter" -> noArray means do not add an extra filter...
-    detector->detectAndCompute( img_scene, cv::noArray(), keypoints_scene, descriptors_scene );
+    feature_detector->detectAndCompute( img_scene, cv::noArray(), keypoints_scene, descriptors_scene );
 
     // Iterate through all templates for matching...
     for ( size_t i = 0; i < box_templates.size(); i++ ) {
@@ -139,7 +137,7 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
 
         // Drawing a match for a single template and the inputted scene
         cv::Mat img_matches;
-        cv::drawMatches( template_img, keypoints_template, keypoints_scene, good_matches, img_matches,
+        cv::drawMatches( template_img, keypoints_template, img_scene, keypoints_scene, good_matches, img_matches,
                          // colors of matches in either image [x2], empty string - label matches I think, Filter away unmatched points
                          Scalar::all(-1), Scalar::all(-1), std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
 
@@ -166,7 +164,7 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
         cv::perspectiveTransform( template_corners, scene_corners, homography );
 
         // Draw the outline of the matched image...
-        Point2f template_cols((float), template_img.cols, 0);
+        Point2f template_cols((float)template_img.cols, 0);
         line(img_matches, scene_corners[0] + template_cols, scene_corners[1] + template_cols, Scalar(0,255,0), 4);
         line(img_matches, scene_corners[1] + template_cols, scene_corners[2] + template_cols, Scalar(0,255,0), 4);
         line(img_matches, scene_corners[2] + template_cols, scene_corners[3] + template_cols, Scalar(0,255,0), 4);
@@ -175,8 +173,9 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
         // Show matches detected
         imshow("Good matches & object detection", img_matches);
         waitKey(100);
+        sleep(300);
     }
-    return -1;
+    return 0;
 }
 
 #endif // ~ PARIN_FUNCTIONS_CPP

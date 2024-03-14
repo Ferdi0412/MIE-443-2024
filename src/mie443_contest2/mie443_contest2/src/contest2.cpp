@@ -4,6 +4,8 @@
 #include <imagePipeline.h>
 #include <chrono>
 
+#include "parin-functions.cpp"
+
 int main(int argc, char** argv) {
     // Setup ROS.
     ros::init(argc, argv, "contest2");
@@ -24,6 +26,10 @@ int main(int argc, char** argv) {
     }
     // Initialize image objectand subscriber.
     ImagePipeline imagePipeline(n);
+
+    // Setup parin-functions::match_function
+    imagePipeline.setMatchFunction(&match_function);
+    initialize_feature_detector(boxes.templates);
 
     // contest count down timer
     std::chrono::time_point<std::chrono::system_clock> start;
