@@ -18,13 +18,13 @@
 class RobotPlan {
     private:
         // static std::string
-        const RobotPose& robot_pose;
+        RobotPose& robot_pose;
         ros::ServiceClient check_path;
 
     public:
         nav_msgs::GetPlanResponse latest_response;
 
-        RobotPlan( ros::NodeHandle& nh, const RobotPose& robot_pose_ ); // Also setup check_path
+        RobotPlan( ros::NodeHandle& nh, RobotPose& robot_pose_ ); // Also setup check_path
 
         /**
          * get_plan will return true if a valid path to target is found
