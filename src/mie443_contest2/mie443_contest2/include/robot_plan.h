@@ -1,6 +1,7 @@
 #ifndef ROBOT_PLAN_H
 #define ROBOT_PLAN_H
 
+#include <ros/service_client.h>
 #include <nav_msgs/GetPlan.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Pose.h>
@@ -16,19 +17,19 @@
 
 class RobotPlan {
     private:
-        RobotPose robot_pose;
+        const RobotPose* robot_pose;
         ros::ServiceClient check_path;
 
     public:
-        geometry_msgs::GetPlanResponse latest_response;
+        nav_msgs::GetPlanResponse latest_response;
 
-        RobotPlan( RobotPose robot_pose ); // Also setup check_path
+        RobotPlan( const RobotPose* robot_pose ); // Also setup check_path
 
         /**
          * get_plan will return true if a valid path to target is found
          * it will also update the latest_response field
         */
         bool get_plan( float x, float y, float phi );
-}
+};
 
 #endif // ~ROBOT_PLAN_H
