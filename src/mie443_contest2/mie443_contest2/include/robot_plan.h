@@ -13,17 +13,18 @@
 
 #include "robot_pose.h"
 
-#define TOPIC "/move_base/NavfnROS/make_plan"
+#define ROBOT_PLAN_TOPIC "/move_base/NavfnROS/make_plan"
 
 class RobotPlan {
     private:
-        const RobotPose* robot_pose;
+        // static std::string
+        const RobotPose& robot_pose;
         ros::ServiceClient check_path;
 
     public:
         nav_msgs::GetPlanResponse latest_response;
 
-        RobotPlan( const RobotPose* robot_pose ); // Also setup check_path
+        RobotPlan( ros::NodeHandle& nh, const RobotPose& robot_pose_ ); // Also setup check_path
 
         /**
          * get_plan will return true if a valid path to target is found
