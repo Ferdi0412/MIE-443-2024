@@ -26,19 +26,8 @@ const char* keys =
 static std::vector<cv::Mat> template_descriptors;
 static std::vector<std::vector<cv::KeyPoint>> template_keypoints;
 
-void setup_function( const std::vector<cv::Mat>& template_imgs ) {
-    // Initializes the template descriptors/keypoints
-    // template_descriptors.push_back(...);
-    // template_keypoints.push_back(...);
-}
-
-int matching_stuff( const cv::Mat& argc, const std::vector<cv::Mat>& argv ) {
-    for ( int i = 0; i < template_imgs.size(); i++ ) {
-        descriptors_object = template_descriptors[i];
-
-        // If good enough match
-        // return i;
-        CommandLineParser parser( argc, argv, keys );
+int match_function( const cv::Mat& argc, const std::vector<cv::Mat>& argv ) {
+    CommandLineParser parser( argc, argv, keys );
     Mat img_object = imread(parser.get<String>("input1"), IMREAD_GRAYSCALE );
     Mat img_scene = imread(parser.get<String>("input2"), IMREAD_GRAYSCALE );
     if ( img_object.empty() || img_scene.empty() ) {
@@ -117,7 +106,5 @@ int matching_stuff( const cv::Mat& argc, const std::vector<cv::Mat>& argv ) {
     imshow("Good Matches & Object detection", img_matches );
     waitKey();
     return 0;
-    } 
-    return -1;
 }
 

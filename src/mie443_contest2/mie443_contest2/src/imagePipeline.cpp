@@ -1,7 +1,10 @@
 #include <imagePipeline.h>
+#include "parin-functions.cpp"
 
 #define IMAGE_TYPE sensor_msgs::image_encodings::BGR8
 #define IMAGE_TOPIC "camera/rgb/image_raw" //Kinect:"camera/rgb/image_raw" webcam:"camera/image"
+
+
 
 /**
  * === CONSTRUCTORS ===
@@ -78,13 +81,9 @@ int ImagePipeline::getTemplateID( const Boxes& boxes ) {
     // Image search
     else {
         template_id = match_function(img, boxes.templates); // should search video feed for the matching image tags from the vector
-
+        std::cout << "Template ID: " << template_id << std::endl; 
         cv::imshow("Kinect image", img);
         cv::waitKey(10);
     }
     return template_id;
-}
-
-cv::Mat ImagePipeline::getKinectImage( void ) {
-    return img;
 }
