@@ -174,7 +174,7 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
 
         // Show matches detected
         imshow("Good matches & object detection", img_matches);
-        waitKey();
+        waitKey(100);
     }
     return -1;
 }

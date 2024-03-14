@@ -81,8 +81,8 @@ int ImagePipeline::getTemplateID( const Boxes& boxes ) {
     else {
         template_id = match_function(img, boxes.templates); // should search video feed for the matching image tags from the vector
         std::cout << "Template ID: " << template_id << std::endl;
-        cv::imshow("Kinect image", img);
-        cv::waitKey(10);
+        // cv::imshow("Kinect image", img);
+        // cv::waitKey(10);
     }
     return template_id;
 }
