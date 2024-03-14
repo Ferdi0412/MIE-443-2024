@@ -175,7 +175,7 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
         waitKey(100);
         sleep(300);
     }
-    return 0;
+    return -1;
 }
 
 #endif // ~ PARIN_FUNCTIONS_CPP
