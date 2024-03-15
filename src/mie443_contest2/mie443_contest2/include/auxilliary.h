@@ -6,6 +6,11 @@
 
 #include <chrono>
 
+#include <robot_pose.h>
+
+#include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Quaternion.h>
+
 
 
 /**
@@ -50,5 +55,35 @@ uint64_t getSecondsElapsed( aux_timer_t input_timer );
 uint64_t getMillisecondsElapsed( aux_timer_t input_timer );
 
 
+
+/**
+ * ================
+ * === POSITION ===
+*/
+class SimplePose {
+    public:
+        float x;
+        float y;
+        float phi;
+    
+    public:
+        SimplePose();
+        SimplePose( float x, float y, float phi );
+        SimplePose( float x, float y, geometry_msgs::Quaternion orientation );
+        SimplePose( geometry_msgs::Pose pose );
+        SimplePose( RobotPose robot_pose );
+};
+
+/**
+ * distance_from_pose - @returns the pose that aligns with the target, with an orientation
+ *                       defined by the target plus delta_phi, at a given distance behind that pose 
+*/
+SimplePose distance_from_pose( SimplePose target, float distance, float delta_phi = 0. );
+
+/**
+ * flip_orientation - rotates the orientation by 180 degrees/pi radians
+*/
+float flip_orientation( float phi_radians );
+SimplePose flip_orientation( SimplePose pose_to_flip );
 
 #endif
