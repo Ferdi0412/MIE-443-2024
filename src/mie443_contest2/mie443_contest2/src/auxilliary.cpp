@@ -107,13 +107,21 @@ void mark_as_found( size_t box_index, bool found ) {
     boxes_found[box_index] = found;
 }
 
-bool has_been_found( size_t box_index, bool found ) {
+bool has_been_found( size_t box_index ) {
     if ( box_index > boxes_found.size() ) {
         std::cout << "boxes_positions is out-of-bounds!!!\n";
         return false;
     }
 
     return boxes_found[box_index];
+}
+
+bool all_found( ) {
+    for ( size_t i = 0; i < boxes_found.size(); i++ ) {
+        if ( !boxes_found[i] )
+            return false;
+    }
+    return true;
 }
 
 SimplePose location_facing_box( size_t box_index, float distance_from, float delta_phi ) {
@@ -126,7 +134,7 @@ SimplePose location_facing_box( size_t box_index, float distance_from, float del
     float x = boxes_positions[box_index][0],
           y = boxes_positions[box_index][1],
           phi = boxes_positions[box_index][2];
-    
+
     // Get location facing the same direction as the target...
     SimplePose facing_target = distance_from_pose(SimplePose(x, y, phi), fabs(distance_from), delta_phi);
 
