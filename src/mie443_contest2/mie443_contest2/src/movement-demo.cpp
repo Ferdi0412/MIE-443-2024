@@ -74,6 +74,7 @@ int main(int argc, char** argv) {
     */
 
     /* === TARGET LOCATING USING AUXILLIARY_H === */
+    // The following must be run to setup the functions: location_facing_box (plus some more functions from auxilliary.h)
     initialize_boxes_navigation( n, boxes, robotPose );
 
     /**
@@ -81,28 +82,35 @@ int main(int argc, char** argv) {
      * Just move to each box, and display an image of them...
     */
     for ( size_t i = 0; i < boxes.coords.size(); i++ ) {
-        SimplePose next_target;
         // Additional [optional] parameters for {location_facing_box}:
         // 1. distance_from <float> - distance from robot to box
         // 2. delta_phi <float> - angle offset from the image - Imagine a radius around image, that's how this function positions the robot
         //    NOTE: If you want to get to the same position, but with a different orientation, DON'T use delta_phi, rather edit the Navigation::moveToGoal input
-        next_target = location_facing_box(i);
+        SimplePose next_target = location_facing_box(i);
+
+        // Check if there exists a valid path to the next_target...
         if ( !check_for_plan(next_target) ) {
             std::cout << "Could not locate box {" << i << "}!\n";
             continue;
         }
+
+        // If valid path found, move to the next_target
         Navigation::moveToGoal( next_target.x, next_target.y, next_target.phi );
-        
         std::cout << "=== {" << i << "} ===\n";
 
+        // Fetch the latest kinect image
         ros::spinOnce();
         cv::Mat img = imagePipeline.getKinectImage();
+
+        // If a valid kinect image found, display it...
         if ( img.empty() || img.rows <= 0 || img.cols <= 0 )
             ;
         else {
             cv::imshow("Image...", img);
             cv::waitKey(100);
         }
+
+        // Wait 0.2 seconds before going to next target...
         ros::Duration(0.2).sleep();  
     }
 
