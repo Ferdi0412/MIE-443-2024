@@ -3,7 +3,8 @@
 #########################
 ### DEFAULT VARIABLES ###
 user=$(whoami)
-map_file="/home/$user/catkin_ws/src/mie443_contest2/mie443_contest2/maps/map_1.yaml"
+maps_dir="/home/$user/catkin_ws/src/mie443_contest2/mie443_contest2/maps/"
+map_file="map_1.yaml"
 
 #################
 ### FUNCTIONS ###
@@ -43,7 +44,7 @@ while [ $# -gt 0 ]; do
             ;;
         -h)
             echo "Usage: $0 [OPTIONS]"
-            echo "1. To set the map file/directory (default: $map_file):"
+            echo "1. To set the map file/directory (default: $maps_dir$map_file):"
             echo "|-> [--map_file <value>]"
             echo "|-> [-m <value>]"
             echo "|-> [map_file=<value>]"
@@ -60,7 +61,7 @@ done
 
 ############
 ### MAIN ###
-command="roslaunch turtlebot_gazebo amcl_demo.launch map_file:=\"$map_file\""
+command="roslaunch turtlebot_gazebo amcl_demo.launch map_file:=\"$maps_dir$map_file\""
 echo ""
 echo "$command"
 echo ""
