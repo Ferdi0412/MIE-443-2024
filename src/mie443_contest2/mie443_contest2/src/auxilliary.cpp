@@ -1,6 +1,7 @@
 #include <auxilliary.h>
 
 #include <cmath>
+#include <iostream>
 
 #include <tf/transform_datatypes.h>
 
@@ -76,4 +77,69 @@ float flip_orientation( float phi_radians ) {
 SimplePose flip_orientation( SimplePose pose_to_flip ) {
     pose_to_flip.phi = flip_orientation(pose_to_flip.phi);
     return pose_to_flip;
+}
+
+
+
+/**
+ * ========================
+ * === BOXES NAVIGATION ===
+*/
+RobotPlan* robot_planner = NULL;
+static std::vector<std::vector<float>> boxes_positions;
+static std::vector<bool>               boxes_found;
+
+void initialize_boxes_navigation( ros::NodeHandle& nh, const Boxes& boxes, RobotPose& robot_pose ) {
+    if ( robot_planner != NULL )
+        delete robot_planner; // Prevent memory leak...
+    robot_planner   = new RobotPlan( nh, robot_pose );
+
+    boxes_positions = boxes.coords;
+    boxes_found     = std::vector<bool>(false, boxes_positions.size());
+}
+
+void mark_as_found( size_t box_index, bool found ) {
+    if ( box_index > boxes_found.size() ) {
+        std::cout << "boxes_positions is out-of-bounds!!!\n";
+        return;
+    }
+
+    boxes_found[box_index] = found;
+}
+
+bool has_been_found( size_t box_index, bool found ) {
+    if ( box_index > boxes_found.size() ) {
+        std::cout << "boxes_positions is out-of-bounds!!!\n";
+        return false;
+    }
+
+    return boxes_found[box_index];
+}
+
+SimplePose location_facing_box( size_t box_index, float distance_from, float delta_phi ) {
+    if ( box_index > boxes_positions.size() ) {
+        std::cout << "boxes_positions is out-of-bounds!!!\n";
+        return SimplePose();
+    }
+
+    // Get location and orientation of target
+    float x = boxes_positions[box_index][0],
+          y = boxes_positions[box_index][1],
+          phi = boxes_positions[box_index][2];
+    
+    // Get location facing the same direction as the target...
+    SimplePose facing_target = distance_from_pose(SimplePose(x, y, phi), fabs(distance_from), delta_phi);
+
+    // Flip direction to be facing the actual target
+    return flip_orientation(facing_target);
+}
+
+bool check_for_plan( SimplePose some_position ) {
+    if ( robot_planner == NULL ) {
+        std::cout << "RobotPlanner not initialized!!!\nYou MUST run initialize_boxes_navigation for this function to work!\n";
+        exit(-1);
+    }
+
+    // Check if plan can actually be made
+    return robot_planner->get_plan(some_position.x, some_position.y, some_position.phi);
 }

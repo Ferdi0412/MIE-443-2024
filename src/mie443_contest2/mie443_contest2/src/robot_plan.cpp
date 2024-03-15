@@ -1,5 +1,8 @@
 #include <iostream>
+
 #include "robot_plan.h"
+
+#include <opencv2/core.hpp>
 #include <tf/transform_datatypes.h>
 
 RobotPlan::RobotPlan(ros::NodeHandle& nh, RobotPose& robot_pose_) : robot_pose(robot_pose_) {

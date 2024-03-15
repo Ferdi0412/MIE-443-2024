@@ -5,8 +5,11 @@
 #define AUXILLIARY_H
 
 #include <chrono>
+#include <vector>
 
 #include <robot_pose.h>
+#include <boxes.h>
+#include <robot_plan.h>
 
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Quaternion.h>
@@ -86,4 +89,21 @@ SimplePose distance_from_pose( SimplePose target, float distance, float delta_ph
 float flip_orientation( float phi_radians );
 SimplePose flip_orientation( SimplePose pose_to_flip );
 
-#endif
+
+
+/**
+ * ========================
+ * === BOXES NAVIGATION ===
+*/
+void initialize_boxes_navigation( ros::NodeHandle& nh, const Boxes& boxes, RobotPose& robot_pose );
+
+void mark_as_found( size_t box_index, bool found = true );
+
+bool has_been_found( size_t box_index );
+
+SimplePose location_facing_box( size_t box_index, float distance_from = 0.5, float delta_phi = 0 );
+
+bool check_for_plan( SimplePose some_position );
+
+
+#endif // ~ AUXILLIARY_H

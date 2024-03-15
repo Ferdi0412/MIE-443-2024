@@ -27,7 +27,8 @@ add_executable(contest2
     src/navigation.cpp
     src/robot_pose.cpp
     src/imagePipeline.cpp
-    src/auxilliary.cpp)
+    src/auxilliary.cpp
+    src/robot_plan.cpp)
 target_link_libraries(contest2
     ${catkin_LIBRARIES}
     ${OpenCV_LIBRARIES}
@@ -47,7 +48,8 @@ add_executable(priv_test
     src/navigation.cpp
     src/robot_pose.cpp
     src/imagePipeline.cpp
-    src/auxilliary.cpp)
+    src/auxilliary.cpp
+    src/robot_plan.cpp)
 target_link_libraries(priv_test
     ${catkin_LIBRARIES}
     ${OpenCV_LIBRARIES}

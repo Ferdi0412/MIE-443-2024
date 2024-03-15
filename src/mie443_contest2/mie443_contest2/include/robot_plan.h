@@ -1,7 +1,9 @@
 #ifndef ROBOT_PLAN_H
 #define ROBOT_PLAN_H
 
+#include <ros/ros.h>
 #include <ros/service_client.h>
+
 #include <nav_msgs/GetPlan.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Pose.h>
