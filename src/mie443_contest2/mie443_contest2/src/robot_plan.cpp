@@ -36,8 +36,6 @@ bool RobotPlan::get_plan( float x, float y, float phi ) {
     srv.request.goal.pose.orientation.z = goal_phi_q.z;
     srv.request.goal.pose.orientation.w = goal_phi_q.w;
 
-    std::cout << srv.request;
-
     // Send request
     if (check_path.call(srv)) { //; // TODO: Ensure this updates srv with the response...
         latest_response = srv.response;
