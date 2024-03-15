@@ -60,8 +60,8 @@ done
 
 
 ############
-### MAIN ###
-command="roslaunch turtlebot_gazebo amcl_demo.launch map_file:=\"$maps_dir$map_file\""
+### MAIN ### turtlebot_gazebo
+command="roslaunch turtlebot_navigation amcl_demo.launch map_file:=\"$maps_dir$map_file\""
 echo ""
 echo "$command"
 echo ""
