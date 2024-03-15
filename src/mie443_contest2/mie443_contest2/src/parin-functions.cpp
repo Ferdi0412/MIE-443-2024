@@ -77,9 +77,7 @@ void initialize_feature_detector( const std::vector<cv::Mat>& box_templates, int
 
 
 int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_templates ) {
-    
-    int max_good_matches = 0;
-    int max_index = -1;
+
     
     // You only need one of each for the input image
     std::vector<cv::KeyPoint> keypoints_scene;
@@ -179,15 +177,8 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
         waitKey(100);
         sleep(300);
     }
-    // Iterate through all sets of good matches
-    for (size_t i = 0; i < all_good_matches.size(); i++) {
-        int num_good_matches = all_good_matches[i].size();
-        if (num_good_matches > max_good_matches) {
-            max_good_matches = num_good_matches;
-            max_index = i;
-        }
-    }
-    return max_index;
+    
+    return 0;
 }
 
 #endif // ~ PARIN_FUNCTIONS_CPP
