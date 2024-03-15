@@ -77,6 +77,10 @@ void initialize_feature_detector( const std::vector<cv::Mat>& box_templates, int
 
 
 int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_templates ) {
+    
+    int best_match_index = -1;
+    int max_inliers = 0;
+    
     // You only need one of each for the input image
     std::vector<cv::KeyPoint> keypoints_scene;
     cv::Mat                   descriptors_scene;
@@ -174,8 +178,25 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
         imshow("Good matches & object detection", img_matches);
         waitKey(100);
         sleep(300);
+        // Count the number of inliers
+        int inliers = 0;
+        for (size_t j = 0; j < good_matches.size(); j++) {
+            cv::Mat pt1 = (cv::Mat_<float>(3, 1) << keypoints_template[good_matches[j].queryIdx].pt.x, keypoints_template[good_matches[j].queryIdx].pt.y, 1);
+            cv::Mat pt2 = (cv::Mat_<float>(3, 1) << keypoints_scene[good_matches[j].trainIdx].pt.x, keypoints_scene[good_matches[j].trainIdx].pt.y, 1);
+            cv::Mat pt_transformed = homography * pt1;
+            pt_transformed /= pt_transformed.at<float>(2, 0);
+            float dist = cv::norm(pt_transformed - pt2);
+            if (dist < 5.0) // Tolerance for inliers
+                inliers++;
+        }
+
+        // Check if this template has more inliers than previous ones
+        if (inliers > max_inliers) {
+            max_inliers = inliers;
+            best_match_index = i;
+        }
     }
-    return -1;
+    return best_match_index;
 }
 
 #endif // ~ PARIN_FUNCTIONS_CPP
