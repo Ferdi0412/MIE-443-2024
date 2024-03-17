@@ -5,6 +5,7 @@
 user=$(whoami)
 maps_dir="/home/$user/catkin_ws/src/mie443_contest2/mie443_contest2/maps/"
 map_file="map_1.yaml"
+run_mode="turtlebot_gazebo"
 
 #################
 ### FUNCTIONS ###
@@ -42,13 +43,19 @@ while [ $# -gt 0 ]; do
             map_file="${1#*=}"
             shift 1
             ;;
+        --real | --real_world | -r)
+            run_mode="turtlebot_navigation"
+            shift 1
+            ;;
         -h)
             echo "Usage: $0 [OPTIONS]"
             echo "1. To set the map file/directory (default: $maps_dir$map_file):"
             echo "|-> [--map_file <value>]"
             echo "|-> [-m <value>]"
             echo "|-> [map_file=<value>]"
-            echo "2. For help:"
+            echo "2. To run with the real robot:"
+            echo "|-> [-r | --real | --real_world]"
+            echo "3. For help:"
             echo "|-> [--help]"
             echo "|-> [-h]"
             exit 0
@@ -60,8 +67,8 @@ done
 
 
 ############
-### MAIN ### turtlebot_gazebo
-command="roslaunch turtlebot_navigation amcl_demo.launch map_file:=\"$maps_dir$map_file\""
+### MAIN ###
+command="roslaunch $run_mode amcl_demo.launch map_file:=\"$maps_dir$map_file\""
 echo ""
 echo "$command"
 echo ""
