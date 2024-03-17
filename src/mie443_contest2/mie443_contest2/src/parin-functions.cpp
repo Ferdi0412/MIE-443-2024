@@ -71,16 +71,7 @@ void initialize_feature_detector( const std::vector<cv::Mat>& box_templates, int
 
 
 
-// Default min_hessian overload...
-// int initialize_feature_detector( const std::vector<cv::Mat>& box_templates  ) {
-//     initialize_feature_detector( box_templates, 400 ); // min_hessian default is 400
-// }
-
-
-
 int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_templates ) {
-
-    
     // You only need one of each for the input image
     std::vector<cv::KeyPoint> keypoints_scene;
     cv::Mat                   descriptors_scene;
@@ -97,7 +88,6 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
      * You have many templates, for each you will receive a vector of <DMatch>, so you need a 2-D vector of matches
     */
     std::vector<std::vector<cv::DMatch>> all_good_matches;
-    // std::vector<std::vector<cv::DMatch>> matches;
 
     // Safeguard against an invalid img -> could lead to some weird errors!!!
     if ( img.empty() ) {
@@ -131,10 +121,19 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
 
         // If using knnMatch... You use Lowe's ratio test to filter the best fitted sets of matches
         for ( size_t j = 0; j < knn_matches.size(); j++ ) {
-            if (knn_matches[i][0].distance < ratio_thresh*knn_matches[j][1].distance) {
+            if (knn_matches[j][0].distance < ratio_thresh*knn_matches[j][1].distance) {
                 good_matches.push_back(knn_matches[j][0]);
             }
         }
+
+        // Get average distance from good_matches
+        float mean_distance = 0;
+        for ( size_t j = 0; j < good_matches.size(); j++ ) {
+            mean_distance += good_matches[j].distance / good_matches.size();
+        }
+        std::cout << "\nFor template [" << i << "]\n";
+        std::cout << "Good Matches Count: {" << good_matches.size() << "}\n";
+        std::cout << "Distance is: {" << mean_distance << "}\n";
 
         // Store in case we want to do something with this later...
         all_good_matches.push_back( good_matches );
@@ -177,7 +176,7 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
         // Show matches detected
         imshow("Good matches & object detection", img_matches);
         waitKey(100);
-        ros::Duration(0.5).sleep();
+        ros::Duration(1).sleep();
     }
     
     return 0;
