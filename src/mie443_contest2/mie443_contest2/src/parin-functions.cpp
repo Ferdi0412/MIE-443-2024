@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+#include "ros/ros.h"
+
 #include "opencv2/core.hpp"
 #include "opencv2/features2d.hpp"
 #include "opencv2/xfeatures2d.hpp"
@@ -128,9 +130,9 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
         // feature_matcher->match(...)
 
         // If using knnMatch... You use Lowe's ratio test to filter the best fitted sets of matches
-        for ( size_t i = 0; i < knn_matches.size(); i++ ) {
-            if (knn_matches[i][0].distance < ratio_thresh*knn_matches[i][1].distance) {
-                good_matches.push_back(knn_matches[i][0]);
+        for ( size_t j = 0; j < knn_matches.size(); j++ ) {
+            if (knn_matches[i][0].distance < ratio_thresh*knn_matches[j][1].distance) {
+                good_matches.push_back(knn_matches[j][0]);
             }
         }
 
@@ -146,9 +148,9 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
         // Store positions of the "good" matches -> where each matched feature is in either image, to calculate
         // translation/rotation in the scene - position in scene of template
         std::vector<cv::Point2f> feature_positions_template, feature_positions_scene;
-        for ( size_t i = 0; i < good_matches.size(); i++ ) {
-           feature_positions_template.push_back( keypoints_template[ good_matches[i].queryIdx ].pt );
-           feature_positions_scene.push_back( keypoints_template[ good_matches[i].trainIdx ].pt );
+        for ( size_t j = 0; j < good_matches.size(); j++ ) {
+           feature_positions_template.push_back( keypoints_template[ good_matches[j].queryIdx ].pt );
+           feature_positions_scene.push_back( keypoints_template[ good_matches[j].trainIdx ].pt );
         }
 
         // Transformation from template to scene
@@ -175,7 +177,7 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
         // Show matches detected
         imshow("Good matches & object detection", img_matches);
         waitKey(100);
-        sleep(300);
+        ros::Duration(0.5).sleep();
     }
     
     return 0;
