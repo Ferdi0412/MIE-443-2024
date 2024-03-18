@@ -32,6 +32,13 @@ static std::vector<cv::Mat>                   grayscale_templates;
 
 static float ratio_thresh = 0.75;
 
+static bool draw_matches = false;
+
+
+
+/**
+ * make_grayscale_copy returns a grayscale copy of the input image
+*/
 cv::Mat make_grayscale_copy( const cv::Mat& non_grayscale ) {
     // Enforce grayscale transform
     cv::Mat grayscale_img;
@@ -49,10 +56,15 @@ cv::Mat make_grayscale_copy( const cv::Mat& non_grayscale ) {
 
 
 
-void initialize_feature_detector( const std::vector<cv::Mat>& box_templates, int min_hessian = 400 ) {
+/**
+ * initialize_feature_detector must be run before match_function at least once
+*/
+void initialize_feature_detector( const std::vector<cv::Mat>& box_templates, int min_hessian = 400, bool draw_all_matches = false ) {
     feature_detector = SURF::create( min_hessian ); // ORB::create() or AKAZE::create();
     // feature_matcher  = FlannBasedMatcher::create();
     feature_matcher = DescriptorMatcher::create(DescriptorMatcher::FLANNBASED);
+
+    draw_matches = draw_all_matches;
 
     for ( size_t i = 0; i < box_templates.size(); i++ ) {
         std::vector<cv::KeyPoint> keypoints_this_template;
@@ -70,13 +82,15 @@ void initialize_feature_detector( const std::vector<cv::Mat>& box_templates, int
 }
 
 
-
-int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_templates ) {
+/**
+ * match_function will return the best match (if available)... To consider: adding a min_good_matches
+*/
+int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_templates, int min_good_matches = 0 ) {
     // You only need one of each for the input image
     std::vector<cv::KeyPoint> keypoints_scene;
     cv::Mat                   descriptors_scene;
 
-    int max_good_matches = 0;
+    int max_good_matches = min_good_matches;
     int max_index = -1;
 
     /**
@@ -128,72 +142,57 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
                 good_matches.push_back(knn_matches[j][0]);
             }
         }
-
-        // Get average distance from good_matches
-        float mean_distance = 0;
-        for ( size_t j = 0; j < good_matches.size(); j++ ) {
-            mean_distance += good_matches[j].distance / good_matches.size();
-        }
-        std::cout << "\nFor template [" << i << "]\n";
-        std::cout << "Good Matches Count: {" << good_matches.size() << "}\n";
-        std::cout << "Distance is: {" << mean_distance << "}\n";
-
-        // Store in case we want to do something with this later...
         all_good_matches.push_back( good_matches );
 
-        std::cout << "all_good_matches appended\n";
+        // Get average distance from good_matches
+        // float mean_distance = 0;
+        // for ( size_t j = 0; j < good_matches.size(); j++ ) {
+        //     mean_distance += good_matches[j].distance / good_matches.size();
+        // }
 
-        // Drawing a match for a single template and the inputted scene
-        cv::Mat img_matches;
-        cv::drawMatches( template_img, keypoints_template, img_scene, keypoints_scene, good_matches, img_matches,
-                         // colors of matches in either image [x2], empty string - label matches I think, Filter away unmatched points
-                         Scalar::all(-1), Scalar::all(-1), std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
+        if ( draw_matches ) {
+            // Drawing a match for a single template and the inputted scene
+            cv::Mat img_matches;
+            cv::drawMatches( template_img, keypoints_template, img_scene, keypoints_scene, good_matches, img_matches,
+                            // colors of matches in either image [x2], empty string - label matches I think, Filter away unmatched points
+                            Scalar::all(-1), Scalar::all(-1), std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
 
-        std::cout << "After drawMatches\n";
+            // Store positions of the "good" matches -> where each matched feature is in either image, to calculate
+            // translation/rotation in the scene - position in scene of template
+            std::vector<cv::Point2f> feature_positions_template, feature_positions_scene;
+            for ( size_t j = 0; j < good_matches.size(); j++ ) {
+            feature_positions_template.push_back( keypoints_template[ good_matches[j].queryIdx ].pt );
+            feature_positions_scene.push_back( keypoints_template[ good_matches[j].trainIdx ].pt );
+            }
 
-        // Store positions of the "good" matches -> where each matched feature is in either image, to calculate
-        // translation/rotation in the scene - position in scene of template
-        std::vector<cv::Point2f> feature_positions_template, feature_positions_scene;
-        for ( size_t j = 0; j < good_matches.size(); j++ ) {
-           feature_positions_template.push_back( keypoints_template[ good_matches[j].queryIdx ].pt );
-           feature_positions_scene.push_back( keypoints_template[ good_matches[j].trainIdx ].pt );
-        }
+            // Transformation from template to scene
+            cv::Mat homography = cv::findHomography( feature_positions_template, feature_positions_scene, cv::RANSAC );
 
-        std::cout << "After feature_positions pushback\n";
+            // Get corners of object in template
+            std::vector<Point2f> template_corners(4);
+            template_corners[0] = Point2f(0, 0);
+            template_corners[1] = Point2f( (float)template_img.cols, 0 );
+            template_corners[2] = Point2f( (float)template_img.cols, (float)template_img.rows );
+            template_corners[3] = Point2f( 0, (float)template_img.rows );
 
-        // Transformation from template to scene
-        cv::Mat homography = cv::findHomography( feature_positions_template, feature_positions_scene, cv::RANSAC );
+            // Get corners of scene image
+            std::vector<Point2f> scene_corners(4);
+            cv::perspectiveTransform( template_corners, scene_corners, homography );
 
-        std::cout << "After homography\n";
+            // Draw the outline of the matched image...
+            Point2f template_cols((float)template_img.cols, 0);
+            line(img_matches, scene_corners[0] + template_cols, scene_corners[1] + template_cols, Scalar(0,255,0), 4);
+            line(img_matches, scene_corners[1] + template_cols, scene_corners[2] + template_cols, Scalar(0,255,0), 4);
+            line(img_matches, scene_corners[2] + template_cols, scene_corners[3] + template_cols, Scalar(0,255,0), 4);
+            line(img_matches, scene_corners[3] + template_cols, scene_corners[0] + template_cols, Scalar(0,255,0), 4);
 
-        // Get corners of object in template
-        std::vector<Point2f> template_corners(4);
-        template_corners[0] = Point2f(0, 0);
-        template_corners[1] = Point2f( (float)template_img.cols, 0 );
-        template_corners[2] = Point2f( (float)template_img.cols, (float)template_img.rows );
-        template_corners[3] = Point2f( 0, (float)template_img.rows );
-
-        std::cout << "Before perspectiveTransform\n";
-
-        // Get corners of scene image
-        std::vector<Point2f> scene_corners(4);
-        cv::perspectiveTransform( template_corners, scene_corners, homography );
-
-        // Draw the outline of the matched image...
-        Point2f template_cols((float)template_img.cols, 0);
-        line(img_matches, scene_corners[0] + template_cols, scene_corners[1] + template_cols, Scalar(0,255,0), 4);
-        line(img_matches, scene_corners[1] + template_cols, scene_corners[2] + template_cols, Scalar(0,255,0), 4);
-        line(img_matches, scene_corners[2] + template_cols, scene_corners[3] + template_cols, Scalar(0,255,0), 4);
-        line(img_matches, scene_corners[3] + template_cols, scene_corners[0] + template_cols, Scalar(0,255,0), 4);
-
-        std::cout << "Before imshow\n";
-
-        // Show matches detected
-        imshow("Good matches & object detection", img_matches);
-        waitKey(100);
-        ros::Duration(1).sleep();
+            // Show matches detected
+            imshow("Good matches & object detection", img_matches);
+            waitKey(100);
+            ros::Duration(1).sleep();
+        } // ~ draw_matches
     }
-    
+
 
     // Iterate through all sets of good matches
     for (size_t i = 0; i < all_good_matches.size(); i++) {
