@@ -85,6 +85,9 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
     std::vector<cv::KeyPoint> keypoints_scene;
     cv::Mat                   descriptors_scene;
 
+    int max_good_matches = 0;
+    int max_index = -1;
+
     /**
      * If using knnMatch -> The method suggested in the course:
      * You have many templates, for each you will get a 2-d vector of <DMatch>
@@ -180,6 +183,15 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
         ros::Duration(0.5).sleep();
     }
     
+
+    // Iterate through all sets of good matches
+    for (size_t i = 0; i < all_good_matches.size(); i++) {
+        int num_good_matches = all_good_matches[i].size();
+        if (num_good_matches > max_good_matches) {
+            max_good_matches = num_good_matches;
+            max_index = i;
+        }
+    }
     return 0;
 }
 
