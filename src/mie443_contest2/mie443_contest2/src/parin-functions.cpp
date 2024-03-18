@@ -205,6 +205,7 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
             max_index = i;
         }
     }
+    std::cout << "Number of good matches: " << max_good_matches << std::endl;
     return max_index;
 }
 
