@@ -8,6 +8,12 @@
 #include "parin-functions.cpp"
 #include "auxilliary.h"
 
+
+bool try_match_image( size_t box_index, ImagePipeline& image_pipeline, Boxes& boxes  );
+
+bool try_move_to_box( size_t box_index );
+
+
 int main(int argc, char** argv) {
     // Setup ROS.
     ros::init(argc, argv, "contest2");
@@ -43,82 +49,61 @@ int main(int argc, char** argv) {
     uint64_t secondsElapsed = 0;
     std::vector<bool> path_to_box; 
 
+    SimplePose start_pose(robotPose);
+
     // Execute strategy.
-    while(ros::ok() && secondsElapsed <= 300 && (!all_found())) {
+    while(ros::ok() && secondsElapsed <= 300 ) {
         ros::spinOnce();
 
-        for ( size_t i = 0; i < boxes.coords.size(); i++ ) {
-        // Additional [optional] parameters for {location_facing_box}:
-        // 1. distance_from <float> - distance from robot to box
-        // 2. delta_phi <float> - angle offset from the image - Imagine a radius around image, that's how this function positions the robot
-        //    NOTE: If you want to get to the same position, but with a different orientation, DON'T use delta_phi, rather edit the Navigation::moveToGoal input
-            
-            
-            // only go through boxes that have not yet been found
-            if (has_been_found(i)){
-                path_to_box.push_back(true);
-                continue;
-            }
-
-            // Get the posiiton of the box
-            SimplePose next_target = location_facing_box(i);
-
-            // Check for a valid path from your location to the box
-            if (check_for_plan(next_target)){
-                // If valid path found, move to the next_target
-                Navigation::moveToGoal( next_target.x, next_target.y, next_target.phi );
-                std::cout << "=== {" << i << "} ===\n";
-                 
-                // Fetch the latest kinect image
-                int template_id = try_match_image(i);
-                if (template_id < 0)
-                    path_to_box.push_back(false);
-                else
-                    path_to_box.push_back(true);
-                ros::Duration(0.01).sleep();
-            }
-            else
-                path_to_box.push_back(false);
-        } 
-
-        for ( size_t i = 0; i < path_to_box.size(); i++ ) {
-            if ( path_to_box[i] )
-                continue;
-            // Mess around with location_facing_box(...) params...
-            SimplePose next_target = location_facing_box(i, 0.3, 0.1);
-            Navigation::moveToGoal( next_target.x, next_target.y, next_target.phi );
-            if (has_been_found(i)){
-                int template_id = try_match_image(i);
-                f (template_id < 0)
-                    path_to_box.push_back(false);
-                else
-                    path_to_box.push_back(true);
-                ros::Duration(0.01).sleep();
-            }
+        if ( all_found() ) {
+            // Try to return to home... and then exit the main loop
+            if ( check_for_plan(start_pose) )
+                Navigation::moveToGoal(start_pose.x, start_pose.y, start_pose.phi);
+            break;
         }
-        /***YOUR CODE HERE***/
-        // Use: boxes.coords
-        // Use: robotPose.x, robotPose.y, robotPose.phi
+
+        for ( size_t i = 0; i < boxes.coords.size(); i++ ) {
+            // Skip any that have been found
+            if ( has_been_found(i) )
+                continue;
+            
+            if ( try_move_to_box(i) )
+                if ( try_match_image(i, imagePipeline, boxes ) ) {
+                    cv::imshow("Template matched", boxes.templates[i]);
+                    cv::waitKey(10);
+                    ros::Duration(1.).sleep();
+                }
+        }
         
     }
     return 0;
 }
 
-int try_match_image( size_t box_coord_i ) {
-    // Make sure image is up to date
-    ros::spinOnce();
-    
-    // Run feature matching, to get the best match
-    int template_id = imagePipeline.getTemplateID(boxes);
-    
-    // If template wasn't matched....
-    if ( template_id < 0 ) {
-        std::cout << "Could not match box " << box_coord_i << std::endl;
+
+
+
+
+
+
+bool try_match_image( size_t box_index, ImagePipeline& image_pipeline, Boxes& boxes ) {
+    int image_id = image_pipeline.getTemplateID(boxes);
+    if ( image_id > -1 ) {
+        mark_as_found(box_index, image_id);
+        return true;
     }
-    else {
-        // Add how to store which box is which
-        boxes.template_ids[i] = template_id;
-        mark_as_found( box_coord_i );
+    else
+        return false;
+}
+
+
+bool try_move_to_box( size_t box_index ) {
+    SimplePose facing_box = location_facing_box( box_index );
+    
+    // Try move to position directly ahead of box, facing it
+    if ( check_for_plan( facing_box ) ) {
+        Navigation::moveToGoal( facing_box.x, facing_box.y, facing_box.phi );
+        return true;
     }
-    return template_id;
+
+    return false;
 }

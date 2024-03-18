@@ -158,7 +158,7 @@ void initialize_boxes_navigation( ros::NodeHandle& nh, const Boxes& boxes, Robot
  * mark_as_found - indicate that a given box has been found...
  * TODO: Add some form of "store-position" function to go along with this...
 */
-void mark_as_found( size_t box_index, bool found = true );
+void mark_as_found( size_t box_index, int template_id );
 
 /**
  * has_been_found - returns true only if mark_as_found has been run on this box before...
@@ -180,5 +180,14 @@ SimplePose location_facing_box( size_t box_index, float distance_from = 0.3, flo
 */
 bool check_for_plan( SimplePose some_position );
 
+/**
+ * get_box_ids returns the vector of template_ids as saved using mark_as_found(index, id)
+*/
+std::vector<int>& get_box_ids();
+
+/**
+ * get_box_id returns the template_id of the given box_index
+*/
+int get_box_id( size_t box_index );
 
 #endif // ~ AUXILLIARY_H

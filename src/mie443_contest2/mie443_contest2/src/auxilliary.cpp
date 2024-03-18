@@ -88,23 +88,28 @@ SimplePose flip_orientation( SimplePose pose_to_flip ) {
 RobotPlan* robot_planner = NULL;
 static std::vector<std::vector<float>> boxes_positions;
 static std::vector<bool>               boxes_found;
+static std::vector<int>                boxes_template_ids;
 
 void initialize_boxes_navigation( ros::NodeHandle& nh, const Boxes& boxes, RobotPose& robot_pose ) {
     if ( robot_planner != NULL )
         delete robot_planner; // Prevent memory leak...
+    
     robot_planner   = new RobotPlan( nh, robot_pose );
 
-    boxes_positions = boxes.coords;
-    boxes_found     = std::vector<bool>(false, boxes_positions.size());
+    boxes_positions    = boxes.coords;
+    boxes_found        = std::vector<bool>(false, boxes_positions.size());
+    boxes_template_ids = std::vector<int>(-1, boxes_positions.size());
 }
 
-void mark_as_found( size_t box_index, bool found ) {
+void mark_as_found( size_t box_index, int template_id ) {
     if ( box_index > boxes_found.size() ) {
         std::cout << "boxes_positions is out-of-bounds!!!\n";
         return;
     }
 
-    boxes_found[box_index] = found;
+    bool found                    = (template_id > -1);
+    boxes_found[box_index]        = found;
+    boxes_template_ids[box_index] = template_id;
 }
 
 bool has_been_found( size_t box_index ) {
@@ -150,4 +155,18 @@ bool check_for_plan( SimplePose some_position ) {
 
     // Check if plan can actually be made
     return robot_planner->get_plan(some_position.x, some_position.y, some_position.phi);
+}
+
+
+std::vector<int>& get_box_ids() {
+    return boxes_template_ids;
+}
+
+int get_box_id( size_t box_index ) {
+    if ( box_index > boxes_template_ids.size() ) {
+        std::cout << "get_box_id is out-of-bounds!!!\n";
+        return -1;
+    }
+
+    return boxes_template_ids[box_index];
 }
