@@ -34,6 +34,8 @@ static float ratio_thresh = 0.75;
 
 static bool draw_matches = false;
 
+static int min_good_matches = 0;
+
 
 
 /**
@@ -59,12 +61,13 @@ cv::Mat make_grayscale_copy( const cv::Mat& non_grayscale ) {
 /**
  * initialize_feature_detector must be run before match_function at least once
 */
-void initialize_feature_detector( const std::vector<cv::Mat>& box_templates, int min_hessian = 400, bool draw_all_matches = false ) {
+void initialize_feature_detector( const std::vector<cv::Mat>& box_templates, int min_hessian = 400, bool draw_all_matches = false, int required_good_matches = 0 ) {
     feature_detector = SURF::create( min_hessian ); // ORB::create() or AKAZE::create();
     // feature_matcher  = FlannBasedMatcher::create();
     feature_matcher = DescriptorMatcher::create(DescriptorMatcher::FLANNBASED);
 
     draw_matches = draw_all_matches;
+    min_good_matches = required_good_matches;
 
     for ( size_t i = 0; i < box_templates.size(); i++ ) {
         std::vector<cv::KeyPoint> keypoints_this_template;
@@ -85,7 +88,7 @@ void initialize_feature_detector( const std::vector<cv::Mat>& box_templates, int
 /**
  * match_function will return the best match (if available)... To consider: adding a min_good_matches
 */
-int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_templates, int min_good_matches = 0 ) {
+int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_templates ) {
     // You only need one of each for the input image
     std::vector<cv::KeyPoint> keypoints_scene;
     cv::Mat                   descriptors_scene;
