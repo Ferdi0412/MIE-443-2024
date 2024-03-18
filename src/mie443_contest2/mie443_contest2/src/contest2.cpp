@@ -13,6 +13,7 @@ bool try_match_image( size_t box_index, ImagePipeline& image_pipeline, Boxes& bo
 
 bool try_move_to_box( size_t box_index );
 
+bool not_timedout();
 
 int main(int argc, char** argv) {
     // Setup ROS.
@@ -42,13 +43,14 @@ int main(int argc, char** argv) {
 
     // Setup parin-functions::match_function
     std::cout << "Initializing\n";
+    
     imagePipeline.setMatchFunction(&match_function);
     initialize_feature_detector(boxes.templates);
 
     // contest count down timer
     std::chrono::time_point<std::chrono::system_clock> start;
     start = std::chrono::system_clock::now();
-    uint64_t secondsElapsed = 0;
+    // uint64_t secondsElapsed = 0;
     std::vector<bool> path_to_box; 
 
     std::cout << "Storing starting_position\n";
@@ -57,8 +59,10 @@ int main(int argc, char** argv) {
 
     std::cout << "Before loop\n";
 
+    mainTimerStart();
+
     // Execute strategy.
-    while(ros::ok() && secondsElapsed <= 300 ) {
+    while(ros::ok() && not_timedout() ) {
         ros::spinOnce();
 
         std::cout << "Loop\n";
@@ -74,6 +78,8 @@ int main(int argc, char** argv) {
             // Skip any that have been found
             if ( has_been_found(i) )
                 continue;
+
+            std::cout << "Running now for box " << i << std::endl;
             
             if ( try_move_to_box(i) ) {
                 if ( try_match_image(i, imagePipeline, boxes ) ) {
@@ -82,6 +88,8 @@ int main(int argc, char** argv) {
                     ros::Duration(1.).sleep();
                 }
             }
+
+            // break;
         }
         
     }
@@ -110,10 +118,15 @@ bool try_move_to_box( size_t box_index ) {
     
     // Try move to position directly ahead of box, facing it
     if ( check_for_plan( facing_box ) ) {
-        Navigation::moveToGoal( facing_box.x, facing_box.y, facing_box.phi );
+        bool success = Navigation::moveToGoal( facing_box.x, facing_box.y, facing_box.phi );
         ros::spinOnce();
-        return true;
+        return success;
     }
 
     return false;
+}
+
+
+bool not_timedout() {
+    return mainTimerSecondsElapsed() <= 300;
 }

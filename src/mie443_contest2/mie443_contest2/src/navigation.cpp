@@ -36,34 +36,3 @@ bool Navigation::moveToGoal(float xGoal, float yGoal, float phiGoal){
         return false;
     }
 }
-
-bool Navigation::getPlan(float xPos, float yPos, float phiGoal, ros::NodeHandle &nh, RobotPose robotPose){
-
-    geometry_msgs::Quaternion phi = tf::createQuaternionMsgFromYaw(phiGoal);
-
-    // Initialize service client for GetPlan service
-    ros::ServiceClient check_path = nh.serviceClient<nav_msgs::GetPlan>("/move_base/NavfnROS/make_plan");
-
-    nav_msgs::GetPlan plan_srv;
-
-    plan_srv.request.start.header.frame_id = "map";
-    plan_srv.request.start.pose.position.x = robotPose.x;
-    plan_srv.request.start.pose.position.y = robotPose.y;
-    plan_srv.request.start.pose.orientation = tf::createQuaternionMsgFromYaw(robotPose.phi);
-
-    // Set goal position for GetPlan service
-    plan_srv.request.goal.header.frame_id = "map";
-    plan_srv.request.goal.pose.position.x = xPos;
-    plan_srv.request.goal.pose.position.y = yPos;
-    plan_srv.request.goal.pose.orientation = tf::createQuaternionMsgFromYaw(phiGoal);
-
-    // Call the GetPlan service
-    if (check_path.call(plan_srv)) {
-        // Check if the plan is valid (contains poses)
-        return plan_srv.response.plan.poses.size() > 0;
-    } else {
-        ROS_ERROR("Failed to call GetPlan service");
-        return false;
-    }
-}
-

@@ -102,7 +102,7 @@ void initialize_boxes_navigation( ros::NodeHandle& nh, const Boxes& boxes, Robot
 }
 
 void mark_as_found( size_t box_index, int template_id ) {
-    if ( box_index > boxes_found.size() ) {
+    if ( box_index >= boxes_found.size() ) {
         std::cout << "boxes_positions is out-of-bounds!!!\n";
         return;
     }
@@ -113,7 +113,7 @@ void mark_as_found( size_t box_index, int template_id ) {
 }
 
 bool has_been_found( size_t box_index ) {
-    if ( box_index > boxes_found.size() ) {
+    if ( box_index >= boxes_found.size() ) {
         std::cout << "boxes_positions is out-of-bounds!!!\n";
         return false;
     }
@@ -130,7 +130,7 @@ bool all_found( ) {
 }
 
 SimplePose location_facing_box( size_t box_index, float distance_from, float delta_phi ) {
-    if ( box_index > boxes_positions.size() ) {
+    if ( box_index >= boxes_positions.size() ) {
         std::cout << "boxes_positions is out-of-bounds!!!\n";
         return SimplePose();
     }
@@ -163,7 +163,7 @@ std::vector<int>& get_box_ids() {
 }
 
 int get_box_id( size_t box_index ) {
-    if ( box_index > boxes_template_ids.size() ) {
+    if ( box_index >= boxes_template_ids.size() ) {
         std::cout << "get_box_id is out-of-bounds!!!\n";
         return -1;
     }

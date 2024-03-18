@@ -174,7 +174,7 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
         line(img_matches, scene_corners[0] + template_cols, scene_corners[1] + template_cols, Scalar(0,255,0), 4);
         line(img_matches, scene_corners[1] + template_cols, scene_corners[2] + template_cols, Scalar(0,255,0), 4);
         line(img_matches, scene_corners[2] + template_cols, scene_corners[3] + template_cols, Scalar(0,255,0), 4);
-        line(img_matches, scene_corners[3] + template_cols, scene_corners[4] + template_cols, Scalar(0,255,0), 4);
+        line(img_matches, scene_corners[3] + template_cols, scene_corners[0] + template_cols, Scalar(0,255,0), 4);
 
         // Show matches detected
         imshow("Good matches & object detection", img_matches);
