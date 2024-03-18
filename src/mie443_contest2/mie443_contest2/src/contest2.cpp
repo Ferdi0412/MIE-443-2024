@@ -102,7 +102,7 @@ int main(int argc, char** argv) {
             // break;
         }
 
-        for (size_t j=0; j < path_to_box.size(), j++){
+        for (size_t j=0; j < path_to_box.size(); j++){
             if (path_to_box[j])
                 continue;
             else{
