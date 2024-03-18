@@ -38,6 +38,7 @@ int main(int argc, char** argv) {
     initialize_boxes_navigation( n, boxes, robotPose ); // From axuilliary.h
     imagePipeline.setMatchFunction(&match_function);    // From imagePipleine.h
     initialize_feature_detector(boxes.templates);       // From parin-functions.cpp
+    set_required_good_matches(60);                      // Minimum number of "good_matches" to be identified as a template
     SimplePose start_pose(robotPose);                   // Starting position
     mainTimerStart();                                   // Start timer
 
@@ -58,7 +59,7 @@ int main(int argc, char** argv) {
                 if (Navigation::moveToGoal(start_pose.x, start_pose.y, start_pose.phi)) {
                     std::cout << "\n\n===MOVED TO HOME ===\n";
                 }
-                
+
             break;
         }
 
@@ -83,7 +84,7 @@ int main(int argc, char** argv) {
                         ros::Duration(1.).sleep();
                         continue;
                     }
-                } else 
+                } else
                     std::cout << "\nCould not process box === {" << i << "} ===\n\n";
             } else
                 std::cout << "\nCould not reach box === {" << i << "} ===\n\n";
