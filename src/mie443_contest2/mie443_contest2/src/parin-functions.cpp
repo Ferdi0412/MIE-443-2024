@@ -141,11 +141,15 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
         // Store in case we want to do something with this later...
         all_good_matches.push_back( good_matches );
 
+        std::cout << "all_good_matches appended\n";
+
         // Drawing a match for a single template and the inputted scene
         cv::Mat img_matches;
         cv::drawMatches( template_img, keypoints_template, img_scene, keypoints_scene, good_matches, img_matches,
                          // colors of matches in either image [x2], empty string - label matches I think, Filter away unmatched points
                          Scalar::all(-1), Scalar::all(-1), std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
+
+        std::cout << "After drawMatches\n";
 
         // Store positions of the "good" matches -> where each matched feature is in either image, to calculate
         // translation/rotation in the scene - position in scene of template
@@ -155,8 +159,12 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
            feature_positions_scene.push_back( keypoints_template[ good_matches[j].trainIdx ].pt );
         }
 
+        std::cout << "After feature_positions pushback\n";
+
         // Transformation from template to scene
         cv::Mat homography = cv::findHomography( feature_positions_template, feature_positions_scene, cv::RANSAC );
+
+        std::cout << "After homography\n";
 
         // Get corners of object in template
         std::vector<Point2f> template_corners(4);
@@ -164,6 +172,8 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
         template_corners[1] = Point2f( (float)template_img.cols, 0 );
         template_corners[2] = Point2f( (float)template_img.cols, (float)template_img.rows );
         template_corners[3] = Point2f( 0, (float)template_img.rows );
+
+        std::cout << "Before perspectiveTransform\n";
 
         // Get corners of scene image
         std::vector<Point2f> scene_corners(4);
@@ -175,6 +185,8 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
         line(img_matches, scene_corners[1] + template_cols, scene_corners[2] + template_cols, Scalar(0,255,0), 4);
         line(img_matches, scene_corners[2] + template_cols, scene_corners[3] + template_cols, Scalar(0,255,0), 4);
         line(img_matches, scene_corners[3] + template_cols, scene_corners[0] + template_cols, Scalar(0,255,0), 4);
+
+        std::cout << "Before imshow\n";
 
         // Show matches detected
         imshow("Good matches & object detection", img_matches);

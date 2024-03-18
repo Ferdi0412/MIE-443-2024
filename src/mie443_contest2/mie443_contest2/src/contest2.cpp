@@ -83,11 +83,17 @@ int main(int argc, char** argv) {
             
             if ( try_move_to_box(i) ) {
                 if ( try_match_image(i, imagePipeline, boxes ) ) {
-                    cv::imshow("Template matched", boxes.templates[i]);
-                    cv::waitKey(10);
-                    ros::Duration(1.).sleep();
+                    std::cout << "Displaying matched image..." << std::endl;
+                    int template_id;
+                    if ( (template_id = get_box_id(i)) > 0 ) {
+                        cv::imshow("Template matched", boxes.templates[template_id]);
+                        cv::waitKey(10);
+                        ros::Duration(1.).sleep();
+                    }
                 }
             }
+
+            std::cout << "try_move_to_box done...\n";
 
             // break;
         }
@@ -105,6 +111,7 @@ int main(int argc, char** argv) {
 bool try_match_image( size_t box_index, ImagePipeline& image_pipeline, Boxes& boxes ) {
     int image_id = image_pipeline.getTemplateID(boxes);
     if ( image_id > -1 ) {
+        std::cout << "Marking box " << box_index << " as " << image_id << std::endl;
         mark_as_found(box_index, image_id);
         return true;
     }
