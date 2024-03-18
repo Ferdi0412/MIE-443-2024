@@ -82,6 +82,7 @@ int main(int argc, char** argv) {
             std::cout << "Running now for box " << i << std::endl;
             
             if ( try_move_to_box(i) ) {
+                path_to_box[i] = true;
                 if ( try_match_image(i, imagePipeline, boxes ) ) {
                     std::cout << "Displaying matched image..." << std::endl;
                     int template_id;
@@ -91,13 +92,46 @@ int main(int argc, char** argv) {
                         ros::Duration(1.).sleep();
                     }
                 }
-            } else 
+            } else {
+                path_to_box[i] = false;
                 continue;
-            
+            }
 
             std::cout << "try_move_to_box done...\n";
 
             // break;
+        }
+
+        for (size_t j=0; j < path_to_box.size(), j++){
+            if (path_to_box[j])
+                continue;
+            else{
+                if ( check_for_plan(start_pose) )
+                    Navigation::moveToGoal(start_pose.x, start_pose.y, start_pose.phi);
+                    ros::spinOnce();
+
+                if ( has_been_found(j) )
+                    continue;
+
+                std::cout << "Running now for box " << j << std::endl;
+            
+                if ( try_move_to_box(j) ) {
+                    path_to_box[j] = true;
+                    if ( try_match_image(j, imagePipeline, boxes ) ) {
+                        std::cout << "Displaying matched image..." << std::endl;
+                        int template_id;
+                        if ( (template_id = get_box_id(j)) > 0 ) {
+                            cv::imshow("Template matched", boxes.templates[template_id]);
+                            cv::waitKey(10);
+                            ros::Duration(1.).sleep();
+                        }
+                    }
+                } else {
+                    path_to_box[i] = false;
+                    continue;
+                }
+
+            }
         }
         
     }
