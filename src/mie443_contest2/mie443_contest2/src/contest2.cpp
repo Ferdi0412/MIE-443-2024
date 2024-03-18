@@ -93,6 +93,7 @@ int main(int argc, char** argv) {
                     }
                 }
             } else {
+                std::cout << "No path found" << std::endl;
                 path_to_box[i] = false;
                 continue;
             }
