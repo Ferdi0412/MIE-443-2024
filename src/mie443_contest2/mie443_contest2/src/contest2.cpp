@@ -91,7 +91,9 @@ int main(int argc, char** argv) {
                         ros::Duration(1.).sleep();
                     }
                 }
-            }
+            } else 
+                continue;
+            
 
             std::cout << "try_move_to_box done...\n";
 
@@ -110,7 +112,7 @@ int main(int argc, char** argv) {
 
 bool try_match_image( size_t box_index, ImagePipeline& image_pipeline, Boxes& boxes ) {
     int image_id = image_pipeline.getTemplateID(boxes);
-    if ( image_id > -1 ) {
+    if ( image_id > -1 ) {  
         std::cout << "Marking box " << box_index << " as " << image_id << std::endl;
         mark_as_found(box_index, image_id);
         return true;
@@ -123,11 +125,15 @@ bool try_match_image( size_t box_index, ImagePipeline& image_pipeline, Boxes& bo
 bool try_move_to_box( size_t box_index ) {
     SimplePose facing_box = location_facing_box( box_index );
     
+    std::cout << "trying to move to facing_box for box" << box_index << std::endl;
+    std::cout << "Facing box coordinates: x = " << facing_box.x << "y= " << facing_box.y <<std::endl;
     // Try move to position directly ahead of box, facing it
     if ( check_for_plan( facing_box ) ) {
         bool success = Navigation::moveToGoal( facing_box.x, facing_box.y, facing_box.phi );
         ros::spinOnce();
         return success;
+    } else {
+        std::cout << "No plan found for facing_box of box" << box_index << std::endl;
     }
 
     return false;
