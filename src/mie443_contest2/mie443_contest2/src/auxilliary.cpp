@@ -93,7 +93,7 @@ static std::vector<int>                boxes_template_ids;
 void initialize_boxes_navigation( ros::NodeHandle& nh, const Boxes& boxes, RobotPose& robot_pose ) {
     if ( robot_planner != NULL )
         delete robot_planner; // Prevent memory leak...
-    
+
     robot_planner   = new RobotPlan( nh, robot_pose );
 
     boxes_positions    = boxes.coords;
@@ -178,4 +178,8 @@ int get_box_id( size_t box_index ) {
     }
 
     return boxes_template_ids[box_index];
+}
+
+float degree_2_radian( float degrees ) {
+    return degrees * M_PI / 180.;
 }
