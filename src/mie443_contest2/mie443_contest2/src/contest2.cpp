@@ -102,15 +102,18 @@ int main(int argc, char** argv) {
 
             // break;
         }
+        
+        // Move to starting position
+        if ( check_for_plan(start_pose) ) {
+            std::cout << "Moving to start position" << std::endl;
+            Navigation::moveToGoal(start_pose.x, start_pose.y, start_pose.phi);
+            ros::spinOnce();
+        }
 
         for (size_t j=0; j < path_to_box.size(); j++){
             if (path_to_box[j])
                 continue;
             else{
-                if ( check_for_plan(start_pose) )
-                    Navigation::moveToGoal(start_pose.x, start_pose.y, start_pose.phi);
-                    ros::spinOnce();
-
                 if ( has_been_found(j) )
                     continue;
 
