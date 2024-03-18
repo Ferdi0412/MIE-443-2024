@@ -37,9 +37,11 @@ int main(int argc, char** argv) {
 
     /* === TARGET LOCATING USING AUXILLIARY_H === */
     // The following must be run to setup the functions: location_facing_box (plus some more functions from auxilliary.h)
+    std::cout << "Initializing 1\n";
     initialize_boxes_navigation( n, boxes, robotPose );
 
     // Setup parin-functions::match_function
+    std::cout << "Initializing\n";
     imagePipeline.setMatchFunction(&match_function);
     initialize_feature_detector(boxes.templates);
 
@@ -49,11 +51,17 @@ int main(int argc, char** argv) {
     uint64_t secondsElapsed = 0;
     std::vector<bool> path_to_box; 
 
+    std::cout << "Storing starting_position\n";
+
     SimplePose start_pose(robotPose);
+
+    std::cout << "Before loop\n";
 
     // Execute strategy.
     while(ros::ok() && secondsElapsed <= 300 ) {
         ros::spinOnce();
+
+        std::cout << "Loop\n";
 
         if ( all_found() ) {
             // Try to return to home... and then exit the main loop
@@ -67,12 +75,13 @@ int main(int argc, char** argv) {
             if ( has_been_found(i) )
                 continue;
             
-            if ( try_move_to_box(i) )
+            if ( try_move_to_box(i) ) {
                 if ( try_match_image(i, imagePipeline, boxes ) ) {
                     cv::imshow("Template matched", boxes.templates[i]);
                     cv::waitKey(10);
                     ros::Duration(1.).sleep();
                 }
+            }
         }
         
     }
@@ -102,6 +111,7 @@ bool try_move_to_box( size_t box_index ) {
     // Try move to position directly ahead of box, facing it
     if ( check_for_plan( facing_box ) ) {
         Navigation::moveToGoal( facing_box.x, facing_box.y, facing_box.phi );
+        ros::spinOnce();
         return true;
     }
 

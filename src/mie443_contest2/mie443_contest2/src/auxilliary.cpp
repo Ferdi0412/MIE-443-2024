@@ -97,8 +97,8 @@ void initialize_boxes_navigation( ros::NodeHandle& nh, const Boxes& boxes, Robot
     robot_planner   = new RobotPlan( nh, robot_pose );
 
     boxes_positions    = boxes.coords;
-    boxes_found        = std::vector<bool>(false, boxes_positions.size());
-    boxes_template_ids = std::vector<int>(-1, boxes_positions.size());
+    boxes_found        = std::vector<bool>(boxes_positions.size(), false);
+    boxes_template_ids = std::vector<int>(boxes_positions.size(), -1);
 }
 
 void mark_as_found( size_t box_index, int template_id ) {

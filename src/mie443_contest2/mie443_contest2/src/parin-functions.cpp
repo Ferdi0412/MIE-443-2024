@@ -191,7 +191,7 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
             max_index = i;
         }
     }
-    return 0;
+    return max_index;
 }
 
 #endif // ~ PARIN_FUNCTIONS_CPP
