@@ -8,6 +8,7 @@
 #include "parin-functions.cpp"
 #include "auxilliary.h"
 
+#define WINDOW_NAME "Matched template"
 
 bool try_match_image( size_t box_index, ImagePipeline& image_pipeline, Boxes& boxes  );
 
@@ -42,6 +43,7 @@ int main(int argc, char** argv) {
     SimplePose start_pose(robotPose);                   // Starting position
     mainTimerStart();                                   // Start timer
 
+    cv::namedWindow(WINDOW_NAME);
 
     /**
      * ============
@@ -76,25 +78,23 @@ int main(int argc, char** argv) {
             // If box is reachable, try to detect which image
             if ( try_move_to_box(i, !first_run) ) {
                 if ( try_match_image(i, imagePipeline, boxes ) ) {
-                    cv::namedWindow("Template matched");
                     std::cout << "\nDisplaying matched image..." << std::endl;
                     int template_id;
                     if ( ((template_id = get_box_id(i)) > 0) && (template_id < boxes.templates.size()) ) {
-                        cv::imshow("Template matched", boxes.templates[template_id]);
-                        cv::waitKey(100);
+                        cv::imshow(WINDOW_NAME, make_grayscale_copy(boxes.templates[template_id]));
+                        cv::waitKey(1000);
                         ros::Duration(1.).sleep();
                         continue;
                     } else if ( template_id > 0 ) {
                         std::cout << "=== BLANK TEMPLATE ===\n";
                         try {
-                            cv::imshow("Template matched", imagePipeline.getKinectImage());
-                            cv::waitKey(100);
+                            cv::imshow(WINDOW_NAME, make_grayscale_copy(imagePipeline.getKinectImage()));
+                            cv::waitKey(1000);
                             ros::Duration(1.).sleep();
                         } catch ( cv::Exception& exc ) {
                             ;
                         }
                     }
-                    cv::destroyWindow("Template matched");
                 } else
                     std::cout << "\nCould not process box === {" << i << "} ===\n\n";
             } else
@@ -108,6 +108,8 @@ int main(int argc, char** argv) {
     for ( size_t i = 0; i < found_boxes.size(); i++ ) {
         std::cout << i << " := " << found_boxes[i] << std::endl;
     }
+
+    cv::destroyWindow(WINDOW_NAME);
 
     // To add... store to file
     std::cout << "\n\nPROGRAM END\n";
