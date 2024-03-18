@@ -127,7 +127,7 @@ int main(int argc, char** argv) {
                         }
                     }
                 } else {
-                    path_to_box[i] = false;
+                    path_to_box[j] = false;
                     continue;
                 }
 
