@@ -57,6 +57,10 @@ cv::Mat make_grayscale_copy( const cv::Mat& non_grayscale ) {
 }
 
 
+void set_required_good_matches( int required_good_matches = 0 ) {
+    min_good_matches = (required_good_matches > 0) ? required_good_matches : 0;
+}
+
 
 /**
  * initialize_feature_detector must be run before match_function at least once
