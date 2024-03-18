@@ -18,8 +18,6 @@
 
 using namespace cv;
 using namespace cv::xfeatures2d;
-using std::cout;
-using std::endl;
 
 // You need to initailize the featured detecotr (to identify features) and matcher (to compare images)
 static cv::Ptr<cv::Feature2D>         feature_detector;
@@ -30,11 +28,13 @@ static std::vector<std::vector<cv::KeyPoint>> keypoints_all_templates;
 static std::vector<cv::Mat>                   descriptors_all_templates;
 static std::vector<cv::Mat>                   grayscale_templates;
 
-static float ratio_thresh = 0.75;
+static float ratio_thresh   = 0.75;
 
-static bool draw_matches = false;
+static bool draw_matches    = false;
 
 static int min_good_matches = 0;
+
+static int template_count   = -1;
 
 
 
@@ -70,8 +70,9 @@ void initialize_feature_detector( const std::vector<cv::Mat>& box_templates, int
     // feature_matcher  = FlannBasedMatcher::create();
     feature_matcher = DescriptorMatcher::create(DescriptorMatcher::FLANNBASED);
 
-    draw_matches = draw_all_matches;
+    draw_matches     = draw_all_matches;
     min_good_matches = required_good_matches;
+    template_count   = box_templates.size();
 
     for ( size_t i = 0; i < box_templates.size(); i++ ) {
         std::vector<cv::KeyPoint> keypoints_this_template;
@@ -98,7 +99,7 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
     cv::Mat                   descriptors_scene;
 
     int max_good_matches = min_good_matches;
-    int max_index = -1;
+    int max_index        = template_count;  // Identifier for "blank" template
 
     /**
      * If using knnMatch -> The method suggested in the course:
@@ -115,7 +116,7 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
 
     // Safeguard against an invalid img -> could lead to some weird errors!!!
     if ( img.empty() ) {
-        std::cout << "Could not open or find the image!\n" << endl;
+        std::cout << "Could not open or find the image!\n" << std::endl;
         return -1;
     }
 
@@ -209,6 +210,7 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
             max_index = i;
         }
     }
+    std::cout << "\nNumber of good matches: {" << max_good_matches << "} -> For template: {" << max_index << "}\n";
     return max_index;
 }
 

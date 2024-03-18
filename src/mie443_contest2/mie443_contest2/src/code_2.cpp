@@ -47,6 +47,7 @@ int main(int argc, char** argv) {
      * === MAIN ===
      * ============
     */
+    bool first_run = true;
     while(ros::ok() && not_timedout() ) {
         // Update position and images
         ros::spinOnce();
@@ -54,7 +55,10 @@ int main(int argc, char** argv) {
         // If all boxes have been found, go home and exit the main loop...
         if ( all_found() ) {
             if ( check_for_plan(start_pose) )
-                Navigation::moveToGoal(start_pose.x, start_pose.y, start_pose.phi);
+                if (Navigation::moveToGoal(start_pose.x, start_pose.y, start_pose.phi)) {
+                    std::cout << "\n\n===MOVED TO HOME ===\n";
+                }
+                
             break;
         }
 
@@ -69,7 +73,7 @@ int main(int argc, char** argv) {
                 continue;
 
             // If box is reachable, try to detect which image
-            if ( try_move_to_box(i) ) {
+            if ( try_move_to_box(i, !first_run) ) {
                 if ( try_match_image(i, imagePipeline, boxes ) ) {
                     std::cout << "\nDisplaying matched image..." << std::endl;
                     int template_id;
@@ -79,13 +83,22 @@ int main(int argc, char** argv) {
                         ros::Duration(1.).sleep();
                         continue;
                     }
-                }
+                } else 
+                    std::cout << "\nCould not process box === {" << i << "} ===\n\n";
             } else
-                std::cout << "Could not process box === {" << i << "} ===\n";
+                std::cout << "\nCould not reach box === {" << i << "} ===\n\n";
         }
+        first_run = false;
+    }
+
+    std::cout << "\n\n=== TEMPLATES FOUND ===\n";
+    std::vector<int> found_boxes = get_box_ids();
+    for ( size_t i = 0; i < found_boxes.size(); i++ ) {
+        std::cout << i << " := " << found_boxes[i] << std::endl;
     }
 
     // To add... store to file
+    std::cout << "\n\nPROGRAM END\n";
     return 0;
 }
 
@@ -129,7 +142,7 @@ bool try_move_to_box( size_t box_index, bool try_range_of_positions ) {
             facing_box = location_facing_box( box_index, distance );
             if ( check_for_plan( facing_box ) ) {
                 bool success = Navigation::moveToGoal( facing_box.x, facing_box.y, facing_box.phi );
-                ros::spiOnce();
+                ros::spinOnce();
                 return success;
             }
         }
