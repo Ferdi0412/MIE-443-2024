@@ -76,14 +76,25 @@ int main(int argc, char** argv) {
             // If box is reachable, try to detect which image
             if ( try_move_to_box(i, !first_run) ) {
                 if ( try_match_image(i, imagePipeline, boxes ) ) {
+                    cv::namedWindow("Template matched");
                     std::cout << "\nDisplaying matched image..." << std::endl;
                     int template_id;
-                    if ( (template_id = get_box_id(i)) > 0 ) {
+                    if ( ((template_id = get_box_id(i)) > 0) && (template_id < boxes.templates.size()) ) {
                         cv::imshow("Template matched", boxes.templates[template_id]);
-                        cv::waitKey(10);
+                        cv::waitKey(100);
                         ros::Duration(1.).sleep();
                         continue;
+                    } else if ( template_id > 0 ) {
+                        std::cout << "=== BLANK TEMPLATE ===\n";
+                        try {
+                            cv::imshow("Template matched", imagePipeline.getKinectImage());
+                            cv::waitKey(100);
+                            ros::Duration(1.).sleep();
+                        } catch ( cv::Exception& exc ) {
+                            ;
+                        }
                     }
+                    cv::destroyWindow("Template matched");
                 } else
                     std::cout << "\nCould not process box === {" << i << "} ===\n\n";
             } else
