@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
     std::chrono::time_point<std::chrono::system_clock> start;
     start = std::chrono::system_clock::now();
     // uint64_t secondsElapsed = 0;
-    std::vector<bool> path_to_box; 
+    std::vector<bool> path_to_box(boxes.coords.size(), false);
 
     std::cout << "Storing starting_position\n";
 
@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
                     std::cout << "Displaying matched image..." << std::endl;
                     int template_id;
                     if ( (template_id = get_box_id(i)) > 0 ) {
-                        cv::imshow("Template matched", boxes.templates[template_id]);
+                        cv::imshow("***** Template matched", boxes.templates[template_id]);
                         cv::waitKey(10);
                         ros::Duration(1.).sleep();
                     }
