@@ -111,14 +111,9 @@ void mark_as_found( size_t box_index, int template_id ) {
         std::cout << "box_index is " << box_index << " AND should be less than " << boxes_template_ids.size() << std::endl;
     }
 
-
-    std::cout << "Found...\n";
     bool found                    = (template_id > -1);
-    std::cout << "boxes_found...\n";
     boxes_found[box_index]        = found;
-    std::cout << "boxes_template_ids...\n";
     boxes_template_ids[box_index] = template_id;
-    std::cout << "marked as found...\n\n";
 }
 
 bool has_been_found( size_t box_index ) {

@@ -81,7 +81,7 @@ int ImagePipeline::getTemplateID( const Boxes& boxes ) {
     else {
         try {
             template_id = match_function(img, boxes.templates); // should search video feed for the matching image tags from the vector
-            std::cout << "Template ID: " << template_id << std::endl;
+            // std::cout << "Template ID: " << template_id << std::endl;
         } catch ( cv::Exception& exc ) {
             std::cout << "OpenCV Exception!!!" << std::endl;
         }

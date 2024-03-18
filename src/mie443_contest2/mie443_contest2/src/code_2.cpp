@@ -55,7 +55,10 @@ int main(int argc, char** argv) {
         // If all boxes have been found, go home and exit the main loop...
         if ( all_found() ) {
             if ( check_for_plan(start_pose) )
-                Navigation::moveToGoal(start_pose.x, start_pose.y, start_pose.phi);
+                if (Navigation::moveToGoal(start_pose.x, start_pose.y, start_pose.phi)) {
+                    std::cout << "\n\n===MOVED TO HOME ===\n";
+                }
+                
             break;
         }
 
@@ -88,7 +91,14 @@ int main(int argc, char** argv) {
         first_run = false;
     }
 
+    std::cout << "\n\n=== TEMPLATES FOUND ===\n";
+    std::vector<int> found_boxes = get_box_ids();
+    for ( size_t i = 0; i < found_boxes.size(); i++ ) {
+        std::cout << i << " := " << found_boxes[i] << std::endl;
+    }
+
     // To add... store to file
+    std::cout << "\n\nPROGRAM END\n";
     return 0;
 }
 
