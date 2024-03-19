@@ -90,6 +90,8 @@ static std::vector<std::vector<float>> boxes_positions;
 static std::vector<bool>               boxes_found;
 static std::vector<int>                boxes_template_ids;
 
+
+
 void initialize_boxes_navigation( ros::NodeHandle& nh, const Boxes& boxes, RobotPose& robot_pose ) {
     if ( robot_planner != NULL )
         delete robot_planner; // Prevent memory leak...
@@ -100,6 +102,8 @@ void initialize_boxes_navigation( ros::NodeHandle& nh, const Boxes& boxes, Robot
     boxes_found        = std::vector<bool>(boxes_positions.size(), false);
     boxes_template_ids = std::vector<int>(boxes_positions.size(), -1);
 }
+
+
 
 void mark_as_found( size_t box_index, int template_id ) {
     if ( box_index >= boxes_found.size() ) {
@@ -116,6 +120,8 @@ void mark_as_found( size_t box_index, int template_id ) {
     boxes_template_ids[box_index] = template_id;
 }
 
+
+
 bool has_been_found( size_t box_index ) {
     if ( box_index >= boxes_found.size() ) {
         std::cout << "boxes_positions is out-of-bounds!!!\n";
@@ -125,6 +131,8 @@ bool has_been_found( size_t box_index ) {
     return boxes_found[box_index];
 }
 
+
+
 bool all_found( ) {
     for ( size_t i = 0; i < boxes_found.size(); i++ ) {
         if ( !boxes_found[i] )
@@ -132,6 +140,8 @@ bool all_found( ) {
     }
     return true;
 }
+
+
 
 SimplePose location_facing_box( size_t box_index, float distance_from, float delta_phi ) {
     if ( box_index >= boxes_positions.size() ) {
@@ -151,6 +161,8 @@ SimplePose location_facing_box( size_t box_index, float distance_from, float del
     return flip_orientation(facing_target);
 }
 
+
+
 bool check_for_plan( SimplePose some_position ) {
     if ( robot_planner == NULL ) {
         std::cout << "RobotPlanner not initialized!!!\nYou MUST run initialize_boxes_navigation for this function to work!\n";
@@ -162,9 +174,12 @@ bool check_for_plan( SimplePose some_position ) {
 }
 
 
+
 std::vector<int>& get_box_ids() {
     return boxes_template_ids;
 }
+
+
 
 int get_box_id( size_t box_index ) {
     if ( box_index >= boxes_template_ids.size() ) {
@@ -175,6 +190,52 @@ int get_box_id( size_t box_index ) {
     return boxes_template_ids[box_index];
 }
 
+
+
 float degree_2_radian( float degrees ) {
     return degrees * M_PI / 180.;
+}
+
+
+
+bool refresh_costmap( ) {
+    if ( robot_planner == NULL ) {
+        std::cout << "RobotPlanner not initialized!!!\nYou MUST run initialize_boxes_navigation for this function to work!\n";
+        exit(-1);
+    }
+
+    // Clear the AMCL costmap
+    return robot_planner->clear_costmaps( );
+}
+
+
+
+bool move_pose_estimate( float fwd_dist, float left_dist ) {
+    if ( robot_planner == NULL ) {
+        std::cout << "RobotPlanner not initialized!!!\nYou MUST run initialize_boxes_navigation for this function to work!\n";
+        exit(-1);
+    }
+
+    SimplePose curr_pose(robot_planner->get_robot_pose());
+
+    if ( (fwd_dist == 0.) && (left_dist == 0.) )
+        return robot_planner->set_pose_estimate( curr_pose.x, curr_pose.y, curr_pose.phi );
+
+    float abs_dist  = std::sqrt( fwd_dist * fwd_dist + left_dist * left_dist );
+    float delta_phi;
+
+    // Calculate angle needed to turn to get to the position at fwd_dist, left_dist from curr position and orientation
+    if ( fwd_dist != 0. )
+        delta_phi = std::atan( left_dist / fwd_dist );
+    // Prevent divide by 0 by hard-coding delta_phi for positive and negative left_distance
+    else if ( left_dist > 0. )
+        delta_phi = M_PI / 2.;
+    else
+        delta_phi = -M_PI / 2.;
+
+
+    SimplePose new_pose = distance_from_pose( curr_pose, abs_dist, delta_phi );
+
+    // Move the AMCL costmap by the desired amount, keeping current orientation
+    return robot_planner->set_pose_estimate( new_pose.x, new_pose.y, curr_pose.phi );
 }

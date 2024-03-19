@@ -195,4 +195,14 @@ int get_box_id( size_t box_index );
 */
 float degree_2_radian( float degrees );
 
+/**
+ * refresh_costmap clears the costmap - try when robot is stuck...
+*/
+bool refresh_costmap( );
+
+/**
+ * move_pose_estimate moves the pose estimate
+*/
+bool move_pose_estimate( float fwd_dist, float left_dist );
+
 #endif // ~ AUXILLIARY_H

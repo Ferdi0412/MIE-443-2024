@@ -16,8 +16,6 @@ bool try_match_image( size_t box_index, ImagePipeline& image_pipeline, Boxes& bo
 
 bool try_move_to_box( size_t box_index, bool try_range_of_positions = false );
 
-// bool try_move_near_robot( RobotPose& robotPose, float degree_sweep = 90 );
-
 bool not_timedout();
 
 int main(int argc, char** argv) {
@@ -54,7 +52,8 @@ int main(int argc, char** argv) {
      * === MAIN ===
      * ============
     */
-    bool first_run = true;
+    bool first_run    = true;
+    size_t fail_count = 0;
     while(ros::ok() && not_timedout() ) {
         // Update position and images
         ros::spinOnce();
@@ -111,11 +110,30 @@ int main(int argc, char** argv) {
 
         // If the robot never moved to any valid box... It must be stuck... Try move away from any obstacles...
         if ( !has_moved ) {
-            // Might need to check output - if true, we have moved somewhere successfully
-            // Otherwise robot is stuck in the same location...
-            // if ( !try_move_near_robot( robotPose, 30. ) ) // Start with a 30 degree sweep
-            //     try_move_near_robot( robotPose, 90. );   // Backup is a 90 degree sweep
             std::cout << "\n\n=== !!! ROBOT STUCK !!! ===\n\n";
+
+            // Keep track of consecutive stuck iterations...
+            fail_count ++;
+
+            // Handle various fail
+            switch ( fail_count ) {
+                case 1:
+                    std::cout << "FAILED ONCE: Clearing Costmap...\n";
+                    if ( !refresh_costmap() )
+                        std::cout << "CLEAR COSTMAP FAILED!!!\n";
+                    break;
+
+                default:
+                    std::cout << "FAILED MORE THAN ONCE: Resetting Pose Estimate and Clearing Costmap...\n";
+                    if ( !move_pose_estimate( -0.2, 0 ) )
+                        std::cout << "MOVE POSE ESTIMATE FAILED!!!\n";
+                    if ( !refresh_costmap() )
+                        std::cout << "CLEAR COSTMAP FAILED!!!\n";
+                    break;
+            }
+        }
+        else {
+            fail_count = 0;
         }
 
         first_run = false;
@@ -226,24 +244,6 @@ bool try_move_to_box( size_t box_index, bool try_range_of_positions ) {
         return false;
 }
 
-
-// bool try_move_near_robot( RobotPose& robotPose, float degree_sweep ) {
-//     // Only potential issue is the orientation... But change if errors occur
-//     std::cout << "\n\n===try_move_near_robot ===\n";
-//     for ( float angle = -degree_2_radian(fabs(degree_sweep)); angle <= degree_2_radian(fabs(degree_sweep)); angle += degree_2_radian(15) ) { // Consider if smaller range is better - might want to prefer to move in same direction
-//         for ( float distance = 0.05; distance <= 0.35; distance += 0.1 ) {
-//             SimplePose target_location = distance_from_pose( SimplePose(robotPose), distance, angle );
-//             if ( check_for_plan( target_location ) && Navigation::moveToGoal( target_location.x, target_location.y, target_location.phi ) ) {
-//                 ros::spinOnce();
-//                 return true;
-//             }
-//             else
-//                 ros::spinOnce();
-//         }
-//     }
-//     std::cout << "FAILED TO MOVE NEAR ROBOT... SWEEP OF: " << degree_sweep << " degrees\n";
-//     return false;
-// }
 
 
 bool not_timedout() {

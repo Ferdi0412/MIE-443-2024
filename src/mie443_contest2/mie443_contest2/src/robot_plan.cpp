@@ -2,13 +2,21 @@
 
 #include "robot_plan.h"
 
+#include <ros/ros.h>
+#include <std_srvs/Empty.h>
+#include <geometry_msgs/PoseWithCovarianceStamped.h>
+
 #include <opencv2/core.hpp>
 #include <tf/transform_datatypes.h>
 
 RobotPlan::RobotPlan(ros::NodeHandle& nh, RobotPose& robot_pose_) : robot_pose(robot_pose_) {
     // this->robot_pose = robot_pose;
-    check_path = nh.serviceClient<nav_msgs::GetPlan>(ROBOT_PLAN_TOPIC);
+    check_path     = nh.serviceClient<nav_msgs::GetPlan>(ROBOT_PLAN_TOPIC);
+    movebase_clear = nh.serviceClient<std_srvs::Empty>(CLEAR_COSTMAPS_TOPIC);
+    pose_estimate  = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>(POSE_ESTIMATE_TOPIC, 1);
 }
+
+
 
 // https://www.lloydbrombach.com/post/robot-path-planning-a-guide-to-the-ros-getplan-service-in-c-and-python
 bool RobotPlan::get_plan( float x, float y, float phi ) {
@@ -47,4 +55,44 @@ bool RobotPlan::get_plan( float x, float y, float phi ) {
     latest_response = srv.response;
 
     return srv.response.plan.poses.size() > 0;
+}
+
+
+
+// https://wiki.ros.org/move_base
+bool RobotPlan::clear_costmaps( ) {
+    std_srvs::Empty msg;
+
+    if ( movebase_clear.call(msg) )
+        return true;
+    else
+        return false;
+}
+
+
+
+bool RobotPlan::set_pose_estimate( float x, float y, float phi ) {
+    geometry_msgs::PoseWithCovarianceStamped msg;
+    
+    // Get Quaternion to represent phi orientation
+    geometry_msgs::Quaternion phi_q = tf::createQuaternionMsgFromYaw(phi);
+
+    msg.header.frame_id = "map";
+    msg.header.stamp    = ros::Time::now();
+
+    msg.pose.pose.position.x = x;
+    msg.pose.pose.position.y = y;
+    msg.pose.pose.orientation.z = phi_q.z;
+    msg.pose.pose.orientation.w = phi_q.w;
+
+    pose_estimate.publish(msg);
+    ros::spinOnce();
+    return true;
+}
+
+
+
+
+RobotPose& RobotPlan::get_robot_pose( ) {
+    return robot_pose;
 }
