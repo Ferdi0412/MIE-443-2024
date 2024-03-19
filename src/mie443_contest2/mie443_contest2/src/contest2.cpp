@@ -4,141 +4,138 @@
 #include <imagePipeline.h>
 #include <auxilliary.h>
 #include <chrono>
+#include <cmath>
 
 #include "parin-functions.cpp"
 #include "auxilliary.h"
 
+#define WINDOW_NAME "Matched template"
 
 bool try_match_image( size_t box_index, ImagePipeline& image_pipeline, Boxes& boxes  );
 
-bool try_move_to_box( size_t box_index );
+bool try_move_to_box( size_t box_index, bool try_range_of_positions = false );
+
+// bool try_move_near_robot( RobotPose& robotPose, float degree_sweep = 90 );
 
 bool not_timedout();
 
 int main(int argc, char** argv) {
-    // Setup ROS.
+
+    /**
+     * =============
+     * === SETUP ===
+     * =============
+    */
+    // Course-provided setup
     ros::init(argc, argv, "contest2");
     ros::NodeHandle n;
-    // Robot pose object + subscriber.
     RobotPose robotPose(0,0,0);
     ros::Subscriber amclSub = n.subscribe("/amcl_pose", 1, &RobotPose::poseCallback, &robotPose);
-    // Initialize box coordinates and templates
     Boxes boxes;
     if(!boxes.load_coords() || !boxes.load_templates()) {
         std::cout << "ERROR: could not load coords or templates" << std::endl;
         return -1;
     }
-    for(int i = 0; i < boxes.coords.size(); ++i) {
-        std::cout << "Box coordinates: " << std::endl;
-        std::cout << i << " x: " << boxes.coords[i][0] << " y: " << boxes.coords[i][1] << " z: "
-                  << boxes.coords[i][2] << std::endl;
-    }
-    // Initialize image objectand subscriber.
     ImagePipeline imagePipeline(n);
 
-    /* === TARGET LOCATING USING AUXILLIARY_H === */
-    // The following must be run to setup the functions: location_facing_box (plus some more functions from auxilliary.h)
-    std::cout << "Initializing 1\n";
-    initialize_boxes_navigation( n, boxes, robotPose );
+    // Custom stuff
+    initialize_boxes_navigation( n, boxes, robotPose ); // From axuilliary.h
+    imagePipeline.setMatchFunction(&match_function);    // From imagePipleine.h
+    initialize_feature_detector(boxes.templates);       // From parin-functions.cpp
+    set_required_good_matches(95);                      // Minimum number of "good_matches" to be identified as a template
+    SimplePose start_pose(robotPose);                   // Starting position
+    mainTimerStart();                                   // Start timer
 
-    // Setup parin-functions::match_function
-    std::cout << "Initializing\n";
-    
-    imagePipeline.setMatchFunction(&match_function);
-    initialize_feature_detector(boxes.templates);
+    cv::namedWindow(WINDOW_NAME);
 
-    // contest count down timer
-    std::chrono::time_point<std::chrono::system_clock> start;
-    start = std::chrono::system_clock::now();
-    // uint64_t secondsElapsed = 0;
-    std::vector<bool> path_to_box(boxes.coords.size(), false);
-
-    std::cout << "Storing starting_position\n";
-
-    SimplePose start_pose(robotPose);
-
-    std::cout << "Before loop\n";
-
-    mainTimerStart();
-
-    // Execute strategy.
+    /**
+     * ============
+     * === MAIN ===
+     * ============
+    */
+    bool first_run = true;
     while(ros::ok() && not_timedout() ) {
+        // Update position and images
         ros::spinOnce();
 
-        std::cout << "Loop\n";
-
+        // If all boxes have been found, go home and exit the main loop...
         if ( all_found() ) {
-            // Try to return to home... and then exit the main loop
             if ( check_for_plan(start_pose) )
-                Navigation::moveToGoal(start_pose.x, start_pose.y, start_pose.phi);
+                if (Navigation::moveToGoal(start_pose.x, start_pose.y, start_pose.phi)) {
+                    std::cout << "\n\n===MOVED TO HOME ===\n";
+                }
+
             break;
         }
 
+        bool has_moved = false;
+
+        // Go through each box we need to find
         for ( size_t i = 0; i < boxes.coords.size(); i++ ) {
+            // Check for timeout...
+            if ( !not_timedout() )
+                break;
+
             // Skip any that have been found
             if ( has_been_found(i) )
                 continue;
 
-            std::cout << "Running now for box " << i << std::endl;
-            
-            if ( try_move_to_box(i) ) {
-                path_to_box[i] = true;
+            // If box is reachable, try to detect which image
+            if ( try_move_to_box(i, !first_run) ) {
+                has_moved = true;
+                // Run image processing
                 if ( try_match_image(i, imagePipeline, boxes ) ) {
-                    std::cout << "Displaying matched image..." << std::endl;
+                    std::cout << "\nDisplaying matched image..." << std::endl;
                     int template_id;
-                    if ( (template_id = get_box_id(i)) > 0 ) {
-                        cv::imshow("***** Template matched", boxes.templates[template_id]);
-                        cv::waitKey(10);
+                    if ( ((template_id = get_box_id(i)) > 0) && (template_id < boxes.templates.size()) ) {
+                        cv::imshow(WINDOW_NAME, make_grayscale_copy(boxes.templates[template_id]));
+                        cv::waitKey(1000);
                         ros::Duration(1.).sleep();
-                    }
-                }
-            } else {
-                std::cout << "No path found" << std::endl;
-                path_to_box[i] = false;
-                continue;
-            }
-
-            std::cout << "try_move_to_box done...\n";
-
-            // break;
-        }
-        
-        // Move to starting position
-        // if ( check_for_plan(start_pose) ) {
-        //     std::cout << "Moving to start position" << std::endl;
-        //     Navigation::moveToGoal(start_pose.x, start_pose.y, start_pose.phi);
-        //     ros::spinOnce();
-        // }
-
-        for (size_t j=0; j < path_to_box.size(); j++){
-            if (path_to_box[j])
-                continue;
-            else{
-                if ( has_been_found(j) )
-                    continue;
-
-                std::cout << "Running now for box " << j << std::endl;
-            
-                if ( try_move_to_box(j) ) {
-                    path_to_box[j] = true;
-                    if ( try_match_image(j, imagePipeline, boxes ) ) {
-                        std::cout << "Displaying matched image..." << std::endl;
-                        int template_id;
-                        if ( (template_id = get_box_id(j)) > 0 ) {
-                            cv::imshow("Template matched", boxes.templates[template_id]);
-                            cv::waitKey(10);
+                        continue;
+                    } else if ( template_id > 0 ) {
+                        std::cout << "=== BLANK TEMPLATE ===\n";
+                        try {
+                            cv::imshow(WINDOW_NAME, make_grayscale_copy(imagePipeline.getKinectImage()));
+                            cv::waitKey(1000);
                             ros::Duration(1.).sleep();
+                        } catch ( cv::Exception& exc ) {
+                            ;
                         }
                     }
-                } else {
-                    path_to_box[j] = false;
-                    continue;
-                }
-
-            }
+                } else
+                    std::cout << "\nCould not process box === {" << i << "} ===\n\n";
+            } else
+                std::cout << "\nCould not reach box === {" << i << "} ===\n\n";
         }
-        
+
+        // If the robot never moved to any valid box... It must be stuck... Try move away from any obstacles...
+        if ( !has_moved ) {
+            // Might need to check output - if true, we have moved somewhere successfully
+            // Otherwise robot is stuck in the same location...
+            // if ( !try_move_near_robot( robotPose, 30. ) ) // Start with a 30 degree sweep
+            //     try_move_near_robot( robotPose, 90. );   // Backup is a 90 degree sweep
+            std::cout << "\n\n=== !!! ROBOT STUCK !!! ===\n\n";
+        }
+
+        first_run = false;
     }
+
+    std::cout << "\n\n=== TEMPLATES FOUND ===\n";
+    std::vector<int> found_boxes = get_box_ids();
+    for ( size_t i = 0; i < found_boxes.size(); i++ ) {
+        int template_id = found_boxes[i]; // IF -1, not identified, if template_id >= boxes.templates.size() - no template 
+        float x = boxes.coords[i][0];
+        float y = boxes.coords[i][1];
+        float phi = boxes.coords[i][2];
+
+        // Just printing stuff...
+        std::cout << i << " := " << found_boxes[i] << std::endl;
+    }
+
+    cv::destroyWindow(WINDOW_NAME);
+
+    // To add... store to file
+    std::cout << "\n\nPROGRAM END\n";
     return 0;
 }
 
@@ -150,7 +147,7 @@ int main(int argc, char** argv) {
 
 bool try_match_image( size_t box_index, ImagePipeline& image_pipeline, Boxes& boxes ) {
     int image_id = image_pipeline.getTemplateID(boxes);
-    if ( image_id > -1 ) {  
+    if ( image_id > -1 ) {
         std::cout << "Marking box " << box_index << " as " << image_id << std::endl;
         mark_as_found(box_index, image_id);
         return true;
@@ -160,11 +157,12 @@ bool try_match_image( size_t box_index, ImagePipeline& image_pipeline, Boxes& bo
 }
 
 
-bool try_move_to_box( size_t box_index ) {
-    SimplePose facing_box = location_facing_box( box_index );
-    
+bool try_move_to_box( size_t box_index, bool try_range_of_positions ) {
+    SimplePose facing_box = location_facing_box( box_index ); // Start with default position facing box
+
     std::cout << "trying to move to facing_box for box" << box_index << std::endl;
     std::cout << "Facing box coordinates: x = " << facing_box.x << "y= " << facing_box.y <<std::endl;
+
     // Try move to position directly ahead of box, facing it
     if ( check_for_plan( facing_box ) ) {
         bool success = Navigation::moveToGoal( facing_box.x, facing_box.y, facing_box.phi );
@@ -174,8 +172,53 @@ bool try_move_to_box( size_t box_index ) {
         std::cout << "No plan found for facing_box of box" << box_index << std::endl;
     }
 
-    return false;
+    // If try_range_of_positions and default point not found... Test other positions...
+    if ( try_range_of_positions ) {
+        // Start iterating through various distances facing the position head-on
+        for ( float distance = 0.05; distance <= 0.55; distance += 0.1 ) {
+            facing_box = location_facing_box( box_index, distance );
+            if ( check_for_plan( facing_box ) ) {
+                std::cout << "Moving using distance of " << distance << " m\n";
+                bool success = Navigation::moveToGoal( facing_box.x, facing_box.y, facing_box.phi );
+                ros::spinOnce();
+                return success;
+            }
+        }
+
+        // Start iteration through combination of angle-offset and distances
+        for ( float angle = -degree_2_radian(20); angle <= degree_2_radian(20); angle += degree_2_radian(10) ) {
+            for ( float distance = 0.05; distance <= 0.5; distance += 0.15 ) {
+                facing_box = location_facing_box( box_index, distance, angle );
+                if ( check_for_plan( facing_box ) ) {
+                    std::cout << "Moving using angle of " << angle << " and distance of " << distance << " m\n";
+                    bool success = Navigation::moveToGoal( facing_box.x, facing_box.y, facing_box.phi );
+                    ros::spinOnce();
+                    return success;
+                }
+            }
+        }
+    } else // If not try_range_of_positions, immediately return false...
+        return false;
 }
+
+
+// bool try_move_near_robot( RobotPose& robotPose, float degree_sweep ) {
+//     // Only potential issue is the orientation... But change if errors occur
+//     std::cout << "\n\n===try_move_near_robot ===\n";
+//     for ( float angle = -degree_2_radian(fabs(degree_sweep)); angle <= degree_2_radian(fabs(degree_sweep)); angle += degree_2_radian(15) ) { // Consider if smaller range is better - might want to prefer to move in same direction
+//         for ( float distance = 0.05; distance <= 0.35; distance += 0.1 ) {
+//             SimplePose target_location = distance_from_pose( SimplePose(robotPose), distance, angle );
+//             if ( check_for_plan( target_location ) && Navigation::moveToGoal( target_location.x, target_location.y, target_location.phi ) ) {
+//                 ros::spinOnce();
+//                 return true;
+//             }
+//             else
+//                 ros::spinOnce();
+//         }
+//     }
+//     std::cout << "FAILED TO MOVE NEAR ROBOT... SWEEP OF: " << degree_sweep << " degrees\n";
+//     return false;
+// }
 
 
 bool not_timedout() {
