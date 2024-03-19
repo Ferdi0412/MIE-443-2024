@@ -125,7 +125,7 @@ int main(int argc, char** argv) {
 
                 default:
                     std::cout << "FAILED MORE THAN ONCE: Resetting Pose Estimate and Clearing Costmap...\n";
-                    if ( !move_pose_estimate( -0.2, 0 ) )
+                    if ( !move_pose_estimate( -0.05, 0 ) )
                         std::cout << "MOVE POSE ESTIMATE FAILED!!!\n";
                     if ( !refresh_costmap() )
                         std::cout << "CLEAR COSTMAP FAILED!!!\n";
