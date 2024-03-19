@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
     initialize_boxes_navigation( n, boxes, robotPose ); // From axuilliary.h
     imagePipeline.setMatchFunction(&match_function);    // From imagePipleine.h
     initialize_feature_detector(boxes.templates);       // From parin-functions.cpp
-    set_required_good_matches(60);                      // Minimum number of "good_matches" to be identified as a template
+    set_required_good_matches(95);                      // Minimum number of "good_matches" to be identified as a template
     SimplePose start_pose(robotPose);                   // Starting position
     mainTimerStart();                                   // Start timer
 
@@ -123,6 +123,12 @@ int main(int argc, char** argv) {
     std::cout << "\n\n=== TEMPLATES FOUND ===\n";
     std::vector<int> found_boxes = get_box_ids();
     for ( size_t i = 0; i < found_boxes.size(); i++ ) {
+        int template_id = found_boxes[i]; // IF -1, not identified, if template_id >= boxes.templates.size() - no template 
+        float x = boxes.coords[i][0];
+        float y = boxes.coords[i][1];
+        float phi = boxes.coords[i][2];
+
+        // Just printing stuff...
         std::cout << i << " := " << found_boxes[i] << std::endl;
     }
 
