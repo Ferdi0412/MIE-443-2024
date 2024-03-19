@@ -205,6 +205,7 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
     // Iterate through all sets of good matches
     for (size_t i = 0; i < all_good_matches.size(); i++) {
         int num_good_matches = all_good_matches[i].size();
+        std::cout << "For template [" << i << "] number of matches: " << num_good_matches << std::endl;
         if (num_good_matches > max_good_matches) {
             max_good_matches = num_good_matches;
             max_index = i;
