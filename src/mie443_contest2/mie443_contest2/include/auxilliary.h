@@ -190,4 +190,9 @@ std::vector<int>& get_box_ids();
 */
 int get_box_id( size_t box_index );
 
+/**
+ * degree_2_radian converst degrees to radians
+*/
+float degree_2_radian( float degrees );
+
 #endif // ~ AUXILLIARY_H

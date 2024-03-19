@@ -93,7 +93,7 @@ static std::vector<int>                boxes_template_ids;
 void initialize_boxes_navigation( ros::NodeHandle& nh, const Boxes& boxes, RobotPose& robot_pose ) {
     if ( robot_planner != NULL )
         delete robot_planner; // Prevent memory leak...
-    
+
     robot_planner   = new RobotPlan( nh, robot_pose );
 
     boxes_positions    = boxes.coords;
@@ -111,14 +111,9 @@ void mark_as_found( size_t box_index, int template_id ) {
         std::cout << "box_index is " << box_index << " AND should be less than " << boxes_template_ids.size() << std::endl;
     }
 
-
-    std::cout << "Found...\n";
     bool found                    = (template_id > -1);
-    std::cout << "boxes_found...\n";
     boxes_found[box_index]        = found;
-    std::cout << "boxes_template_ids...\n";
     boxes_template_ids[box_index] = template_id;
-    std::cout << "marked as found...\n\n";
 }
 
 bool has_been_found( size_t box_index ) {
@@ -178,4 +173,8 @@ int get_box_id( size_t box_index ) {
     }
 
     return boxes_template_ids[box_index];
+}
+
+float degree_2_radian( float degrees ) {
+    return degrees * M_PI / 180.;
 }
