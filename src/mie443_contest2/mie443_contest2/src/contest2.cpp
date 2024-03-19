@@ -146,7 +146,7 @@ int main(int argc, char** argv) {
         if (template_id >= 0 && template_id < boxes.templates.size()) {
             outputFile << " | Template Id: " << template_id ;
         } else if (template_id >= boxes.templates.size()){
-            outputFile << " | Template Id (Blank Iage): " << template_id;
+            outputFile << " | Template Id (Blank Image): " << template_id;
         } else 
             outputFile << " | Template not identified";
         outputFile << " | Coordinates: (x=" << x << ", y=" << y << ", phi=" << phi << ")" << std::endl;
@@ -154,7 +154,7 @@ int main(int argc, char** argv) {
 
     // Close the file
     outputFile.close();
-    
+
     cv::destroyWindow(WINDOW_NAME);
 
     
