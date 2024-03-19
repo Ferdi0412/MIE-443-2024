@@ -140,6 +140,15 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
         std::vector<cv::KeyPoint> keypoints_template   = keypoints_all_templates[i];
         cv::Mat                   descriptors_template = descriptors_all_templates[i];
 
+
+        // From: https://stackoverflow.com/questions/25089393/opencv-flannbasedmatcher
+        // Sometimes (given a high min_hessian value), 0 features are detected, which can cause errors...
+        // Handle this scenario here...
+        if ( keypoints_scene.size() < 2 ) {
+            all_good_matches.push_back(good_matches);
+            continue;
+        }
+
         // Match template and scene features
         feature_matcher->knnMatch( descriptors_template, descriptors_scene, knn_matches, 2 );
         // feature_matcher->match(...)
