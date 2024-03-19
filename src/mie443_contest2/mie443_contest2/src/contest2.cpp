@@ -5,6 +5,7 @@
 #include <auxilliary.h>
 #include <chrono>
 #include <cmath>
+#include <fstream>
 
 #include "parin-functions.cpp"
 #include "auxilliary.h"
@@ -122,6 +123,15 @@ int main(int argc, char** argv) {
 
     std::cout << "\n\n=== TEMPLATES FOUND ===\n";
     std::vector<int> found_boxes = get_box_ids();
+    // Open the file for writing
+    std::ofstream outputFile("output.txt");
+
+    // Check if the file is opened successfully
+    if (!outputFile.is_open()) {
+        std::cerr << "Failed to open output file!" << std::endl;
+        return -1;
+    }
+
     for ( size_t i = 0; i < found_boxes.size(); i++ ) {
         int template_id = found_boxes[i]; // IF -1, not identified, if template_id >= boxes.templates.size() - no template 
         float x = boxes.coords[i][0];
@@ -130,9 +140,24 @@ int main(int argc, char** argv) {
 
         // Just printing stuff...
         std::cout << i << " := " << found_boxes[i] << std::endl;
+
+        // Write data to the file
+        outputFile << "Box " << i << ": ";
+        if (template_id >= 0 && template_id < boxes.templates.size()) {
+            outputFile << " | Template Id: " << template_id ;
+        } else if (template_id >= boxes.templates.size()){
+            outputFile << " | Template Id (Blank Iage): " << template_id;
+        } else 
+            outputFile << " | Template not identified";
+        outputFile << " | Coordinates: (x=" << x << ", y=" << y << ", phi=" << phi << ")" << std::endl;
     }
 
+    // Close the file
+    outputFile.close();
+    
     cv::destroyWindow(WINDOW_NAME);
+
+    
 
     // To add... store to file
     std::cout << "\n\nPROGRAM END\n";
