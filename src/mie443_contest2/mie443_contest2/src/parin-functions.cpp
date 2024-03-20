@@ -65,13 +65,11 @@ void set_required_good_matches( int required_good_matches = 0 ) {
 /**
  * initialize_feature_detector must be run before match_function at least once
 */
-void initialize_feature_detector( const std::vector<cv::Mat>& box_templates, int min_hessian = 400, bool draw_all_matches = false, int required_good_matches = 0 ) {
+void initialize_feature_detector( const std::vector<cv::Mat>& box_templates, int min_hessian = 400 ) {
     feature_detector = SURF::create( min_hessian ); // ORB::create() or AKAZE::create();
     // feature_matcher  = FlannBasedMatcher::create();
     feature_matcher = DescriptorMatcher::create(DescriptorMatcher::FLANNBASED);
 
-    draw_matches     = draw_all_matches;
-    min_good_matches = required_good_matches;
     template_count   = box_templates.size();
 
     for ( size_t i = 0; i < box_templates.size(); i++ ) {
@@ -86,6 +84,9 @@ void initialize_feature_detector( const std::vector<cv::Mat>& box_templates, int
         keypoints_all_templates.push_back( keypoints_this_template );
         descriptors_all_templates.push_back( descriptors_this_template );
         grayscale_templates.push_back( img_template );
+
+        // Display some initial info about things...
+        std::cout << "Template [" << i << "] has a total of {" << keypoints_this_template.size() << "} keypoints (NOTE: not good_matches)\n";
     }
 }
 
@@ -241,7 +242,7 @@ cv::Mat get_image( ImagePipeline& image_pipeline, int template_id ) {
  * is_blank - returns whether the template_id represents a blank (no image)
 */
 bool is_blank( int template_id ) {
-    return template_id > grayscale_templates.size();
+    return template_id >= grayscale_templates.size();
 }
 
 

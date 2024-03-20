@@ -45,8 +45,12 @@ int main(int argc, char** argv) {
     // Custom stuff
     initialize_boxes_navigation( n, boxes, robotPose ); // From axuilliary.h
     imagePipeline.setMatchFunction(&match_function);    // From imagePipleine.h
-    initialize_feature_detector(boxes.templates);       // From parin-functions.cpp
-    set_required_good_matches(95);                      // Minimum number of "good_matches" to be identified as a template
+
+    // Can also try min_hessian higher
+    initialize_feature_detector(boxes.templates, 1000);       // From parin-functions.cpp
+    
+    // 80 - 85 seems good, 95 could work too
+    set_required_good_matches(80);                      // Minimum number of "good_matches" to be identified as a template
     SimplePose start_pose(robotPose);                   // Starting position
     mainTimerStart();                                   // Start timer
 
@@ -93,16 +97,17 @@ int main(int argc, char** argv) {
                     // Retrieve the latest template_id
                     int template_id = get_box_id(i);
 
-                    // If the image is blank, try move a little backwards and try again...
-                    if ( is_blank(template_id) ) {
-                        std::cout << "BLANK - Moving backwards and checking again...";
-                        move_robot_by( -0.1, 0 );
-                        try_match_image(i, imagePipeline, boxes);
-                        template_id = get_box_id(i);
-                    }
-
                     // Display the results
                     try_display_image( get_image(imagePipeline, template_id));
+
+                    // If the image is blank, try move a little backwards and try again...
+                    if ( is_blank(template_id) ) {
+                        std::cout << "BLANK - Moving backwards and checking again...\n";
+                        move_robot_by( -0.15, 0 );
+                        try_match_image(i, imagePipeline, boxes);
+                        template_id = get_box_id(i);
+                        try_display_image( get_image(imagePipeline, template_id));
+                    }
 
                 } else // If not try_match_image
                     std::cout << "\nFEATURE DETECT - Could not PROCESS box === {" << i << "} ===\n\n";
