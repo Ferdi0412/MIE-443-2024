@@ -229,7 +229,7 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
  * get_image - returns the image for a given template_id
 */
 cv::Mat get_image( ImagePipeline& image_pipeline, int template_id ) {
-    ros::spinOnce()
+    ros::spinOnce();
     if ( (template_id < grayscale_templates.size()) && (template_id > 0) )
         return grayscale_templates[template_id];
     else
