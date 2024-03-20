@@ -104,7 +104,6 @@ int main(int argc, char** argv) {
                     // Display the results
                     try_display_image( get_image(imagePipeline, template_id));
 
-                    }
                 } else // If not try_match_image
                     std::cout << "\nFEATURE DETECT - Could not PROCESS box === {" << i << "} ===\n\n";
             } else // If not try_move_to_box
@@ -260,7 +259,7 @@ void try_display_image( cv::Mat image_to_display, float sleep_duration ) {
         cv::imshow(WINDOW_NAME, make_grayscale_copy(image_to_display));
         cv::waitKey(1000);
         ros::Duration(sleep_duration).sleep();
-    } except ( cv::Exception& exc ) {
+    } catch ( cv::Exception& exc ) {
         ;
     }
 }
