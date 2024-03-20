@@ -228,7 +228,7 @@ bool move_pose_estimate( float fwd_dist, float left_dist ) {
 
     // Calculate angle needed to turn to get to the position at fwd_dist, left_dist from curr position and orientation
     if ( fwd_dist != 0. )
-        delta_phi = std::atan( left_dist / fwd_dist );
+        delta_phi = std::atan( left_dist / -fwd_dist );
     // Prevent divide by 0 by hard-coding delta_phi for positive and negative left_distance
     else if ( left_dist > 0. )
         delta_phi = M_PI / 2.;
@@ -259,14 +259,14 @@ bool move_robot_by( float fwd_dist, float left_dist ) {
 
     // Calculate angle needed to turn to get to the position at fwd_dist, left_dist from curr position and orientation
     if ( fwd_dist != 0. )
-        delta_phi = std::atan( left_dist / fwd_dist );
+        delta_phi = std::atan( left_dist / -fwd_dist );
     // Prevent divide by 0 by hard-coding delta_phi for positive and negative left_distance
     else if ( left_dist > 0. )
         delta_phi = M_PI / 2.;
     else
         delta_phi = -M_PI / 2.;
 
-    SimplePose new_pose = distance_from_pose( curr_pose, abs_dist, delta_phi );
+    SimplePose new_pose = distance_from_pose( curr_pose, abs_dist, delta_phi );;
 
     // Check if plan can actually be made
     if ( !robot_planner->get_plan(new_pose.x, new_pose.y, curr_pose.phi) )
