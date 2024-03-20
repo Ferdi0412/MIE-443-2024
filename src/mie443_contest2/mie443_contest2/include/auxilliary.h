@@ -212,4 +212,9 @@ bool move_pose_estimate( float fwd_dist, float left_dist );
 */
 bool move_robot_by( float fwd_dist, float left_dist );
 
+/**
+ * get_robot_planner - returns the robot_planner if initialized
+*/
+RobotPlan& get_robot_planner( );
+
 #endif // ~ AUXILLIARY_H

@@ -274,3 +274,13 @@ bool move_robot_by( float fwd_dist, float left_dist ) {
 
     return Navigation::moveToGoal(new_pose.x, new_pose.y, curr_pose.phi);
 }
+
+
+RobotPlan& get_robot_planner( ) {
+    if ( robot_planner == NULL ) {
+        std::cout << "RobotPlanner not initialized!!!\nYou MUST run initialize_boxes_navigation for this function to work!\n";
+        exit(-1);
+    }
+
+    return *robot_planner;
+}
