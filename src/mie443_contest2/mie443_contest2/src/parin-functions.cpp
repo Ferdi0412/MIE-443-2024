@@ -224,4 +224,33 @@ int match_function( const cv::Mat& img, const std::vector<cv::Mat>& box_template
     return max_index;
 }
 
+
+/**
+ * get_image - returns the image for a given template_id
+*/
+cv::Mat get_image( ImagePipeline& image_pipeline, int template_id ) {
+    ros::spinOnce()
+    if ( (template_id < grayscale_templates.size()) && (template_id > 0) )
+        return grayscale_templates[template_id];
+    else
+        return image_pipeline.getKinectImage();
+}
+
+
+/**
+ * is_blank - returns whether the template_id represents a blank (no image)
+*/
+bool is_blank( int template_id ) {
+    return template_id > grayscale_templates.size();
+}
+
+
+/**
+ * is_unassigned - returns true if the template_id represents an "unprocessed" template/image
+*/
+bool is_unassigned( int template_id ) {
+    return template_id < 0;
+}
+
+
 #endif // ~ PARIN_FUNCTIONS_CPP

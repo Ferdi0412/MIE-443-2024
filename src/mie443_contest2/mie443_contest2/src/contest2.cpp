@@ -2,12 +2,15 @@
 #include <navigation.h>
 #include <robot_pose.h>
 #include <imagePipeline.h>
-#include <auxilliary.h>
+
+#include "opencv2/core.hpp"
+
 #include <chrono>
 #include <cmath>
 #include <fstream>
 
 #include "parin-functions.cpp"
+#include <auxilliary.h>
 #include "auxilliary.h"
 
 #define WINDOW_NAME "Matched template"
@@ -15,6 +18,8 @@
 bool try_match_image( size_t box_index, ImagePipeline& image_pipeline, Boxes& boxes  );
 
 bool try_move_to_box( size_t box_index, bool try_range_of_positions = false );
+
+void try_display_image( cv::Mat image_to_display, float sleep_duration = 1. );
 
 bool not_timedout();
 
@@ -85,31 +90,29 @@ int main(int argc, char** argv) {
                 has_moved = true;
                 // Run image processing
                 if ( try_match_image(i, imagePipeline, boxes ) ) {
-                    std::cout << "\nDisplaying matched image..." << std::endl;
-                    int template_id;
-                    if ( ((template_id = get_box_id(i)) > 0) && (template_id < boxes.templates.size()) ) {
-                        cv::imshow(WINDOW_NAME, make_grayscale_copy(boxes.templates[template_id]));
-                        cv::waitKey(1000);
-                        ros::Duration(1.).sleep();
-                        continue;
-                    } else if ( template_id > 0 ) {
-                        std::cout << "=== BLANK TEMPLATE ===\n";
-                        try {
-                            cv::imshow(WINDOW_NAME, make_grayscale_copy(imagePipeline.getKinectImage()));
-                            cv::waitKey(1000);
-                            ros::Duration(1.).sleep();
-                        } catch ( cv::Exception& exc ) {
-                            ;
-                        }
+                    // Retrieve the latest template_id
+                    int template_id = get_box_id(i);
+
+                    // If the image is blank, try move a little backwards and try again...
+                    if ( is_blank(template_id) ) {
+                        std::cout << "BLANK - Moving backwards and checking again...";
+                        move_robot_by( -0.1, 0 );
+                        try_match_image(i, imagePipeline, boxes);
+                        template_id = get_box_id(i);
                     }
-                } else
-                    std::cout << "\nCould not process box === {" << i << "} ===\n\n";
-            } else
+
+                    // Display the results
+                    try_display_image( get_image(imagePipeline, template_id));
+
+                    }
+                } else // If not try_match_image
+                    std::cout << "\nFEATURE DETECT - Could not PROCESS box === {" << i << "} ===\n\n";
+            } else // If not try_move_to_box
                 std::cout << "\nCould not reach box === {" << i << "} ===\n\n";
         }
 
         // If the robot never moved to any valid box... It must be stuck... Try move away from any obstacles...
-        if ( !has_moved ) {
+        if ( !has_moved && not_timedout() ) {
             std::cout << "\n\n=== !!! ROBOT STUCK !!! ===\n\n";
 
             // Keep track of consecutive stuck iterations...
@@ -131,14 +134,14 @@ int main(int argc, char** argv) {
                         std::cout << "CLEAR COSTMAP FAILED!!!\n";
                     break;
             }
-        }
-        else {
+        } else // Reset fail_count if not stuck on this iteration
             fail_count = 0;
-        }
 
+        // After the first run, allow the robot to try other positions than the "default"
         first_run = false;
     }
 
+    // After timeout....
     std::cout << "\n\n=== TEMPLATES FOUND ===\n";
     std::vector<int> found_boxes = get_box_ids();
     // Open the file for writing
@@ -151,7 +154,7 @@ int main(int argc, char** argv) {
     }
 
     for ( size_t i = 0; i < found_boxes.size(); i++ ) {
-        int template_id = found_boxes[i]; // IF -1, not identified, if template_id >= boxes.templates.size() - no template 
+        int template_id = found_boxes[i]; // IF -1, not identified, if template_id >= boxes.templates.size() - no template
         float x = boxes.coords[i][0];
         float y = boxes.coords[i][1];
         float phi = boxes.coords[i][2];
@@ -165,7 +168,7 @@ int main(int argc, char** argv) {
             outputFile << " | Template Id: " << template_id ;
         } else if (template_id >= boxes.templates.size()){
             outputFile << " | Template Id (Blank Image): " << template_id;
-        } else 
+        } else
             outputFile << " | Template not identified";
         outputFile << " | Coordinates: (x=" << x << ", y=" << y << ", phi=" << phi << ")" << std::endl;
     }
@@ -173,9 +176,8 @@ int main(int argc, char** argv) {
     // Close the file
     outputFile.close();
 
+    // Close the window displaying the images
     cv::destroyWindow(WINDOW_NAME);
-
-    
 
     // To add... store to file
     std::cout << "\n\nPROGRAM END\n";
@@ -248,4 +250,17 @@ bool try_move_to_box( size_t box_index, bool try_range_of_positions ) {
 
 bool not_timedout() {
     return mainTimerSecondsElapsed() <= 300;
+}
+
+void try_display_image( cv::Mat image_to_display, float sleep_duration ) {
+    // Prevent bugs...
+    if ( image_to_display.empty() )
+        return;
+    try {
+        cv::imshow(WINDOW_NAME, make_grayscale_copy(image_to_display));
+        cv::waitKey(1000);
+        ros::Duration(sleep_duration).sleep();
+    } except ( cv::Exception& exc ) {
+        ;
+    }
 }

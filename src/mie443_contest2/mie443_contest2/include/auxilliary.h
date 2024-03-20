@@ -205,4 +205,11 @@ bool refresh_costmap( );
 */
 bool move_pose_estimate( float fwd_dist, float left_dist );
 
+/**
+ * move_robot - moves the robot - similar to move_pose_estimate but for the robot
+ *
+ * This implements the navigation.h moveToGoal function and the get_plan functions...
+*/
+bool move_robot_by( float fwd_dist, float left_dist );
+
 #endif // ~ AUXILLIARY_H
