@@ -47,10 +47,10 @@ int main(int argc, char** argv) {
     imagePipeline.setMatchFunction(&match_function);    // From imagePipleine.h
 
     // Can also try min_hessian higher
-    initialize_feature_detector(boxes.templates, 1000);       // From parin-functions.cpp
-    
+    initialize_feature_detector(boxes.templates, 400);       // From parin-functions.cpp
+
     // 80 - 85 seems good, 95 could work too
-    set_required_good_matches(80);                      // Minimum number of "good_matches" to be identified as a template
+    set_required_good_matches(86);                      // Minimum number of "good_matches" to be identified as a template
     SimplePose start_pose(robotPose);                   // Starting position
     mainTimerStart();                                   // Start timer
 
@@ -157,24 +157,35 @@ int main(int argc, char** argv) {
         return -1;
     }
 
+    // Output found templates
     for ( size_t i = 0; i < found_boxes.size(); i++ ) {
-        int template_id = found_boxes[i]; // IF -1, not identified, if template_id >= boxes.templates.size() - no template
+        // Get the template_id of the box
+        int template_id = found_boxes[i];
+
+        // Just printing stuff for people in room to follow
+        std::cout << i << " := " << template_id << std::endl;
+
+        // Get coordinates of the box
         float x = boxes.coords[i][0];
         float y = boxes.coords[i][1];
         float phi = boxes.coords[i][2];
 
-        // Just printing stuff...
-        std::cout << i << " := " << found_boxes[i] << std::endl;
-
         // Write data to the file
-        outputFile << "Box " << i << ": ";
-        if (template_id >= 0 && template_id < boxes.templates.size()) {
-            outputFile << " | Template Id: " << template_id ;
-        } else if (template_id >= boxes.templates.size()){
-            outputFile << " | Template Id (Blank Image): " << template_id;
-        } else
-            outputFile << " | Template not identified";
-        outputFile << " | Coordinates: (x=" << x << ", y=" << y << ", phi=" << phi << ")" << std::endl;
+        std::string template_string = boxes.get_template_filename(template_id);
+
+        outputFile << "Box " << i << ":  | " << template_string;
+        outputFile << " | Coordinates: (x=" << x << ", y=" << y << ", phi=" << phi << ") |";
+        if ( !is_blank(template_id) && is_duplicate_image(i) )
+            outputFile << " DUPLICATE";
+        outputFile << std::endl;
+
+        // if (template_id >= 0 && template_id < boxes.templates.size()) {
+        //     outputFile << " | Template Id: " << template_id ;
+        // } else if (template_id >= boxes.templates.size()){
+        //     outputFile << " | Template Id (Blank Image): " << template_id;
+        // } else
+        //     outputFile << " | Template not identified";
+        // outputFile << " | Coordinates: (x=" << x << ", y=" << y << ", phi=" << phi << ")" << std::endl;
     }
 
     // Close the file

@@ -77,10 +77,23 @@ bool Boxes::load_templates( std::string file_name ) {
                         std::string("/boxes_database/") +
                         std::string(*it);
             templates.push_back(cv::imread(imagepath, CV_LOAD_IMAGE_GRAYSCALE));
+            template_names.push_back(std::string(*it));
         }
     } else {
         std::cout << "XML ERROR: Could not open " << filePath << std::endl;
         return false;
     }
     return true;
+}
+
+
+std::string Boxes::get_template_filename( int template_id ) {
+    if ( template_id < 0 )
+        return "UNIDENTIFIED ";
+
+    else if ( template_id >= template_names.size() )
+        return "Blank Image  ";
+
+    else
+        return template_names[template_id];
 }

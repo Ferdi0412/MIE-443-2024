@@ -4,6 +4,7 @@
 #include <tf/transform_datatypes.h>
 #include <tf/transform_broadcaster.h>
 #include <vector>
+#include <string>
 
 /**
  * Boxes is a class that sets up the "config" of a test, defining the locations (coords) of boxes and the templates
@@ -17,8 +18,9 @@
 */
 class Boxes {
 	public:
-		std::vector<cv::Mat> templates;
+		std::vector<cv::Mat>            templates;
 		std::vector<std::vector<float>> coords;
+		std::vector<std::string>        template_names;
 
 
 	public:
@@ -43,4 +45,9 @@ class Boxes {
 		 * @param file_name <std::string> the name of the file in the ../boxes_database directory
 		*/
 		bool load_templates( std::string file_name );
+
+		/**
+		 * get_template_filename - returns the name of the file used in identifying the template OR "UNIDENTIFIED" OR "Blank Image"
+		*/
+		std::string get_template_filename( int template_id );
 };
