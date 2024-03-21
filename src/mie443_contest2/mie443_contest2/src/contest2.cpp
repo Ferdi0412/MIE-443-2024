@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
     RobotPose robotPose(0,0,0);
     ros::Subscriber amclSub = n.subscribe("/amcl_pose", 1, &RobotPose::poseCallback, &robotPose);
     Boxes boxes;
-    if(!boxes.load_coords() || !boxes.load_templates()) {
+    if(!boxes.load_coords("myhal_scene.xml") || !boxes.load_templates()) {
         std::cout << "ERROR: could not load coords or templates" << std::endl;
         return -1;
     }
@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
     initialize_feature_detector(boxes.templates, 400);       // From parin-functions.cpp
 
     // 80 - 85 seems good, 95 could work too
-    set_required_good_matches(86);                      // Minimum number of "good_matches" to be identified as a template
+    set_required_good_matches(60);                      // Minimum number of "good_matches" to be identified as a template
     SimplePose start_pose(robotPose);                   // Starting position
     mainTimerStart();                                   // Start timer
 
@@ -125,6 +125,9 @@ int main(int argc, char** argv) {
             // Handle various fail
             switch ( fail_count ) {
                 case 1:
+                case 2:
+                case 3:
+                case 4:
                     std::cout << "FAILED ONCE: Clearing Costmap...\n";
                     if ( !refresh_costmap() )
                         std::cout << "CLEAR COSTMAP FAILED!!!\n";
