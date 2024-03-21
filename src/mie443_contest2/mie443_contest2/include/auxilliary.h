@@ -191,6 +191,11 @@ std::vector<int>& get_box_ids();
 int get_box_id( size_t box_index );
 
 /**
+ * is_duplicate_image returns true if the template_id of the given box_index exists for an earlier box
+*/
+bool is_duplicate_image( size_t box_index );
+
+/**
  * degree_2_radian converst degrees to radians
 */
 float degree_2_radian( float degrees );

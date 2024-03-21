@@ -193,6 +193,26 @@ int get_box_id( size_t box_index ) {
 }
 
 
+bool is_duplicate_image( size_t box_index ) {
+    if ( box_index >= boxes_template_ids.size() ) {
+        std::cout << "get_box_id is out-of-bounds!!!\n";
+        return -1;
+    }
+
+    int template_id = get_box_id( box_index );
+
+    if ( template_id < 0 )
+        return false;
+
+    // Check if this is a duplicate
+    for ( size_t i = 0; i < box_index; i++ ) {
+        if ( boxes_template_ids[i] == template_id )
+            return true;
+    }
+
+    return false;
+}
+
 
 float degree_2_radian( float degrees ) {
     return degrees * M_PI / 180.;
