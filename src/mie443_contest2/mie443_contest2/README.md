@@ -1,33 +1,83 @@
 # Contest 2
+
 Here we are building files to traverse an unknown environtment, to move and image targets at known locations.
 
+## Output file
+
+The **output.txt** file is generated once contest2.cpp file is executed and all the boxes have been matched to their respective templates. This file is stored under [catkin_ws/](catkin_ws)
+
 ## Contest files
+
 The following files were provided with the contest package:
+
 1. boxes
 2. imagePipeline
 3. navigation
 4. robot_pose
-5. contest2.cpp
-6. webcam_publisher.cpp
+5. contest2
+6. webcam_publisher
+
+## Developed files
+
+The following files were added as a part of the navigation and image processing algorithm:
+
+1. priv-test
+2. robot_plan
+3. auxilliary
+4. parin-functions
 
 ## Header files
+
 Add these to the [include](include) directory.
 
+1. auxilliary.h
+2. boxes.h
+3. imagePipeline.h
+4. navigation.h
+5. robot_plan.h
+6. robot_pose.h
+
 ## Function files
+
 Add these to the [src](src) directory.
 
-## Testing
-To test, modify the [src/priv-test.cpp](src/priv-test.cpp) file. This will **NOT** be commited to Git, and so you have free range to do with it as you like.
+1. auxilliary.cpp
+2. boxes.cpp
+3. contest2.cpp
+4. imagePipeline.cpp
+5. navigation.cpp
+6. parin-functions.cpp
+7. priv-test.cpp
+8. robot_plan.cpp
+9. robot_pose.cpp
+10. webcam_publisher.cpp
 
-```shell
-rosrun mie443_contest2 priv_test
-```
+# Setup for contest
 
-## Gazebo
-To open gazerbo, run the following command:
+## Terminal 1
 
-```shell
-roslaunch mie443_contest2 turtlebot_world.launch world:=1
+bash start-robot.sh
+
+## Terminal 2
+
+bash start-amcl.sh -r --map_file <path_to_map>.yaml # Replace <path_to_map> with the path to the desired map file
+
+## Terminal 3
+
+bash start-rviz.sh
+
+## Terminal 4
+
+rosrun mie443_contest2 mie443_contest2
+
+# contest2.cpp
+
+### 1. Main Loop
+
+```C++
+// Load the coords and templates given during contest here
+if(!boxes.load_coords() || !boxes.load_templates())
+std::cout << "ERROR: could not load coords or templates" << std::endl;
 ```
 
 # OpenCV Feature Matching
@@ -35,6 +85,7 @@ roslaunch mie443_contest2 turtlebot_world.launch world:=1
 ## Steps
 
 ### 1. Detect Features
+
 Here we detect features of the image input (and of the templates to compare it with). This step provides 2 components:
 
 1. The **position** of the key features.
@@ -64,8 +115,8 @@ orb_feature_detector->detectAndCompute(
 
 <br>There are a couple options for the feature_detector model. The following are promising alternatives to explore:
 
-1. SURF  `cv::xfeatures2d::SURF`
-2. ORB   `cv::ORB`
+1. SURF `cv::xfeatures2d::SURF`
+2. ORB `cv::ORB`
 3. AKAZE `cv::AKAZE`
 
 <br>There are some more alternatives, but these appear to be some of those that should best handle translated/rotated features when matching in later steps.
@@ -74,33 +125,24 @@ orb_feature_detector->detectAndCompute(
 
 ```C++
 // Function to return a grayscale copy of the input image
-cv::Mat makeGrayscale( const cv::Mat& input_img ) {
-    cv::Mat new_img;
-
-    // If only 1 channel -> already a grayscale image -> return copy of input as-is
-    if ( img.channels() == 1 )
-        return input_img.clone();
-
-    // If 3 channels -> presumably BGR (typically used over RGB in OpenCV it appears) -> create a grayscale copy of it
-    else if ( img.channels() == 3 )
-        cv::cvtColor( input_img, new_img, cv::COLOR_BGR2GRAY );
-
-    // If 4 channels -> presumably BGRA -> create grayscale copy of it
-    else if ( img.channels() == 4 )
-        cv::cvtColor( input_img, new_imag, cv::COLOR_BGRA2GRAY );
-
-    // If you find other useful cases, feel free to expand it...
-    // Otherwise find some way to handle base case...
-    // Maybe return an empty grayscale image?
-    // Maybe throw an exception?
+cv::Mat make_grayscale_copy( const cv::Mat& non_grayscale ) {
+    // Enforce grayscale transform
+    cv::Mat grayscale_img;
+    // Check what colors are in the inputted image...
+    if ( non_grayscale.channels() == 1 )
+        return non_grayscale.clone(); // Already grayscale
+    else if ( non_grayscale.channels() == 3 )
+        cv::cvtColor( non_grayscale, grayscale_img, cv::COLOR_BGR2GRAY );
+    else if ( non_grayscale.channels() == 4 )
+        cv::cvtColor( non_grayscale, grayscale_img, cv::COLOR_BGRA2GRAY );
     else
-        throw std::exception("Could not find a useful conversion of colour image to grayscale!");
-
-    return new_img;
+        std::cout << "MAKE_GRAYSCALE_COPY: Unrecognized color channels!";
+    return grayscale_img;
 }
 ```
 
 ### 2. Feature Matching
+
 Here we compare and match the features between the template image and the input image. This assumes that the features have been detected for both images. Here is an example of how to do this:
 
 ```C++
@@ -139,7 +181,8 @@ for ( size_t i = 0; i < unfiltered_matches.size(); i++ ) {
 2. Brute-Force `cv::BFMatcher`
 
 ### 3. Checking number of matched features
-The best approach to comparing *"goodness"* of match between images using feature matching, is to check the number of matched features (I cannot find a "goodness" of feature-match).
+
+The best approach to comparing _"goodness"_ of match between images using feature matching, is to check the number of matched features (I cannot find a "goodness" of feature-match).
 
 ```C++
 // Have a number of features to match as a threshold
@@ -154,6 +197,7 @@ else
 ```
 
 ### 4. Displaying matches
+
 You can either display the features of a given image:
 
 ```C++
@@ -191,4 +235,20 @@ cv::drawMatches(
 // Display the images
 cv::imshow("Matches", image_to_display);
 cv::waitKey(10);
+```
+
+## Testing
+
+To test, modify the [src/priv-test.cpp](src/priv-test.cpp) file. This will **NOT** be commited to Git, and so you have free range to do with it as you like.
+
+```shell
+rosrun mie443_contest2 priv_test
+```
+
+## Gazebo
+
+To open gazerbo, run the following command:
+
+```shell
+roslaunch mie443_contest2 turtlebot_world.launch world:=1
 ```
