@@ -2,8 +2,10 @@
 
 #########################
 ### DEFAULT VARIABLES ###
-world=1
-contest=2
+world="N/A"
+world_handle=""
+contest="3"
+contest_handle="turtlebot_gazebo"
 
 #################
 ### FUNCTIONS ###
@@ -13,6 +15,30 @@ check_length() {
     else
         return 1
     fi
+}
+
+set_world_handle() {
+    local world_val="$1"
+    case "$world_val" in
+        "_")
+            world_handle=""
+            ;;
+        *)
+            world_handle="world:=$world_val"
+            ;;
+    esac
+}
+
+set_contest_handle() {
+    local contest_val="$1"
+    case "$contest_val" in
+        "3")
+            contest_handle="turtlebot_gazebo"
+            ;;
+        *)
+            "mie443_contest$contest_val"
+            ;;
+    esac
 }
 
 command_in_new_terminal() {
@@ -33,6 +59,7 @@ while [ $# -gt 0 ]; do
             if check_length "$2"; then
                 world="$2"
                 shift 2
+                set_world_handle "$world"
             else
                 shift 1
             fi
@@ -48,6 +75,7 @@ while [ $# -gt 0 ]; do
         world=*)
             world="${1#*=}"
             shift 1
+            set_world_handle "$world"
             ;;
         contest=*)
             contest="${1#*=}"
@@ -76,7 +104,7 @@ done
 
 ############
 ### MAIN ###
-command="roslaunch mie443_contest$contest turtlebot_world.launch world:=$world"
+command="roslaunch $contest_handle turtlebot_world.launch $world_handle"
 echo ""
 echo "$command"
 echo ""
