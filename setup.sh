@@ -7,6 +7,8 @@ base_dir=$(dirname "$(readlink -f "$0")")
 
 contest1_dir="src/mie443_contest1/mie443_contest1"
 contest2_dir="src/mie443_contest2/mie443_contest2"
+contest3_dir="src/mie443_contest3/mie443_contest3"
+follower_dir="src/turtlebot_follower/turtlebot_follower"
 
 # Print repository's base_dir to ensure it works correctly
 echo ""
@@ -89,7 +91,9 @@ source devel/setup.sh > /dev/null # re-source
 # Setup shortcut directories (if they don't already exist)
 cd "${base_dir}"
 
+# Check if symbolic linked directory "priv-c1" exists in this folder...
 if ! [ -L "priv-c1" ]; then
+    # If not, then create the new shortcut
     echo "[Shortcuts] Creating shortcut: priv-c1..."
     ln -s "${contest1_dir}" priv-c1 > /dev/null
     echo ""
@@ -101,6 +105,17 @@ if ! [ -L "priv-c2" ]; then
     echo ""
 fi
 
+if ! [ -L "priv-c3" ]; then
+    echo "[Shortcuts] Creating shortcut: priv-c3..."
+    ln -s "${contest3_dir}" priv-c3 > /dev/null
+    echo ""
+fi
+
+if ! [ -L "priv-follower" ]; then
+    echo "[Shortcuts] Creating shortcut: priv-follower..."
+    ln -s "${follower_dir}" priv-follower > /dev/null
+    echo ""
+fi
 
 
 #################
