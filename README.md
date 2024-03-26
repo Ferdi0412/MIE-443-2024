@@ -1,6 +1,42 @@
 # MIE-443-2024
 Project for Thursday Team 1 for MIE443 in Winter 2023/2024. This assumes you are using Ubuntu 16.04, and ROS-Kinetic, with course-provided dependencies installed.
 
+# Contest 3
+This is split between [contest 3](src/mie443_contest3/mie443_contest3) and [turtlebot follower](src/turtlebot_follower/turtlebot_follower).
+
+## Startup
+```shell
+## For all terminals:
+cd ~/catkin_ws # Make sure all commands are run from root of this repository
+
+##################
+### SIMULATION ###
+##################
+## Terminal 1
+bash start-gazebo.sh # Add "-h" for help with options
+
+## Terminal 2
+bash start-soundplay.sh
+
+## Terminal 3
+rosrun mie443_contest3 priv_test # Run this to run the test node - swap 'priv_test' with 'contest3' to run actual contest3 file 
+
+###############
+### CONTEST ###
+###############
+## Terminal 1
+bash start-robot.sh
+
+## Terminal 2
+bash start-soundplay.sh
+
+## Terminal 3
+bash start-follower.sh
+
+## Terminal 4
+rosrun mie443_contest3 contest3
+```
+
 # Contest 2
 For [contest 2](src/mie443_contest2/mie443_contest2).
 
