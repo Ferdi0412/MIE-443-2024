@@ -1,0 +1,5 @@
+Box 0:  | template2.jpg | Coordinates: (x=-0.158, y=-0.696, phi=2.271) |
+Box 1:  | template3.jpg | Coordinates: (x=1.64, y=-2.32, phi=-2.615) |
+Box 2:  | template1.jpg | Coordinates: (x=-0.454, y=-3.51, phi=-0.956) |
+Box 3:  | template3.jpg | Coordinates: (x=-0.198, y=-3.66, phi=-2.638) | DUPLICATE
+Box 4:  | Blank Image   | Coordinates: (x=-2.44, y=-2.16, phi=-2.749) |
