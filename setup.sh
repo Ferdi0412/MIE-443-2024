@@ -124,6 +124,7 @@ fi
 cd "${base_dir}"
 
 git update-index --assume-unchanged "${contest2_dir}/src/priv-test.cpp"
+git update-index --assume-unchanged "${contest3_dir}/src/priv-response-test.cpp"
 
 
 
