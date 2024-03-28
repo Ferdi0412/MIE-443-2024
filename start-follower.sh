@@ -1,0 +1,5 @@
+command="roslaunch turtlebot_follower follower.launch"
+echo ""
+echo "$command"
+echo ""
+eval "$command"
