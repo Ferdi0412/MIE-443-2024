@@ -278,8 +278,10 @@ bool move_robot_by( float fwd_dist, float left_dist ) {
     float delta_phi;
 
     // Calculate angle needed to turn to get to the position at fwd_dist, left_dist from curr position and orientation
-    if ( fwd_dist != 0. )
+    if ( fwd_dist > 0. )
         delta_phi = std::atan( left_dist / -fwd_dist );
+    else if ( fwd_dist < 0. )
+        delta_phi = std::atan( left_dist / -fwd_dist ) + M_PI;
     // Prevent divide by 0 by hard-coding delta_phi for positive and negative left_distance
     else if ( left_dist > 0. )
         delta_phi = M_PI / 2.;
