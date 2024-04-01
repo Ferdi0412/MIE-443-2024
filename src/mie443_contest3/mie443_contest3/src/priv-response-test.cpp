@@ -20,8 +20,7 @@ int main ( int argc, char **argv ) {
     /* Add any more setup stuff here... */
 
     // Wait to (hopefully) ensure that soundclient subscription is working...
-    while ( !sc.isSoundPlayReady() )
-        ros::Duration(0.3).sleep();
+    ros::Duration(1).sleep();
 
     /**
      * ============
