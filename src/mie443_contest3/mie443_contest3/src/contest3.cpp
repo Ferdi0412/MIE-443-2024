@@ -5,6 +5,7 @@
 
 #include "robot_control/basic_subscriptions.h"
 #include "robot_control/basic_publishers.h"
+#include "robot_control/program_timer.h"
 #include "sound_play/basic_client.cpp"
 #include "image_handler/basic_client.cpp"
 #include "responses/responses.h"
@@ -24,15 +25,15 @@ enum Stimuli {
 
 int main(int argc, char **argv)
 {
+	/**
+	 * =============
+	 * === SETUP ===
+	 * =============
+	*/
 	ros::init(argc, argv, "image_listener");
 	ros::NodeHandle nh;
 	teleController eStop;
-
-    // contest count down timer
-	ros::Rate loop_rate(10);
-    std::chrono::time_point<std::chrono::system_clock> start;
-    start = std::chrono::system_clock::now();
-    uint64_t secondsElapsed = 0;
+	ros::Rate loop_rate(10); // 10 Hz - max. frequency of main while loop
 
 	// Camera subscribers
 	imageTransporter rgbTransport   = subscribe_to_webcam(); // subscribe_to_kinect();
@@ -58,7 +59,15 @@ int main(int argc, char **argv)
 	}
 	double ground_z = get_odom_z();
 
-	while(ros::ok() && secondsElapsed <= 480){
+
+
+	// ----------------------------------------------------------
+	/**
+	 * =================
+	 * === MAIN LOOP ===
+	 * =================
+	*/
+	while( ros::ok() && within_time_limit(480) ){
 		ros::spinOnce();
 		prev_state = robot_state; // To for example trigger reaction on first occurance - eg. play surprise sound once when lifted...
 
@@ -82,6 +91,7 @@ int main(int argc, char **argv)
 
 		/* Finite State Machine section - display emotions and/or detect higher level stimuli (if applicable) */
 		switch ( robot_state ) {
+			/* 1. FOLLOWING */
 			case FOLLOWING:
 				if ( prev_state != FOLLOWING )
 					display_neutral( sound_player, image_handler );
@@ -90,6 +100,8 @@ int main(int argc, char **argv)
 				publish_velocity( get_follower_cmd() ); // Follow the follower node's path to person
 				break;
 
+
+			/* 2. PATH_BLOCKED */
 			case PATH_BLOCKED:
 				/* Fill in PATH_BLOCKED here... */
 				bump_count ++;
@@ -100,17 +112,23 @@ int main(int argc, char **argv)
 				// Have a move_backwards function...
 				break;
 
+
+			/* 3. PERSON_LOST */
 			case PERSON_LOST:
 				/* Fill in PERSON_LOST here... */
 				// Confused - look around - start timer?
 				// If long time yet not found - sad
 				break;
 
+
+			/* 4. FAMILY_DETECTED */
 			case FAMILY_DETECTED:
 				/* Fill in FAMILY_DETECTED here... */
 				// Stop and make a happy remark or something before moving towards it???
 				break;
 
+
+			/* 5. LIFTED */
 			case LIFTED:
 				/* Fill in LIFTED here... */
 				if ( (get_odom_z() - ground_z) > 0.2 )
@@ -118,14 +136,13 @@ int main(int argc, char **argv)
 
 				else if ( prev_state != LIFTED )
 					display_discontent( sound_player, image_handler );
-		
+
 				break;
 
 			// There should be no reason to add default....
 			// default:
 		}
 
-		secondsElapsed = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now()-start).count();
 		loop_rate.sleep();
 	}
 
