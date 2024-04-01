@@ -38,6 +38,11 @@ void display_sadness( SoundPlayer& sound_player, ImageHandler& image_handler );
 void display_disontent( SoundPlayer& sound_player, ImageHandler& image_handler );
 
 /**
+ * display_neutral
+*/
+void display_neutral( SoundPlayer& sound_player, ImageHandler& image_handler );
+
+/**
  * ===============
  * === PACKAGE ===
  * Below are the files that are included
@@ -46,5 +51,6 @@ void display_disontent( SoundPlayer& sound_player, ImageHandler& image_handler )
 #include "blocked_path.cpp"
 #include "lost_person.cpp"
 #include "lifted.cpp"
+#include "neutral.cpp"
 
 #endif // ~ RESPONSES_H
