@@ -41,7 +41,7 @@ while [ $# -gt 0 ]; do
             shift 1
             set_world_handle "$world"
             ;;
-        --list_cameras)
+        --list_cameras | -l)
             eval "ls /dev | grep video"
             exit 0
             ;;
@@ -56,6 +56,7 @@ while [ $# -gt 0 ]; do
             echo "|-> [-h]"
             echo "3. To list webcams:"
             echo "|-> [--list_camera]"
+            echo "|-> [-l]"
             echo "|-> Run: ls /dev | grep video"
             exit 0
             ;;
