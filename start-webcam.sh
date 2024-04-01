@@ -41,6 +41,10 @@ while [ $# -gt 0 ]; do
             shift 1
             set_world_handle "$world"
             ;;
+        --list_cameras)
+            eval "ls /dev | grep video"
+            exit 0
+            ;;
         -h)
             echo "Usage: $0 [OPTIONS]"
             echo "1. To set the GAZEBO world (default: $world):"
@@ -51,7 +55,8 @@ while [ $# -gt 0 ]; do
             echo "|-> [--help]"
             echo "|-> [-h]"
             echo "3. To list webcams:"
-            echo "|-> ls /dev | grep video"
+            echo "|-> [--list_camera]"
+            echo "|-> Run: ls /dev | grep video"
             exit 0
             ;;
         *)
