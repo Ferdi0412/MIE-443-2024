@@ -7,6 +7,8 @@
 
 #include <ros/ros.h>
 
+#include <imageTransporter.hpp>
+
 /**
  * ====================
  * === INITIALIZERS ===
@@ -31,6 +33,14 @@ void initialize_follower_subscriptions( ros::NodeHandle& node_handler );
  * === ROBOT SUBSCRIPTIONS FOLLOW HERE ===
  * These require the initialize_robot_subscriptions before use
 */
+
+/**
+ * ===============
+ * === CAMERAS ===
+*/
+imageTransporter subscribe_to_webcam( );
+imageTransporter subscribe_to_kinect( );
+imageTransporter subscribe_to_depth_sensor( );
 
 /**
  * ===============

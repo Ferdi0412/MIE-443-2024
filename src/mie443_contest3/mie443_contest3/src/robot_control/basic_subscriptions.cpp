@@ -18,6 +18,9 @@
 
 #include <tf/transform_datatypes.h>
 
+#include <sensor_msgs/image_encodings.h>
+#include <imageTransporter.hpp>
+
 // #include <geometry_msgs/Twist.h>
 
 /**
@@ -42,6 +45,22 @@ double rad_2_degree( double radian_angle ) {
 
 double deg_2_radian( double degree_angle ) {
     return degree_angle * M_PI / 180.;
+}
+
+/**
+ * ===============
+ * === CAMERAS ===
+*/
+imageTransporter subscribe_to_webcam( ) {
+    return imageTransporter( "camera/image/", sensor_msgs::image_encodings::BGR8 );
+}
+
+imageTransporter subscribe_to_kinect( ) {
+    return imageTransporter( "camera/rgb/image_raw", sensor_msgs::image_encodings::BGR8 );
+}
+
+imageTransporter subscribe_to_depth_sensor( ) {
+    return imageTransporter( "camera/depth_registered/image_raw", sensor_msgs::image_encodings::TYPE32_FC1 );
 }
 
 /**
