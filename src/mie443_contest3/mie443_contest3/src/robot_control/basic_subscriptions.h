@@ -58,7 +58,7 @@ bool check_bumpers();
  * @param node_handler
  * @param timeout - Maximum number of seconds to wait
 */
-bool wait_for_bumper_msg( ros::NodeHandle node_handler, double timeout );
+bool wait_for_bumper_msg( ros::NodeHandle& node_handler, double timeout );
 
 
 
@@ -77,7 +77,7 @@ bool check_raised();
  * @param node_handler
  * @param timeout - Maximum number of seconds to wait
 */
-bool wait_for_wheeldrop_msg( ros::NodeHandle node_handler, double timeout );
+bool wait_for_wheeldrop_msg( ros::NodeHandle& node_handler, double timeout );
 
 
 
@@ -109,7 +109,7 @@ double get_odom_roll();
  * @param node_handler
  * @param timeout - Maximum number of seconds to wait
 */
-bool wait_for_odom_msg( ros::NodeHandle node_handler, double timeout );
+bool wait_for_odom_msg( ros::NodeHandle& node_handler, double timeout );
 
 
 
@@ -135,7 +135,7 @@ geometry_msgs::Twist& get_follower_cmd();
  * @param node_handler
  * @param timeout - Maximum number of seconds to wait
 */
-bool wait_for_follower_msg( ros::NodeHandle node_handler, double timeout );
+bool wait_for_follower_msg( ros::NodeHandle& node_handler, double timeout );
 
 /**
  * =================================
