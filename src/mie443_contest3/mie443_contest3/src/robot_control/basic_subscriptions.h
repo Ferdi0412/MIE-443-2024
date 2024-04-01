@@ -1,3 +1,7 @@
+/**
+ * This file sets up all the necessary subscriptions that we forsee using
+*/
+
 #ifndef BASIC_FOLLOWER_SUBSCRIPTIONS_H // Import guard
 #define BASIC_FOLLOWER_SUBSCRIPTIONS_H
 
@@ -10,16 +14,23 @@
 
 /**
  * initialize_robot_subscriptions
- * This MUST be run to use anything from the robot
- * This includes all functions except the target_far and target_found related functions
+ * For initializing subscriptions to the robot (also Gazebo sim of robot)
 */
 void initialize_robot_subscriptions( ros::NodeHandle& node_handler );
 
 /**
  * initialize_follower_subscriptions
- * This MUST be run to use any target_far or target_found related functions
+ * For initializing subscriptions to the follower node
 */
 void initialize_follower_subscriptions( ros::NodeHandle& node_handler );
+
+
+
+/**
+ * =======================================
+ * === ROBOT SUBSCRIPTIONS FOLLOW HERE ===
+ * These require the initialize_robot_subscriptions before use
+*/
 
 /**
  * ===============
@@ -103,8 +114,32 @@ bool wait_for_odom_msg( ros::NodeHandle node_handler, double timeout );
 
 
 /**
- * ================
- * === FOLLOWER ===
+ * ===============================================
+ * === FOLLOWER NODE SUBSCRIPTIONS FOLLOW HERE ===
+ * These require the initialize_follower_subscriptions before use
+*/
+
+/**
+ * ================================
+ * === FOLLOWER TARGET LOCATION ===
+*/
+
+/**
+ * get_follower_cmd - returns a reference to the latest velocity command from the follower node
+ * @NOTE: This value WILL change if you run ros::spinOnce() - due to it being a reference
+*/
+geometry_msgs::Twist& get_follower_cmd();
+
+/**
+ * wait_for_follower_msg - Will return `true` if the topic was received within the given timeout
+ * @param node_handler
+ * @param timeout - Maximum number of seconds to wait
+*/
+bool wait_for_follower_msg( ros::NodeHandle node_handler, double timeout );
+
+/**
+ * =================================
+ * === FOLLOWER TARGET AVAILABLE ===
 */
 
 /**
@@ -118,9 +153,9 @@ bool get_target_far();
 bool get_target_found();
 
 /**
- * get_target_to_follow - Returns `true if the target is found and within following distance
+ * get_target_available - Returns `true if the target is found and within following distance
 */
-bool get_target_to_follow();
+bool get_target_available();
 
 
 

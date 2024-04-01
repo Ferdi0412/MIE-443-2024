@@ -13,6 +13,7 @@
 #include <kobuki_msgs/BumperEvent.h>
 #include <kobuki_msgs/WheelDropEvent.h>
 #include <nav_msgs/Odometry.h>
+#include <geometry_msgs/Twist.h>
 #include <std_msgs/Bool.h>
 
 #include <tf/transform_datatypes.h>
@@ -270,6 +271,39 @@ double get_clock_seconds_from_start( ) {
 /**
  * ================
  * === FOLLOWER ===
+*/
+static ros::Subscriber follower_subscription;
+static bool            follower_subscribed;
+
+static geometry_msgs::Twist follower_cmd;
+
+void follower_callback( const geometry_msgs::Twist::ConstPtr& msg ) {
+    follower_cmd = *msg;
+}
+
+void subscribe_to_follower( ros::NodeHandle& node_handler ) {
+    if ( !follower_subscribed ) {
+        follower_subscription = node_handler.subscribe( "follower_velocity_smoother/smooth_cmd_vel", 1, &follower_callback );
+        follower_subscribed = true;
+    }
+}
+
+bool wait_for_follower_msg( ros::NodeHandle& node_handler, double timeout ) {
+    geometry_msgs::Twist::ConstPtr msg = ros::topic::waitForMessage<geometry_msgs::Twist>( "follower_velocity_smoother/smooth_cmd_vel", node_handler, ros::Duration(timeout) );
+
+    if ( msg != nullptr )
+        follower_callback( msg );
+
+    return msg != nullptr;
+}
+
+geometry_msgs::Twist& get_follower_cmd( ) {
+    return follower_cmd;
+}
+
+/**
+ * =======================
+ * === FOLLOWER TARGET ===
  * Ferdi - I have added some topics to the follower.cpp to publish when no person is detected or when person is too far away
 */
 static ros::Subscriber target_found_subscription;
@@ -317,7 +351,7 @@ bool get_target_far( ) {
 
 
 
-bool get_target_to_follow( ) {
+bool get_target_available( ) {
     return target_found && (!target_far);
 }
 
@@ -355,6 +389,7 @@ void initialize_robot_subscriptions( ros::NodeHandle& node_handler ) {
 }
 
 void initialize_follower_subscriptions( ros::NodeHandle& node_handler ) {
+    subscribe_to_follower( node_handler );
     initialize_follower_target_subscriptions( node_handler );
 }
 
