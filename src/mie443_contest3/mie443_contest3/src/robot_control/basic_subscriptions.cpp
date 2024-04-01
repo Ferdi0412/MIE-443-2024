@@ -65,15 +65,20 @@ void bumper_callback( const kobuki_msgs::BumperEvent::ConstPtr& msg ) {
     }
 }
 
-void subscribe_to_bumper( ros::NodeHandle node_handler ) {
+void subscribe_to_bumper( ros::NodeHandle& node_handler ) {
     if ( !bumper_subscribed ) {
         bumper_subscription = node_handler.subscribe( "mobile_base/events/bumper", 10, &bumper_callback );
         bumper_subscribed   = true;
     }
 }
 
-void wait_for_bumper_msg( ) {
-    // TODO: Add this...
+bool wait_for_bumper_msg( ros::NodeHandle& node_handler, double timeout ) {
+    kobuki_msgs::BumperEvent::ConstPtr msg = ros::topic::waitForMessage<kobuki_msgs::BumperEvent>( "mobile_base/events/bumper", node_handler, ros::Duration(timeout));
+
+    if ( msg != nullptr )
+        bumper_callback( msg );
+
+    return msg != nullptr;
 }
 
 bool get_bumper_left( ) {
@@ -117,15 +122,20 @@ void wheeldrop_callback( const kobuki_msgs::WheelDropEvent::ConstPtr& msg ) {
     }
 }
 
-void subscribe_to_wheeldrop( ros::NodeHandle node_handler ) {
+void subscribe_to_wheeldrop( ros::NodeHandle& node_handler ) {
     if ( !wheeldrop_subscribed ) {
         wheeldrop_subscription = node_handler.subscribe( "/mobile_base/events/wheel_drop", 10, &wheeldrop_callback );
         wheeldrop_subscribed   = true;
     }
 }
 
-void wait_for_wheeldrop_msg( ) {
-    // TODO: Add this...
+bool wait_for_wheeldrop_msg( ros::NodeHandle& node_handler, double timeout ) {
+    kobuki_msgs::WheelDropEvent::ConstPtr msg = ros::topic::waitForMessage<kobuki_msgs::WheelDropEvent>( "/mobile_base/events/wheel_drop", node_handler, ros::Duration(timeout));
+
+    if ( msg != nullptr )
+        wheeldrop_callback( msg );
+
+    return msg != nullptr;
 }
 
 bool check_raised( ) {
@@ -156,15 +166,20 @@ void odom_callback( const nav_msgs::Odometry::ConstPtr& msg ) {
     phi            = tf::getYaw(msg->pose.pose.orientation);
 }
 
-void subscribe_to_odom( ros::NodeHandle node_handler ) {
+void subscribe_to_odom( ros::NodeHandle& node_handler ) {
     if ( !odom_subscribed ) {
         odom_subscribtion = node_handler.subscribe( "odom", 1, &odom_callback );
         odom_subscribed   = true;
     }
 }
 
-void wait_for_odom_msg( ) {
-    // TODO: Add this...
+bool wait_for_odom_msg( ros::NodeHandle& node_handler, double timeout ) {
+    nav_msgs::Odometry::ConstPtr msg = ros::topic::waitForMessage<nav_msgs::Odometry>( "odom", node_handler, ros::Duration(timeout));
+
+    if ( msg != nullptr )
+        odom_callback( msg );
+
+    return msg != nullptr;
 }
 
 double get_odom_x( ) {
@@ -220,15 +235,20 @@ void clock_callback( const rosgraph_msgs::Clock::ConstPtr& msg ) {
     clock_time = msg->clock;
 }
 
-void subscribe_to_clock( ros::NodeHandle node_handler ) {
+void subscribe_to_clock( ros::NodeHandle& node_handler ) {
     if ( !clock_subscribed ) {
         clock_subscription = node_handler.subscribe( "clock", 1, &clock_callback );
         clock_subscribed   = true;
     }
 }
 
-void wait_for_clock_msg( ) {
-    // TODO: Add this...
+bool wait_for_clock_msg( ros::NodeHandle& node_handler, double timeout ) {
+    rosgraph_msgs::Clock::ConstPtr msg = ros::topic::waitForMessage<rosgraph_msgs::Clock>( "clock", node_handler, ros::Duration(timeout));
+
+    if ( msg != nullptr )
+        clock_callback( msg );
+
+    return msg != nullptr;
 }
 
 ros::Time get_clock_time( ) {
@@ -261,19 +281,41 @@ void target_found_callback( const std_msgs::Bool::ConstPtr& msg ) {
     target_found = msg->data;
 }
 
+bool wait_for_target_found_msg( ros::NodeHandle& node_handler, double timeout ) {
+    std_msgs::Bool::ConstPtr msg = ros::topic::waitForMessage<std_msgs::Bool>( "follower/target_found", node_handler, ros::Duration(timeout));
+
+    if ( msg != nullptr )
+        target_found_callback( msg );
+
+    return msg != nullptr;
+}
+
+
+
 void target_far_callback( const std_msgs::Bool::ConstPtr& msg ) {
     target_far = msg->data;
 }
 
-void initialize_follower_target_subscriptions( ros::NodeHandle node_handler ) {
+bool wait_for_target_far_msg( ros::NodeHandle& node_handler, double timeout ) {
+    std_msgs::Bool::ConstPtr msg = ros::topic::waitForMessage<std_msgs::Bool>( "follower/target_far", node_handler, ros::Duration(timeout));
+
+    if ( msg != nullptr )
+        target_far_callback( msg );
+
+    return msg != nullptr;
+}
+
+
+
+void initialize_follower_target_subscriptions( ros::NodeHandle& node_handler ) {
     // Subscribe to the target_found and target_far topics
     if ( !target_found_subscribed ) {
-        target_found_subscription = node_handler.subscribe( "follower/target_far", 1, &target_found_callback );
+        target_found_subscription = node_handler.subscribe( "follower/target_found", 1, &target_found_callback );
         target_found_subscribed   = true;
     }
 
     if ( !target_far_subscribed ) {
-        target_far_subscription = node_handler.subscribe( "follower/target_found", 1, &target_far_callback );
+        target_far_subscription = node_handler.subscribe( "follower/target_far", 1, &target_far_callback );
         target_far_subscribed   = true;
     }
 }
@@ -282,7 +324,7 @@ void initialize_follower_target_subscriptions( ros::NodeHandle node_handler ) {
  * =============
  * === SETUP ===
 */
-void initialize_robot_subscriptions( ros::NodeHandle node_handler ) {
+void initialize_robot_subscriptions( ros::NodeHandle& node_handler ) {
     // Subscribe to each topic
     subscribe_to_bumper(    node_handler );
     subscribe_to_odom(      node_handler );
@@ -290,10 +332,12 @@ void initialize_robot_subscriptions( ros::NodeHandle node_handler ) {
     subscribe_to_clock(     node_handler );
 
     // Setup clock variables...
-    wait_for_clock_msg( );
-    set_start_time( get_clock_time() );
+    if (wait_for_clock_msg( node_handler, 3. ))
+        set_start_time( get_clock_time() );
+    else
+        set_start_time( get_curr_time() );
 }
 
-void initialize_follower_subscriptions( ros::NodeHandle node_handler ) {
+void initialize_follower_subscriptions( ros::NodeHandle& node_handler ) {
     initialize_follower_target_subscriptions( node_handler );
 }
