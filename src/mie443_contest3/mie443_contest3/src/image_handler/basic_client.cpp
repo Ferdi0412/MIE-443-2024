@@ -21,7 +21,7 @@ class ImageHandler {
 
     private:
 
-}
+};
 
 
 #endif // ~ BASIC_IMAGE_CLIENT_CPP

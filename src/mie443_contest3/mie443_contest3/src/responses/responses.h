@@ -18,9 +18,9 @@
 void frustrated_move_backwards( SoundPlayer& sound_player, ImageHandler& image_handler );
 
 /**
- * angry_move_backwards - plays short sound then moves backwards quicker hoping to get past blockage
+ * rage_move_backwards - plays short sound then moves backwards quicker hoping to get past blockage
 */
-void angry_move_backwards( SoundPlayer& sound_player, ImageHandler& image_handler );
+void rage_move_backwards( SoundPlayer& sound_player, ImageHandler& image_handler );
 
 /**
  * display_confusion - Don't move, can rotate on spot, indicate confusion
