@@ -8,6 +8,7 @@
 #include "robot_control/program_timer.h"
 #include "sound_play/basic_client.cpp"
 #include "image_handler/basic_client.cpp"
+// #include "image_handler/basic_displayer.cpp"
 #include "responses/responses.h"
 
 using namespace std;
