@@ -9,8 +9,16 @@
 */
 void display_discontent( SoundPlayer& sound_player, ImageHandler& image_handler ) {
     image_handler.display("confused.png");
-    sound_player.play("confused.wav");
-    ros::Duration(4);
+    sound_player.play("surprised.wav");
+    ros::Duration(4).sleep();
+}
+
+/**
+ * display_scaredness - When lifted too high
+*/
+void display_scaredness( SoundPlayer& sound_player, ImageHandler& image_handler ) {
+    sound_player.robot_speech( "I am now scared!" );
+    ros::Duration(2).sleep();
 }
 
 
