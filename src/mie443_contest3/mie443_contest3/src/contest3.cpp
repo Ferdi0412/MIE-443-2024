@@ -83,6 +83,8 @@ int main(int argc, char **argv)
 		/* Finite State Machine section - display emotions and/or detect higher level stimuli (if applicable) */
 		switch ( robot_state ) {
 			case FOLLOWING:
+				if ( prev_state != FOLLOWING )
+					display_neutral( sound_player, image_handler );
 				/* Fill in FOLLOWING here... */
 				// eg.
 				publish_velocity( get_follower_cmd() ); // Follow the follower node's path to person

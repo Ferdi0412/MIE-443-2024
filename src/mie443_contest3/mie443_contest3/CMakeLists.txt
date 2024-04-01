@@ -26,5 +26,11 @@ add_executable(response_test src/priv-response-test.cpp
 			src/imageTransporter.cpp)
 target_link_libraries(response_test ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
+# Add the image server
+add_executable(image_server src/image_handler/image_server.cpp
+			src/imageTransporter.cpp)
+target_link_libraries(image_server ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
