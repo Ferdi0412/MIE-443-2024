@@ -233,58 +233,58 @@ double get_odom_roll( ) {
     return pitch_yaw_roll[2];
 }
 
-/**
- * =============
- * === CLOCK ===
- *
- * I am using this stuff to try get the "live" time - so if Gazebo runs slower, this also runs slower...
-*/
-ros::Subscriber clock_subscription;
-bool            clock_subscribed;
+// /**
+//  * =============
+//  * === CLOCK ===
+//  *
+//  * I am using this stuff to try get the "live" time - so if Gazebo runs slower, this also runs slower...
+// */
+// ros::Subscriber clock_subscription;
+// bool            clock_subscribed;
 
-ros::Time start_time;
-ros::Time clock_time;
+// ros::Time start_time;
+// ros::Time clock_time;
 
-ros::Time get_curr_time( ){
-    return ros::Time::now();
-}
+// ros::Time get_curr_time( ){
+//     return ros::Time::now();
+// }
 
-void set_start_time( ros::Time start_time_set ) {
-    start_time = start_time_set;
-}
+// void set_start_time( ros::Time start_time_set ) {
+//     start_time = start_time_set;
+// }
 
 
-void clock_callback( const rosgraph_msgs::Clock::ConstPtr& msg ) {
-    clock_time = msg->clock;
-}
+// void clock_callback( const rosgraph_msgs::Clock::ConstPtr& msg ) {
+//     clock_time = msg->clock;
+// }
 
-void subscribe_to_clock( ros::NodeHandle& node_handler ) {
-    if ( !clock_subscribed ) {
-        clock_subscription = node_handler.subscribe( "clock", 1, &clock_callback );
-        clock_subscribed   = true;
-    }
-}
+// void subscribe_to_clock( ros::NodeHandle& node_handler ) {
+//     if ( !clock_subscribed ) {
+//         clock_subscription = node_handler.subscribe( "clock", 1, &clock_callback );
+//         clock_subscribed   = true;
+//     }
+// }
 
-bool wait_for_clock_msg( ros::NodeHandle& node_handler, double timeout ) {
-    rosgraph_msgs::Clock::ConstPtr msg = ros::topic::waitForMessage<rosgraph_msgs::Clock>( "clock", node_handler, ros::Duration(timeout));
+// bool wait_for_clock_msg( ros::NodeHandle& node_handler, double timeout ) {
+//     rosgraph_msgs::Clock::ConstPtr msg = ros::topic::waitForMessage<rosgraph_msgs::Clock>( "clock", node_handler, ros::Duration(timeout));
 
-    if ( msg != nullptr )
-        clock_callback( msg );
+//     if ( msg != nullptr )
+//         clock_callback( msg );
 
-    return msg != nullptr;
-}
+//     return msg != nullptr;
+// }
 
-ros::Time get_clock_time( ) {
-    return clock_time;
-}
+// ros::Time get_clock_time( ) {
+//     return clock_time;
+// }
 
-ros::Duration get_clock_duration_from_start( ) {
-    return clock_time - start_time;
-}
+// ros::Duration get_clock_duration_from_start( ) {
+//     return clock_time - start_time;
+// }
 
-double get_clock_seconds_from_start( ) {
-    return get_clock_duration_from_start().toSec();
-}
+// double get_clock_seconds_from_start( ) {
+//     return get_clock_duration_from_start().toSec();
+// }
 
 
 /**
@@ -398,13 +398,13 @@ void initialize_robot_subscriptions( ros::NodeHandle& node_handler ) {
     subscribe_to_bumper(    node_handler );
     subscribe_to_odom(      node_handler );
     subscribe_to_wheeldrop( node_handler );
-    subscribe_to_clock(     node_handler );
+    // subscribe_to_clock(     node_handler );
 
-    // Setup clock variables...
-    if (wait_for_clock_msg( node_handler, 3. ))
-        set_start_time( get_clock_time() );
-    else
-        set_start_time( get_curr_time() );
+    // // Setup clock variables...
+    // if (wait_for_clock_msg( node_handler, 3. ))
+    //     set_start_time( get_clock_time() );
+    // else
+    //     set_start_time( get_curr_time() );
 }
 
 void initialize_follower_subscriptions( ros::NodeHandle& node_handler ) {
