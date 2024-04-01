@@ -7,6 +7,7 @@
 #include <imageTransporter.hpp>
 
 #include "robot_control/basic_subscriptions.h"
+#include "sound_play/basic_client.cpp"
 
 int main ( int argc, char **argv ) {
     // Setup misc. stuff
@@ -14,8 +15,9 @@ int main ( int argc, char **argv ) {
     ros::NodeHandle nh;
 
     // Setup sound_play stuff
-    sound_play::SoundClient sc;
-    std::string path_to_sounds = ros::package::getPath("mie443_contest3") + "/sounds/";
+    SoundPlayer sound_player;
+    // sound_play::SoundClient sc;
+    // std::string path_to_sounds = ros::package::getPath("mie443_contest3") + "/sounds/";
 
     /* Add any more setup stuff here... */
 
@@ -29,7 +31,7 @@ int main ( int argc, char **argv ) {
 
     /* Add test stuff here... */
     // eg., play some sound:
-    sc.playWave(path_to_sounds + "sound.wav");
+    sound_player.play("sound.wav");
     ros::Duration(3).sleep(); // Wait 3 seconds - length of sound.wav file
 
     // End of MAIN

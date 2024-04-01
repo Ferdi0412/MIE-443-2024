@@ -7,23 +7,17 @@
 
 class SoundPlayer {
     public:
-        SoundPlayer();
+        void play( std::string wav_filename ) {
+            sc.playWave( path_to_sounds + wav_filename );
+        }
 
-        playSound( std::string wav_filename );
+        SoundPlayer() {
+            path_to_sounds = ros::package::getPath( "mie443_contest3" ) + "/sounds/";
+        }
 
     private:
         sound_play::SoundClient sc;
         std::string path_to_sounds;
 };
-
-
-SoundPlayer::SoundPlayer( ) {
-    path_to_sounds = ros::package::getPath( "mie443_contest3" ) + "/sounds/";
-}
-
-SoundPlayer::playSound( std::string wav_filename ) {
-    sc.playWave( path_to_sounds + wav_filename );
-}
-
 
 #endif // ~ BASIC_SOUND_CLIENT_CPP
