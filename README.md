@@ -19,7 +19,10 @@ bash start-gazebo.sh # Add "-h" for help with options
 bash start-soundplay.sh
 
 ## Terminal 3
-rosrun mie443_contest3 priv_test # Run this to run the test node - swap 'priv_test' with 'contest3' to run actual contest3 file 
+rosrun mie443_contest3 image_server
+
+## Terminal 4
+rosrun mie443_contest3 priv_test # Run this to run the test node - swap 'priv_test' with 'contest3' to run actual contest3 file
 
 ###############
 ### CONTEST ###
@@ -34,6 +37,9 @@ bash start-soundplay.sh
 bash start-follower.sh
 
 ## Terminal 4
+rosrun mie443_contest3 image_server
+
+## Terminal 5
 rosrun mie443_contest3 contest3
 ```
 
