@@ -35,6 +35,8 @@
 #include <visualization_msgs/Marker.h>
 #include <turtlebot_msgs/SetFollowState.h>
 
+#include <std_msgs/Bool.h>
+
 #include "dynamic_reconfigure/server.h"
 #include "turtlebot_follower/FollowerConfig.h"
 
@@ -107,10 +109,12 @@ private:
     private_nh.getParam("x_scale", x_scale_);
     private_nh.getParam("enabled", enabled_);
 
-    cmdpub_ = private_nh.advertise<geometry_msgs::Twist> ("cmd_vel", 1);
-    markerpub_ = private_nh.advertise<visualization_msgs::Marker>("marker",1);
-    bboxpub_ = private_nh.advertise<visualization_msgs::Marker>("bbox",1);
-    sub_= nh.subscribe<sensor_msgs::Image>("depth/image_rect", 1, &TurtlebotFollower::imagecb, this);
+    cmdpub_         = private_nh.advertise<geometry_msgs::Twist> ("cmd_vel", 1);
+    targetfoundpub_ = private_nh.advertise<std_msgs::Bool>("follower/target_found", 1); // Custom
+    targetfarpub_   = private_nh.advertise<std_msgs::Bool>("follower/target_far", 1);   // Custom
+    markerpub_      = private_nh.advertise<visualization_msgs::Marker>("marker",1);
+    bboxpub_        = private_nh.advertise<visualization_msgs::Marker>("bbox",1);
+    sub_            = nh.subscribe<sensor_msgs::Image>("depth/image_rect", 1, &TurtlebotFollower::imagecb, this);
 
     switch_srv_ = private_nh.advertiseService("change_state", &TurtlebotFollower::changeModeSrvCb, this);
 
@@ -118,6 +122,12 @@ private:
     dynamic_reconfigure::Server<turtlebot_follower::FollowerConfig>::CallbackType f =
         boost::bind(&TurtlebotFollower::reconfigure, this, _1, _2);
     config_srv_->setCallback(f);
+
+    // Send "default" values for targetfound and targetfar
+    target_found.data = false;
+    targetfoundpub_.publish(target_found);
+    target_far.data   = false;
+    targetfarpub_.publish(target_far);
   }
 
   void reconfigure(turtlebot_follower::FollowerConfig &config, uint32_t level)
@@ -193,13 +203,30 @@ private:
     {
       x /= n;
       y /= n;
+
+      if ( !target_found.data ) { // Added by Ferdi
+        target_found.data = true;
+        targetfoundpub_.publish(target_found);
+      }
+      
       if(z > max_z_){
         ROS_INFO_THROTTLE(1, "Centroid too far away %f, stopping the robot\n", z);
         if (enabled_)
         {
           cmdpub_.publish(geometry_msgs::TwistPtr(new geometry_msgs::Twist()));
+          
+          if ( !target_far.data ) { // Added by Ferdi
+            target_far.data = true;
+            targetfarpub_.publish(target_far);
+          }
+          
         }
         return;
+      }
+
+      if ( target_far.data ) { // Added by Ferdi
+        target_far.data = false;
+        targetfarpub_.publish(target_far);
       }
 
       ROS_INFO_THROTTLE(1, "Centroid at %f %f %f with %d points", x, y, z, n);
@@ -217,6 +244,11 @@ private:
     {
       ROS_INFO_THROTTLE(1, "Not enough points(%d) detected, stopping the robot", n);
       publishMarker(x, y, z);
+
+      if ( target_found.data ) { // Added by Ferdi
+        target_found.data = false;
+        targetfoundpub_.publish(target_found);
+      }
 
       if (enabled_)
       {
@@ -312,6 +344,12 @@ private:
   ros::Publisher cmdpub_;
   ros::Publisher markerpub_;
   ros::Publisher bboxpub_;
+
+  /* Custom stuff... All lines that include the following variables have been added by Ferdi */
+  ros::Publisher targetfoundpub_;
+  ros::Publisher targetfarpub_;
+  std_msgs::Bool target_found;
+  std_msgs::Bool target_far;
 };
 
 PLUGINLIB_DECLARE_CLASS(turtlebot_follower, TurtlebotFollower, turtlebot_follower::TurtlebotFollower, nodelet::Nodelet);
