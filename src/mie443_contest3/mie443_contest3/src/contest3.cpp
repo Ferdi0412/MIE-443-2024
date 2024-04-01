@@ -35,9 +35,8 @@ int main(int argc, char **argv)
     uint64_t secondsElapsed = 0;
 
 	// Camera subscribers
-	imageTransporter rgbTransport("camera/image/", sensor_msgs::image_encodings::BGR8); //--for Webcam
-	//imageTransporter rgbTransport("camera/rgb/image_raw", sensor_msgs::image_encodings::BGR8); //--for turtlebot Camera
-	imageTransporter depthTransport("camera/depth_registered/image_raw", sensor_msgs::image_encodings::TYPE_32FC1);
+	imageTransporter rgbTransport   = subscribe_to_webcam(); // subscribe_to_kinect();
+	imageTransporter depthTransport = subscribe_to_depth_sensor();
 
 	// Custom setup
 	SoundPlayer sound_player;
