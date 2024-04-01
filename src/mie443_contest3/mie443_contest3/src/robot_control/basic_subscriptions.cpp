@@ -60,7 +60,7 @@ imageTransporter subscribe_to_kinect( ) {
 }
 
 imageTransporter subscribe_to_depth_sensor( ) {
-    return imageTransporter( "camera/depth_registered/image_raw", sensor_msgs::image_encodings::TYPE32_FC1 );
+    return imageTransporter( "camera/depth_registered/image_raw", sensor_msgs::image_encodings::TYPE_32FC1 );
 }
 
 /**
