@@ -7,7 +7,10 @@
 #include <imageTransporter.hpp>
 
 #include "robot_control/basic_subscriptions.h"
+#include "robot_control/basic_publishers.h"
 #include "sound_play/basic_client.cpp"
+#include "image_handler/basic_client.cpp"
+#include "responses/responses.h"
 
 int main ( int argc, char **argv ) {
     // Setup misc. stuff
@@ -16,6 +19,7 @@ int main ( int argc, char **argv ) {
 
     // Setup sound_play stuff
     SoundPlayer sound_player;
+    ImageHandler image_handler(nh);
     // sound_play::SoundClient sc;
     // std::string path_to_sounds = ros::package::getPath("mie443_contest3") + "/sounds/";
 
@@ -31,8 +35,11 @@ int main ( int argc, char **argv ) {
 
     /* Add test stuff here... */
     // eg., play some sound:
-    sound_player.play("sound.wav");
-    ros::Duration(3).sleep(); // Wait 3 seconds - length of sound.wav file
+    // sound_player.play("sound.wav");
+    // ros::Duration(3).sleep(); // Wait 3 seconds - length of sound.wav file
+
+    display_discontent(sound_player, image_handler);
+    display_scaredness( sound_player, image_handler );
 
     // End of MAIN
     return 0;

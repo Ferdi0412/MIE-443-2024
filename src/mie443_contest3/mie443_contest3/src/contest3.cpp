@@ -4,7 +4,10 @@
 #include <chrono>
 
 #include "robot_control/basic_subscriptions.h"
+#include "robot_control/basic_publishers.h"
 #include "sound_play/basic_client.cpp"
+#include "image_handler/basic_client.cpp"
+#include "responses/responses.h"
 
 using namespace std;
 
@@ -25,9 +28,6 @@ int main(int argc, char **argv)
 	ros::NodeHandle nh;
 	teleController eStop;
 
-	//publishers
-	ros::Publisher vel_pub = nh.advertise<geometry_msgs::Twist>("cmd_vel_mux/input/teleop",1);
-
     // contest count down timer
 	ros::Rate loop_rate(10);
     std::chrono::time_point<std::chrono::system_clock> start;
@@ -41,10 +41,12 @@ int main(int argc, char **argv)
 
 	// Custom setup
 	SoundPlayer sound_player;
+	ImageHandler image_handler(nh);
 	ros::Duration(0.5).sleep(); // Give the sound_player time to connect to the sound_play node
 
 	initialize_robot_subscriptions( nh );
 	initialize_follower_subscriptions( nh );
+	initialize_basic_movers( nh );
 
 	// Setup state trackers...
 	Stimuli robot_state = FOLLOWING;
@@ -84,16 +86,16 @@ int main(int argc, char **argv)
 			case FOLLOWING:
 				/* Fill in FOLLOWING here... */
 				// eg.
-				vel_pub.publish( get_follower_cmd() ); // Follow the follower node's path to person
+				publish_velocity( get_follower_cmd() ); // Follow the follower node's path to person
 				break;
 
 			case PATH_BLOCKED:
 				/* Fill in PATH_BLOCKED here... */
 				bump_count ++;
 				if ( bump_count < 3 )
-					; // frustrated
+					frustrated_move_backwards( sound_player, image_handler );
 				else
-					; // Anger/Rage
+					rage_move_backwards( sound_player, image_handler ); // Rage
 				// Have a move_backwards function...
 				break;
 
@@ -110,8 +112,12 @@ int main(int argc, char **argv)
 
 			case LIFTED:
 				/* Fill in LIFTED here... */
-				// Surprised
-				// Test z from odometry - if it works, you can set a threshold for heigh where he becomes scared
+				if ( (get_odom_z() - ground_z) > 0.2 )
+					display_scaredness( sound_player, image_handler );
+
+				else if ( prev_state != LIFTED )
+					display_discontent( sound_player, image_handler );
+		
 				break;
 
 			// There should be no reason to add default....
