@@ -51,7 +51,7 @@ while [ $# -gt 0 ]; do
             echo "|-> [--help]"
             echo "|-> [-h]"
             echo "3. To list webcams:"
-            echo "|-> `ls /dev | grep video`"
+            echo "|-> ls /dev | grep video"
             exit 0
             ;;
         *)
