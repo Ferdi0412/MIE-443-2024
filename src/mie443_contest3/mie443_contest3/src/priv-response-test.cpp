@@ -6,6 +6,8 @@
 #include <ros/package.h>
 #include <imageTransporter.hpp>
 
+#include "robot_control/basic_subscriptions.h"
+
 int main ( int argc, char **argv ) {
     // Setup misc. stuff
     ros::init(argc, argv, "response_test");
