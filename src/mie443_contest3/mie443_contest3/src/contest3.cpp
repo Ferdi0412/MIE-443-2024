@@ -3,18 +3,19 @@
 #include <imageTransporter.hpp>
 #include <chrono>
 
+#include "robot_control/basic_subscriptions.h"
+#include "sound_play/basic_client.cpp"
+
 using namespace std;
 
-geometry_msgs::Twist follow_cmd;
-int world_state;
-
-void followerCB(const geometry_msgs::Twist msg){
-    follow_cmd = msg;
-}
-
-void bumperCB(const geometry_msgs::Twist msg){
-    //Fill with code
-}
+enum Stimuli {
+	FOLLOWING,
+	PERSON_LOST,
+	PERSON_FAR,
+	PATH_BLOCKED,
+	LIFTED,
+	FAMILY_DETECTED
+};
 
 //-------------------------------------------------------------
 
@@ -22,16 +23,10 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "image_listener");
 	ros::NodeHandle nh;
-	sound_play::SoundClient sc;
-	string path_to_sounds = ros::package::getPath("mie443_contest3") + "/sounds/";
 	teleController eStop;
 
 	//publishers
 	ros::Publisher vel_pub = nh.advertise<geometry_msgs::Twist>("cmd_vel_mux/input/teleop",1);
-
-	//subscribers
-	ros::Subscriber follower = nh.subscribe("follower_velocity_smoother/smooth_cmd_vel", 10, &followerCB);
-	ros::Subscriber bumper = nh.subscribe("mobile_base/events/bumper", 10, &bumperCB);
 
     // contest count down timer
 	ros::Rate loop_rate(10);
@@ -39,36 +34,90 @@ int main(int argc, char **argv)
     start = std::chrono::system_clock::now();
     uint64_t secondsElapsed = 0;
 
+	// Camera subscribers
 	imageTransporter rgbTransport("camera/image/", sensor_msgs::image_encodings::BGR8); //--for Webcam
 	//imageTransporter rgbTransport("camera/rgb/image_raw", sensor_msgs::image_encodings::BGR8); //--for turtlebot Camera
 	imageTransporter depthTransport("camera/depth_registered/image_raw", sensor_msgs::image_encodings::TYPE_32FC1);
 
-	int world_state = 0;
+	// Custom setup
+	SoundPlayer sound_player;
+	ros::Duration(0.5).sleep(); // Give the sound_player time to connect to the sound_play node
 
-	double angular = 0.2;
-	double linear = 0.0;
+	initialize_robot_subscriptions( nh );
+	initialize_follower_subscriptions( nh );
 
-	geometry_msgs::Twist vel;
-	vel.angular.z = angular;
-	vel.linear.x = linear;
+	// Setup state trackers...
+	Stimuli robot_state = FOLLOWING;
+	Stimuli prev_state  = FOLLOWING;
+	uint8_t bump_count  = 0;
 
-	sc.playWave(path_to_sounds + "sound.wav");
-	ros::Duration(0.5).sleep();
+	if ( !wait_for_odom_msg(nh, 2.) ) {
+		ROS_ERROR("Did not receive odometry message before wait_for_odom_msg timeout...\n");
+		exit(-1);
+	}
+	double ground_z = get_odom_z();
 
-	while(ros::ok() && secondsElapsed <= 480){		
+	while(ros::ok() && secondsElapsed <= 480){
 		ros::spinOnce();
+		prev_state = robot_state; // To for example trigger reaction on first occurance - eg. play surprise sound once when lifted...
 
-		if(world_state == 0){
-			//fill with your code
-			//vel_pub.publish(vel);
-			vel_pub.publish(follow_cmd);
+		/* In order to set the state correctly, the order of the checks must be correct.
+		1. Check if lifted    - LIFTED
+		2. Check for faces    - FAMILY_DETECTED
+		3. Check if no target - PERSON_LOST/PERSON_FAR
+		4. Check if bumper    - PATH_BLOCKED
+		5. Check if normal    - FOLLOWING
+		*/
+		if ( check_raised() )
+			robot_state = LIFTED;
+		// else if ( ... Check For Faces )
+		// 	robot_state = FAMILY_DETECTED;
+		else if ( !get_target_available() )
+			robot_state = PERSON_LOST;
+		else if ( check_bumpers() )
+			robot_state = PATH_BLOCKED;
+		else // get_target_available == True
+			robot_state = FOLLOWING;
 
-		}else if(world_state == 1){
-			/*
-			...
-			...
-			*/
+		/* Finite State Machine section - display emotions and/or detect higher level stimuli (if applicable) */
+		switch ( robot_state ) {
+			case FOLLOWING:
+				/* Fill in FOLLOWING here... */
+				// eg.
+				vel_pub.publish( get_follower_cmd() ); // Follow the follower node's path to person
+				break;
+
+			case PATH_BLOCKED:
+				/* Fill in PATH_BLOCKED here... */
+				bump_count ++;
+				if ( bump_count < 3 )
+					; // frustrated
+				else
+					; // Anger/Rage
+				// Have a move_backwards function...
+				break;
+
+			case PERSON_LOST:
+				/* Fill in PERSON_LOST here... */
+				// Confused - look around - start timer?
+				// If long time yet not found - sad
+				break;
+
+			case FAMILY_DETECTED:
+				/* Fill in FAMILY_DETECTED here... */
+				// Stop and make a happy remark or something before moving towards it???
+				break;
+
+			case LIFTED:
+				/* Fill in LIFTED here... */
+				// Surprised
+				// Test z from odometry - if it works, you can set a threshold for heigh where he becomes scared
+				break;
+
+			// There should be no reason to add default....
+			// default:
 		}
+
 		secondsElapsed = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now()-start).count();
 		loop_rate.sleep();
 	}
