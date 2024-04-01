@@ -265,7 +265,7 @@ void target_far_callback( const std_msgs::Bool::ConstPtr& msg ) {
     target_far = msg->data;
 }
 
-void initialize_follower_subscriptions( ros::NodeHandle node_handler ) {
+void initialize_follower_target_subscriptions( ros::NodeHandle node_handler ) {
     // Subscribe to the target_found and target_far topics
     if ( !target_found_subscribed ) {
         target_found_subscription = node_handler.subscribe( "follower/target_far", 1, &target_found_callback );
@@ -292,4 +292,8 @@ void initialize_robot_subscriptions( ros::NodeHandle node_handler ) {
     // Setup clock variables...
     wait_for_clock_msg( );
     set_start_time( get_clock_time() );
+}
+
+void initialize_follower_subscriptions( ros::NodeHandle node_handler ) {
+    initialize_follower_target_subscriptions( node_handler );
 }
