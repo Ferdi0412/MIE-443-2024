@@ -1,3 +1,6 @@
+#ifndef BASIC_FOLLOWER_SUBSCRIPTIONS_CPP // Import guard
+#define BASIC_FOLLOWER_SUBSCRIPTIONS_CPP
+
 #include <array>
 
 #include <cmath>
@@ -290,6 +293,9 @@ bool wait_for_target_found_msg( ros::NodeHandle& node_handler, double timeout ) 
     return msg != nullptr;
 }
 
+bool get_target_found( ) {
+    return target_found;
+}
 
 
 void target_far_callback( const std_msgs::Bool::ConstPtr& msg ) {
@@ -303,6 +309,16 @@ bool wait_for_target_far_msg( ros::NodeHandle& node_handler, double timeout ) {
         target_far_callback( msg );
 
     return msg != nullptr;
+}
+
+bool get_target_far( ) {
+    return target_far;
+}
+
+
+
+bool get_target_to_follow( ) {
+    return target_found && (!target_far);
 }
 
 
@@ -341,3 +357,6 @@ void initialize_robot_subscriptions( ros::NodeHandle& node_handler ) {
 void initialize_follower_subscriptions( ros::NodeHandle& node_handler ) {
     initialize_follower_target_subscriptions( node_handler );
 }
+
+
+#endif // ~ BASIC_FOLLOWER_SUBSCRIPTIONS_CPP
