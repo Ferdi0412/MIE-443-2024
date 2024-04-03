@@ -3,6 +3,7 @@
 #include <imageTransporter.hpp>
 #include <chrono>
 
+#include "kinect_face_detector.hpp" // added for face detection
 #include "robot_control/basic_subscriptions.h"
 #include "robot_control/basic_publishers.h"
 #include "robot_control/program_timer.h"
@@ -39,6 +40,9 @@ int main(int argc, char **argv)
 	// Camera subscribers
 	imageTransporter rgbTransport   = subscribe_to_webcam(); // subscribe_to_kinect();
 	imageTransporter depthTransport = subscribe_to_depth_sensor();
+
+	// face detector
+	KinectFaceDetector face_detector;
 
 	// Custom setup
 	SoundPlayer sound_player;
@@ -81,8 +85,8 @@ int main(int argc, char **argv)
 		*/
 		if ( check_raised() )
 			robot_state = LIFTED;
-		// else if ( ... Check For Faces )
-		// 	robot_state = FAMILY_DETECTED;
+		else if ( face_detector.isFaceDetected() )
+			robot_state = FAMILY_DETECTED;
 		else if ( !get_target_available() )
 			robot_state = PERSON_LOST;
 		else if ( check_bumpers() )
