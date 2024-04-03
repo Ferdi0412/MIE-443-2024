@@ -115,6 +115,21 @@ double get_odom_yaw();
 double get_odom_roll();
 
 /**
+ * get_odom_velocity - Returns a Twist object representing the velocity of the robot
+*/
+geometry_msgs::Twist& get_odom_velocity();
+
+/**
+ * get_odom_lin_velocity - returns the linear velocity
+*/
+double get_odom_lin_velocity( );
+
+/**
+ * get_odom_rot_velocity - returns the rotational velocity
+*/
+double get_odom_rot_velocity( );
+
+/**
  * wait_for_odom_msg - Will return `true` if the topic was received within the given timeout
  * @param node_handler
  * @param timeout - Maximum number of seconds to wait
@@ -170,8 +185,14 @@ bool get_target_available();
 
 
 
+/**
+ * ======================
+ * === IMPLEMENTATION ===
+ * ======================
+*/
+
+#include "src/basic_subscriptions.cpp"
 
 
-#include "./basic_subscriptions.cpp"
 
 #endif // ~ BASIC_FOLLOWER_SUBSCRIPTIONS_H

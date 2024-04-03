@@ -1,7 +1,7 @@
 #ifndef PROGRAM_TIMER_CPP
 #define PROGRAM_TIMER_CPP
 
-#include "program_timer.h"
+#include "../program_timer.h"
 #include <chrono>
 
 typedef std::chrono::time_point<std::chrono::system_clock> _sys_time_t;

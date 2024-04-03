@@ -1,14 +1,13 @@
 #ifndef BASIC_FOLLOWER_SUBSCRIPTIONS_CPP // Import guard
 #define BASIC_FOLLOWER_SUBSCRIPTIONS_CPP
 
+#include "../basic_subscriptions.h"
+#include "../misc_math.h"
+
 #include <array>
 
-#include <cmath>
-
 #include <ros/ros.h>
-
-#include <rosgraph_msgs/Clock.h>
-
+#include <sensor_msgs/image_encodings.h>
 #include <geometry_msgs/Quaternion.h>
 #include <kobuki_msgs/BumperEvent.h>
 #include <kobuki_msgs/WheelDropEvent.h>
@@ -18,34 +17,8 @@
 
 #include <tf/transform_datatypes.h>
 
-#include <sensor_msgs/image_encodings.h>
-#include <imageTransporter.hpp>
 
 // #include <geometry_msgs/Twist.h>
-
-/**
- * ============
- * === MISC ===
-*/
-std::array<double, 3> get_pitch_yaw_roll(  const geometry_msgs::Quaternion& input_quaternion ) {
-    tf::Quaternion tf_quaternion;
-    double tf_pitch, tf_yaw, tf_roll;
-    std::array<double, 3> output;
-    tf::quaternionMsgToTF( input_quaternion, tf_quaternion );
-    tf::Matrix3x3( tf_quaternion ).getRPY( tf_roll, tf_pitch, tf_yaw );
-    output[0] = tf_pitch;
-    output[1] = tf_yaw;
-    output[2] = tf_roll;
-    return output;
-}
-
-double rad_2_degree( double radian_angle ) {
-    return radian_angle * 180. / M_PI;
-}
-
-double deg_2_radian( double degree_angle ) {
-    return degree_angle * M_PI / 180.;
-}
 
 /**
  * ===============
@@ -178,6 +151,7 @@ static bool            odom_subscribed = false;
 
 static double x = 0., y = 0., z = 0., phi = 0.;
 static std::array<double, 3> pitch_yaw_roll = {0., 0., 0.};
+geometry_msgs::Twist odom_velocity;
 
 void odom_callback( const nav_msgs::Odometry::ConstPtr& msg ) {
 
@@ -187,6 +161,8 @@ void odom_callback( const nav_msgs::Odometry::ConstPtr& msg ) {
 
     pitch_yaw_roll = get_pitch_yaw_roll(msg->pose.pose.orientation);
     phi            = tf::getYaw(msg->pose.pose.orientation);
+
+    odom_velocity  = msg->twist.twist;
 }
 
 void subscribe_to_odom( ros::NodeHandle& node_handler ) {
@@ -233,58 +209,17 @@ double get_odom_roll( ) {
     return pitch_yaw_roll[2];
 }
 
-// /**
-//  * =============
-//  * === CLOCK ===
-//  *
-//  * I am using this stuff to try get the "live" time - so if Gazebo runs slower, this also runs slower...
-// */
-// ros::Subscriber clock_subscription;
-// bool            clock_subscribed;
+geometry_msgs::Twist& get_odom_velocity( ) {
+    return odom_velocity;
+}
 
-// ros::Time start_time;
-// ros::Time clock_time;
+double get_odom_lin_velocity( ) {
+    return odom_velocity.linear.x;
+}
 
-// ros::Time get_curr_time( ){
-//     return ros::Time::now();
-// }
-
-// void set_start_time( ros::Time start_time_set ) {
-//     start_time = start_time_set;
-// }
-
-
-// void clock_callback( const rosgraph_msgs::Clock::ConstPtr& msg ) {
-//     clock_time = msg->clock;
-// }
-
-// void subscribe_to_clock( ros::NodeHandle& node_handler ) {
-//     if ( !clock_subscribed ) {
-//         clock_subscription = node_handler.subscribe( "clock", 1, &clock_callback );
-//         clock_subscribed   = true;
-//     }
-// }
-
-// bool wait_for_clock_msg( ros::NodeHandle& node_handler, double timeout ) {
-//     rosgraph_msgs::Clock::ConstPtr msg = ros::topic::waitForMessage<rosgraph_msgs::Clock>( "clock", node_handler, ros::Duration(timeout));
-
-//     if ( msg != nullptr )
-//         clock_callback( msg );
-
-//     return msg != nullptr;
-// }
-
-// ros::Time get_clock_time( ) {
-//     return clock_time;
-// }
-
-// ros::Duration get_clock_duration_from_start( ) {
-//     return clock_time - start_time;
-// }
-
-// double get_clock_seconds_from_start( ) {
-//     return get_clock_duration_from_start().toSec();
-// }
+double get_odom_rot_velocity( ) {
+    return odom_velocity.rotational.z;
+}
 
 
 /**

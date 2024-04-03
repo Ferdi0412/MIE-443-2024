@@ -1,6 +1,8 @@
 #ifndef PROGRAM_TIMER_H
 #define PROGRAM_TIMER_H
 
+
+
 /**
  * seconds_elapsed - returns the number of seconds since the start of the program
  *
@@ -16,6 +18,13 @@ long seconds_elapsed();
 bool within_time_limit( long time_limit );
 
 
-#include "program_timer.cpp"
+
+/**
+ * ======================
+ * === IMPLEMENTATION ===
+ * ======================
+*/
+
+#include "src/program_timer.cpp"
 
 #endif // ~ PROGRAM_TIMER_H
