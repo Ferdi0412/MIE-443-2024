@@ -52,7 +52,7 @@ bool linear_move( bool is_fwd, double distance, double speed ) {
     x_start = get_odom_x();
     y_start = get_odom_y();
     prev_velocity = get_odom_lin_velocity(); // Add some way to check whether it is in the right direction or not
-    target_velocity.x = is_fwd ? fabs(speed) : -fabs(speed);
+    target_velocity.linear.x = is_fwd ? fabs(speed) : -fabs(speed);
 
     // Iterate until one of exit conditions is met
     while ( ros::ok() ) {
