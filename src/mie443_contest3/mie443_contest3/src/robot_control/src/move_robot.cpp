@@ -26,9 +26,9 @@ bool linear_move( bool is_fwd, double distance, double speed );
  * ======================
 */
 
-bool move_forwards( double distance, double speed = 0.2 ) {
+bool move_forwards( double distance, double speed ) {
     if ( distance == 0. )
-        return;
+        return true;
 
     if ( distance > 0.  )
         return linear_move( true, fabs(distance), fabs(speed) );
@@ -51,8 +51,8 @@ bool linear_move( bool is_fwd, double distance, double speed ) {
     // Store starting state of robot
     x_start = get_odom_x();
     y_start = get_odom_y();
-    prev_velocity = get_odom_velocity().linear.x; // Add some way to check whether it is in the right direction or not
-    target_velocity.x = if_fwd ? fabs(speed) : -fabs(speed);
+    prev_velocity = get_odom_lin_velocity(); // Add some way to check whether it is in the right direction or not
+    target_velocity.x = is_fwd ? fabs(speed) : -fabs(speed);
 
     // Iterate until one of exit conditions is met
     while ( ros::ok() ) {
@@ -64,7 +64,7 @@ bool linear_move( bool is_fwd, double distance, double speed ) {
         // Get up-to-date robot values
         x_curr = get_odom_x();
         y_curr = get_odom_y();
-        curr_velocity = get_odom_velocity().linear.x;
+        curr_velocity = get_odom_lin_velocity();
 
         // Check if target distance reached - No check for direction...
         if ( distance_from_point( x_start, y_start, x_curr, y_curr ) >= distance ) {
