@@ -12,6 +12,10 @@ cd ~/catkin_ws # Make sure all commands are run from root of this repository
 ##################
 ### SIMULATION ###
 ##################
+## Terminal 0 [OPTIONAL] - Run on local computer to display webcam over VirtualBox VM
+pip install -r local_vidstream/requirements.txt
+python local_vidstream/video_stream_server.py
+
 ## Terminal 1
 bash start-gazebo.sh # Add "-h" for help with options
 
@@ -21,7 +25,12 @@ bash start-soundplay.sh
 ## Terminal 3
 rosrun mie443_contest3 image_server
 
-## Terminal 4
+## Terminal 4 [OPTIONAL] - Run to have access to webcam
+bash start-webcam.sh <source>
+# For Linux machines - Use "0" instead of <source>
+# For VM with Teminal 0 option - Use "http://localhost:5000/cam?camera_id=0" instead of <source>
+
+## Terminal 5
 rosrun mie443_contest3 priv_test # Run this to run the test node - swap 'priv_test' with 'contest3' to run actual contest3 file
 
 ###############
