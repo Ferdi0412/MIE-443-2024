@@ -218,7 +218,7 @@ double get_odom_lin_velocity( ) {
 }
 
 double get_odom_rot_velocity( ) {
-    return odom_velocity.rotational.z;
+    return odom_velocity.angular.z;
 }
 
 
