@@ -6,11 +6,7 @@
  * === DEPENDENCIES ===
  * Below are the files that are needed
 */
-#include "../robot_control/basic_publishers.h"
-
-#include "../sound_play/basic_client.cpp"
-
-#include "../image_handler/basic_client.cpp"
+#include "../robot_control.h"
 
 /**
  * frustrated_move_backwards - plays a short sound then moves backwards in hopes of getting past blockage - short wait at back

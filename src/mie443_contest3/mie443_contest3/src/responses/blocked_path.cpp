@@ -2,7 +2,6 @@
  * When path is blocked, can be FRUSTRATED or ANGRY
 */
 #include "responses.h"
-#include "move_robot.h"
 
 /**
  * frustrated_move_backwards - plays a short sound then moves backwards in hopes of getting past blockage - short wait at back
