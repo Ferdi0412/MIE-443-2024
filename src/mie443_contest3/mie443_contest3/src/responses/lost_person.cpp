@@ -25,7 +25,7 @@ void display_confusion( SoundPlayer& sound_player, ImageHandler& image_handler )
 */
 void display_sadness( SoundPlayer& sound_player, ImageHandler& image_handler ) {
     image_handler.display("sad.jpg");
-    // sound_player.play("");
+    sound_player.play("sad.wav");
     ros::Duration(2.5).sleep();
 }
 
