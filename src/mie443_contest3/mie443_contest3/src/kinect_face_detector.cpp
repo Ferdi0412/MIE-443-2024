@@ -39,7 +39,7 @@ void KinectFaceDetector::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
 
         // Display the live feed with face detection
         cv::imshow("Face Detection", cv_ptr->image);
-        cv::waitKey(1);
+        cv::waitKey(100);
     } catch (cv_bridge::Exception& e) {
         ROS_ERROR("cv_bridge exception: %s", e.what());
     }
