@@ -1,12 +1,21 @@
 #include "kinect_face_detector.hpp"
+#include <opencv2/highgui.hpp>
 
 KinectFaceDetector::KinectFaceDetector() : face_detected_(false) {
-    if (!face_cascade.load(cv::samples::findFile("haarcascade_frontalface_alt.xml"))) {
+    // Specify the path to the XML file
+    std::string cascade_path = "/usr/share/opencv/haarcascades/haarcascade_frontalface_alt.xml";
+
+    // Load the cascade classifier
+    if (!face_cascade.load(cascade_path)) {
         ROS_ERROR("Failed to load face cascade");
         return;
     }
 
+    // Subscribe to the image topic
     image_sub_ = nh_.subscribe("/camera/rgb/image_raw", 1, &KinectFaceDetector::imageCallback, this);
+
+    // Create a window to display the live feed
+    cv::namedWindow("Face Detection", cv::WINDOW_NORMAL);
 }
 
 void KinectFaceDetector::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
@@ -28,13 +37,14 @@ void KinectFaceDetector::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
             cv::ellipse(cv_ptr->image, center, cv::Size(faces[i].width/2, faces[i].height/2), 0, 0, 360, cv::Scalar(255, 0, 255), 4);
         }
 
-        cv::imshow("Face detection", cv_ptr->image);
+        // Display the live feed with face detection
+        cv::imshow("Face Detection", cv_ptr->image);
         cv::waitKey(1);
     } catch (cv_bridge::Exception& e) {
         ROS_ERROR("cv_bridge exception: %s", e.what());
     }
 }
 
-bool KinectFaceDetector::isFaceDetected() const {
+bool KinectFaceDetector::isFaceDetected() {
     return face_detected_;
 }
