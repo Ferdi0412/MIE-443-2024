@@ -3,6 +3,8 @@
 
 #include <ros/ros.h>
 #include <opencv2/opencv.hpp>
+#include <opencv2/core/utility.hpp>
+#include <opencv2/core/utils/filesystem.hpp> 
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
@@ -11,7 +13,7 @@ class KinectFaceDetector {
 public:
     KinectFaceDetector();
 
-    bool isFaceDetected() const;
+    bool isFaceDetected();
 
 private:
     void imageCallback(const sensor_msgs::ImageConstPtr& msg);
