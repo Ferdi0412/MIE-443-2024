@@ -109,11 +109,11 @@ static std::array<bool, 2> wheeldrop_states = {false, false};
 void wheeldrop_callback( const kobuki_msgs::WheelDropEvent::ConstPtr& msg ) {
     switch ( msg->wheel ) {
         case kobuki_msgs::WheelDropEvent::LEFT:
-            wheeldrop_states[0] = (kobuki_msgs::WheelDropEvent::RAISED);
+            wheeldrop_states[0] = (msg->state == kobuki_msgs::WheelDropEvent::RAISED);
             break;
 
         case kobuki_msgs::WheelDropEvent::RIGHT:
-            wheeldrop_states[1] = (kobuki_msgs::WheelDropEvent::RAISED);
+            wheeldrop_states[1] = (msg->state == kobuki_msgs::WheelDropEvent::RAISED);
             break;
     }
 }
@@ -135,8 +135,8 @@ bool wait_for_wheeldrop_msg( ros::NodeHandle& node_handler, double timeout ) {
 }
 
 bool check_raised( ) {
-    for ( size_t i = 0; i < bumper_states.size(); i++ ) {
-        if ( bumper_states[i] )
+    for ( size_t i = 0; i < wheeldrop_states.size(); i++ ) {
+        if ( wheeldrop_states[i] )
             return true;
     }
     return false;

@@ -16,8 +16,9 @@ void display_confusion( SoundPlayer& sound_player, ImageHandler& image_handler )
     image_handler.display("confused.png");
     sound_player.play("confused.wav");
     ros::Duration(2.5).sleep();
-
     // Add a slow rotation here - look side to side
+    rotate_clockwise(45);
+    rotate_clockwise(-90);
 }
 
 /**
@@ -27,6 +28,7 @@ void display_sadness( SoundPlayer& sound_player, ImageHandler& image_handler ) {
     image_handler.display("sad.jpg");
     sound_player.play("sad.wav");
     ros::Duration(2.5).sleep();
+    rotate_clockwise(360);
 }
 
 #endif // ~ LOST_PERSON_CPP

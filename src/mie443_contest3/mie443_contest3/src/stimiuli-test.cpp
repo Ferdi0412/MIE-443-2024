@@ -84,8 +84,8 @@ int main(int argc, char **argv)
 			robot_state = LIFTED;
 		// else if ( face_detector.isFaceDetected() )
 		// 	robot_state = FAMILY_DETECTED;
-		else if ( !get_target_available() )
-			robot_state = PERSON_LOST;
+		// else if ( !get_target_found() )
+		// 	robot_state = PERSON_LOST;
 		else if ( check_bumpers() )
 			robot_state = PATH_BLOCKED;
 		else // get_target_available == True
@@ -119,7 +119,7 @@ int main(int argc, char **argv)
 
 			/* 5. LIFTED */
 			case LIFTED:
-				std::cout << "LIFTED...\n";
+				std::cout << "LIFTED...\n" << get_odom_z() << std::endl;
 				break;
 
 		}

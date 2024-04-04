@@ -39,6 +39,11 @@ void display_disontent( SoundPlayer& sound_player, ImageHandler& image_handler )
 void display_neutral( SoundPlayer& sound_player, ImageHandler& image_handler );
 
 /**
+ * happy_family
+*/
+void happy_family( SoundPlayer& sound_player, ImageHandler& image_handler );
+
+/**
  * ===============
  * === PACKAGE ===
  * Below are the files that are included
@@ -48,5 +53,6 @@ void display_neutral( SoundPlayer& sound_player, ImageHandler& image_handler );
 #include "lost_person.cpp"
 #include "lifted.cpp"
 #include "neutral.cpp"
+#include "family.cpp"
 
 #endif // ~ RESPONSES_H
