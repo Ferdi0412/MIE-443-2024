@@ -17,7 +17,7 @@
  * ============================
 */
 bool linear_move( bool is_fwd, double distance, double speed );
-
+bool angular_move( bool is_cc, double angle_deg, double speed );
 
 
 /**
@@ -26,14 +26,23 @@ bool linear_move( bool is_fwd, double distance, double speed );
  * ======================
 */
 
-bool move_forwards( double distance, double speed = 0.2 ) {
+bool move_forwards( double distance, double speed ) {
     if ( distance == 0. )
-        return;
+        return true;
 
     if ( distance > 0.  )
         return linear_move( true, fabs(distance), fabs(speed) );
     else
         return linear_move( false, fabs(distance), fabs(speed) );
+}
+
+
+
+bool rotate_clockwise( double angle_deg, double speed ) {
+    // if ( angle_deg == 0. )
+    //     return true;
+
+    // return angular_move( (angle_deg < 0.), deg_2_radian(fabs(angle_deg)), deg_2_radian(fabs(speed)) );
 }
 
 
@@ -51,8 +60,8 @@ bool linear_move( bool is_fwd, double distance, double speed ) {
     // Store starting state of robot
     x_start = get_odom_x();
     y_start = get_odom_y();
-    prev_velocity = get_odom_velocity().linear.x; // Add some way to check whether it is in the right direction or not
-    target_velocity.x = if_fwd ? fabs(speed) : -fabs(speed);
+    prev_velocity = get_odom_lin_velocity(); // Add some way to check whether it is in the right direction or not
+    target_velocity.linear.x = is_fwd ? fabs(speed) : -fabs(speed);
 
     // Iterate until one of exit conditions is met
     while ( ros::ok() ) {
@@ -64,7 +73,7 @@ bool linear_move( bool is_fwd, double distance, double speed ) {
         // Get up-to-date robot values
         x_curr = get_odom_x();
         y_curr = get_odom_y();
-        curr_velocity = get_odom_velocity().linear.x;
+        curr_velocity = get_odom_lin_velocity();
 
         // Check if target distance reached - No check for direction...
         if ( distance_from_point( x_start, y_start, x_curr, y_curr ) >= distance ) {
@@ -94,8 +103,15 @@ bool linear_move( bool is_fwd, double distance, double speed ) {
     return movement_complete;
 }
 
-// double rotate_clockwise( double angle_radians, double speed_radians = 0.2 ) {
-//     // Try to implement some form of PID control
-// }
+
+
+bool angular_move( bool is_cc, double angle_deg, double speed ) {
+    // double phi_curr;
+    // double curr_velocity;
+
+    // ros::spin
+}
+
+
 
 #endif // ~ MOVE_ROBOT_CPP
