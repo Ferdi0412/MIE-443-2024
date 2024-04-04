@@ -11,7 +11,7 @@ void frustrated_move_backwards( SoundPlayer& sound_player, ImageHandler& image_h
     sound_player.play("angry.wav");
     move_forwards(-2);
     // *** Have a turn 45deg function to move back and turn and then move forward ***
-    ros::Duration(2).sleep();
+    ros::Duration(1).sleep();
 }
 
 /**
