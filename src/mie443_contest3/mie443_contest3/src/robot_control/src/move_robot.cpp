@@ -17,7 +17,7 @@
  * ============================
 */
 bool linear_move( bool is_fwd, double distance, double speed );
-
+bool angular_move( bool is_cc, double angle_deg, double speed );
 
 
 /**
@@ -34,6 +34,15 @@ bool move_forwards( double distance, double speed ) {
         return linear_move( true, fabs(distance), fabs(speed) );
     else
         return linear_move( false, fabs(distance), fabs(speed) );
+}
+
+
+
+bool rotate_clockwise( double angle_deg, double speed ) {
+    // if ( angle_deg == 0. )
+    //     return true;
+
+    // return angular_move( (angle_deg < 0.), deg_2_radian(fabs(angle_deg)), deg_2_radian(fabs(speed)) );
 }
 
 
@@ -94,8 +103,15 @@ bool linear_move( bool is_fwd, double distance, double speed ) {
     return movement_complete;
 }
 
-// double rotate_clockwise( double angle_radians, double speed_radians = 0.2 ) {
-//     // Try to implement some form of PID control
-// }
+
+
+bool angular_move( bool is_cc, double angle_deg, double speed ) {
+    // double phi_curr;
+    // double curr_velocity;
+
+    // ros::spin
+}
+
+
 
 #endif // ~ MOVE_ROBOT_CPP
