@@ -54,6 +54,7 @@ int main(int argc, char **argv)
 	Stimuli robot_state = FOLLOWING;
 	Stimuli prev_state  = FOLLOWING;
 	uint8_t bump_count  = 0;
+	long long lost_time = 0;
 
 	if ( !wait_for_odom_msg(nh, 2.) ) {
 		ROS_ERROR("Did not receive odometry message before wait_for_odom_msg timeout...\n");
@@ -85,7 +86,7 @@ int main(int argc, char **argv)
 		// else if ( face_detector.isFaceDetected() )
 		// 	robot_state = FAMILY_DETECTED;
 		else if ( !get_target_available() )
-			robot_state = PERSON_LOST;
+			robot_state = PERSON_LOST; 
 		else if ( check_bumpers() )
 			robot_state = PATH_BLOCKED;
 		else // get_target_available == True
@@ -118,6 +119,15 @@ int main(int argc, char **argv)
 			/* 3. PERSON_LOST */
 			case PERSON_LOST:
 				/* Fill in PERSON_LOST here... */
+				if ( prev_state != PERSON_LOST )
+					lost_time = seconds_elapsed();
+				
+				if ( (seconds_elapsed() - lost_time) > 3 ) {
+					display_confusion(sound_player, image_handler);
+				} 
+				if ((seconds_elapsed() - lost_time) > 7) {
+					display_sadness(sound_player, image_handler);
+				}
 				// Confused - look around - start timer?
 				// If long time yet not found - sad
 				break;
@@ -127,6 +137,7 @@ int main(int argc, char **argv)
 			case FAMILY_DETECTED:
 				/* Fill in FAMILY_DETECTED here... */
 				// Stop and make a happy remark or something before moving towards it???
+				happy_family(sound_player, image_handler);
 				break;
 
 
