@@ -50,10 +50,10 @@ namespace turtlebot_follower
    * publish_if_changed - publishes a std_msgs::Bool if the data has changed
   */
   void publish_if_changed( std_msgs::Bool& variable, bool new_value, ros::Publisher bool_pub ) {
-    if ( variable.data != new_value ) {
+    // if ( variable.data != new_value ) {
       variable.data = new_value;
       bool_pub.publish( variable );
-    }
+    // }
   }
 
 //* The turtlebot follower nodelet.
