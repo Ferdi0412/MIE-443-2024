@@ -100,19 +100,13 @@ bool wait_for_wheeldrop_msg( ros::NodeHandle& node_handler, double timeout );
  * There are fetch methods for each of the following:
  * @param x
  * @param y
- * @param z     - the height
  * @param phi   - the rotation on the floor (imagine tilting it in the air)
- * @param pitch - Pitch of the robot
  * @param yaw   - Same as `phi`
- * @param roll  - Roll of the robot
 */
 double get_odom_x();
 double get_odom_y();
-double get_odom_z();
 double get_odom_phi();
-double get_odom_pitch();
 double get_odom_yaw();
-double get_odom_roll();
 
 /**
  * get_odom_velocity - Returns a Twist object representing the velocity of the robot
