@@ -273,7 +273,7 @@ void target_found_callback( const std_msgs::Bool::ConstPtr& msg ) {
 }
 
 bool wait_for_target_found_msg( ros::NodeHandle& node_handler, double timeout ) {
-    std_msgs::Bool::ConstPtr msg = ros::topic::waitForMessage<std_msgs::Bool>( "follower/target_found", node_handler, ros::Duration(timeout));
+    std_msgs::Bool::ConstPtr msg = ros::topic::waitForMessage<std_msgs::Bool>( "turtlebot_follower/follower/target_found", node_handler, ros::Duration(timeout));
 
     if ( msg != nullptr )
         target_found_callback( msg );
@@ -291,7 +291,7 @@ void target_far_callback( const std_msgs::Bool::ConstPtr& msg ) {
 }
 
 bool wait_for_target_far_msg( ros::NodeHandle& node_handler, double timeout ) {
-    std_msgs::Bool::ConstPtr msg = ros::topic::waitForMessage<std_msgs::Bool>( "follower/target_far", node_handler, ros::Duration(timeout));
+    std_msgs::Bool::ConstPtr msg = ros::topic::waitForMessage<std_msgs::Bool>( "turtlebot_follower/follower/target_far", node_handler, ros::Duration(timeout));
 
     if ( msg != nullptr )
         target_far_callback( msg );
@@ -314,12 +314,12 @@ bool get_target_available( ) {
 void initialize_follower_target_subscriptions( ros::NodeHandle& node_handler ) {
     // Subscribe to the target_found and target_far topics
     if ( !target_found_subscribed ) {
-        target_found_subscription = node_handler.subscribe( "follower/target_found", 1, &target_found_callback );
+        target_found_subscription = node_handler.subscribe( "turtlebot_follower/follower/target_found", 1, &target_found_callback );
         target_found_subscribed   = true;
     }
 
     if ( !target_far_subscribed ) {
-        target_far_subscription = node_handler.subscribe( "follower/target_far", 1, &target_far_callback );
+        target_far_subscription = node_handler.subscribe( "turtlebot_follower/follower/target_far", 1, &target_far_callback );
         target_far_subscribed   = true;
     }
 }
