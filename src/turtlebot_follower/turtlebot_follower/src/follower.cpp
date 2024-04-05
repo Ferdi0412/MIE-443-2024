@@ -204,10 +204,10 @@ private:
       x /= n;
       y /= n;
 
-      // if ( !target_found.data ) { // Added by Ferdi
+      if ( !target_found.data ) { // Added by Ferdi
         target_found.data = true;
         targetfoundpub_.publish(target_found);
-      // }
+      }
 
       if(z > max_z_){
         ROS_INFO_THROTTLE(1, "Centroid too far away %f, stopping the robot\n", z);
@@ -215,19 +215,19 @@ private:
         {
           cmdpub_.publish(geometry_msgs::TwistPtr(new geometry_msgs::Twist()));
 
-          // if ( !target_far.data ) { // Added by Ferdi
+          if ( !target_far.data ) { // Added by Ferdi
             target_far.data = true;
             targetfarpub_.publish(target_far);
-          // }
+          }
 
         }
         return;
       }
 
-      // if ( target_far.data ) { // Added by Ferdi
+      if ( target_far.data ) { // Added by Ferdi
         target_far.data = false;
         targetfarpub_.publish(target_far);
-      // }
+      }
 
       ROS_INFO_THROTTLE(1, "Centroid at %f %f %f with %d points", x, y, z, n);
       publishMarker(x, y, z);
@@ -245,10 +245,10 @@ private:
       ROS_INFO_THROTTLE(1, "Not enough points(%d) detected, stopping the robot", n);
       publishMarker(x, y, z);
 
-      // if ( target_found.data ) { // Added by Ferdi
+      if ( target_found.data ) { // Added by Ferdi
         target_found.data = false;
         targetfoundpub_.publish(target_found);
-      // }
+      }
 
       if (enabled_)
       {
