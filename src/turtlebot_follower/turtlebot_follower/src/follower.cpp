@@ -46,6 +46,16 @@
 namespace turtlebot_follower
 {
 
+  /**
+   * publish_if_changed - publishes a std_msgs::Bool if the data has changed
+  */
+  void publish_if_changed( std_msgs::Bool& variable, bool new_value, ros::Publisher bool_pub ) {
+    if ( variable.data != new_value ) {
+      variable.data = new_value;
+      bool_pub.publish( variable );
+    }
+  }
+
 //* The turtlebot follower nodelet.
 /**
  * The turtlebot follower nodelet. Subscribes to point clouds
@@ -204,10 +214,11 @@ private:
       x /= n;
       y /= n;
 
-      if ( !target_found.data ) { // Added by Ferdi
-        target_found.data = true;
-        targetfoundpub_.publish(target_found);
-      }
+      // if ( !target_found.data ) { // Added by Ferdi
+      //   target_found.data = true;
+      //   targetfoundpub_.publish(target_found);
+      // }
+      publish_if_changed( target_found, true, targetfoundpub_ );
 
       if(z > max_z_){
         ROS_INFO_THROTTLE(1, "Centroid too far away %f, stopping the robot\n", z);
@@ -215,19 +226,21 @@ private:
         {
           cmdpub_.publish(geometry_msgs::TwistPtr(new geometry_msgs::Twist()));
 
-          if ( !target_far.data ) { // Added by Ferdi
-            target_far.data = true;
-            targetfarpub_.publish(target_far);
-          }
+          // if ( !target_far.data ) { // Added by Ferdi
+          //   target_far.data = true;
+          //   targetfarpub_.publish(target_far);
+          // }
+          publish_if_changed( target_far, true, targetfarpub_ );
 
         }
         return;
       }
 
-      if ( target_far.data ) { // Added by Ferdi
-        target_far.data = false;
-        targetfarpub_.publish(target_far);
-      }
+      // if ( target_far.data ) { // Added by Ferdi
+      //   target_far.data = false;
+      //   targetfarpub_.publish(target_far);
+      // }
+      publish_if_changed( target_far, false, targetfarpub_ );
 
       ROS_INFO_THROTTLE(1, "Centroid at %f %f %f with %d points", x, y, z, n);
       publishMarker(x, y, z);
@@ -245,10 +258,11 @@ private:
       ROS_INFO_THROTTLE(1, "Not enough points(%d) detected, stopping the robot", n);
       publishMarker(x, y, z);
 
-      if ( target_found.data ) { // Added by Ferdi
-        target_found.data = false;
-        targetfoundpub_.publish(target_found);
-      }
+      // if ( target_found.data ) { // Added by Ferdi
+      //   target_found.data = false;
+      //   targetfoundpub_.publish(target_found);
+      // }
+      publish_if_changed( target_found, false, targetfoundpub_ );
 
       if (enabled_)
       {
