@@ -14,8 +14,11 @@
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Bool.h>
+#include <std_msgs/Int32.h>
+#include <std_msgs/Bool.h>
 
 #include <tf/transform_datatypes.h>
+
 
 
 // #include <geometry_msgs/Twist.h>
@@ -325,6 +328,28 @@ void initialize_follower_target_subscriptions( ros::NodeHandle& node_handler ) {
 }
 
 /**
+ * ===================
+ * === FACE DETECT ===
+*/
+
+ros::Subscriber face_detector;
+ros::Subscriber face_counter;
+
+int face_count;
+bool face_detected;
+
+void faceDetectorCallback(const std_msgs::Bool::ConstPtr& msg){
+    face_detected = msg->data;
+}
+
+void faceCounterCallback(const std_msgs::Int32::ConstPtr& msg){
+    face_count = msg->data;
+}
+void subscribe_to_faces(ros::NodeHandle& node_handler){
+    face_counter = node_handler.subscribe("face_count", 1, &faceCounterCallback);
+    face_detector = node_handler.subscribe("face_detected", 1, &faceDetectorCallback);
+}
+/**
  * =============
  * === SETUP ===
 */
@@ -333,6 +358,7 @@ void initialize_robot_subscriptions( ros::NodeHandle& node_handler ) {
     subscribe_to_bumper(    node_handler );
     subscribe_to_odom(      node_handler );
     subscribe_to_wheeldrop( node_handler );
+    subscribe_to_faces(     node_handler );
     // subscribe_to_clock(     node_handler );
 
     // // Setup clock variables...
@@ -346,6 +372,7 @@ void initialize_follower_subscriptions( ros::NodeHandle& node_handler ) {
     subscribe_to_follower( node_handler );
     initialize_follower_target_subscriptions( node_handler );
 }
+
 
 
 #endif // ~ BASIC_FOLLOWER_SUBSCRIPTIONS_CPP

@@ -26,6 +26,13 @@ void initialize_robot_subscriptions( ros::NodeHandle& node_handler );
 */
 void initialize_follower_subscriptions( ros::NodeHandle& node_handler );
 
+/**
+ * ====================
+ * == FACE DETECTOR ===
+*/
+
+bool isFaceDetected();
+int numberOfFaces();
 
 
 /**

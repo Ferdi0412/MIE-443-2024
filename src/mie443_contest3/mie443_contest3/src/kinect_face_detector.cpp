@@ -37,6 +37,8 @@ void KinectFaceDetector::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
             cv::ellipse(cv_ptr->image, center, cv::Size(faces[i].width/2, faces[i].height/2), 0, 0, 360, cv::Scalar(255, 0, 255), 4);
         }
 
+        numFaces_ = faces.size();
+
         // Display the live feed with face detection
         cv::imshow("Face Detection", cv_ptr->image);
         cv::waitKey(100);
@@ -47,4 +49,9 @@ void KinectFaceDetector::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
 
 bool KinectFaceDetector::isFaceDetected() {
     return face_detected_;
+}
+
+
+int KinectFaceDetector::numberOfFaces() {
+    return numFaces_;
 }

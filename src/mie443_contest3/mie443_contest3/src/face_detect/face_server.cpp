@@ -1,3 +1,8 @@
+#include "kinect_face_detector.hpp"
+#include <ros/ros.h>
+#include <std_msgs/Int32.h>
+#include <std_msgs/Bool.h>
+
 int main( int argc, char **argv ) {
     ros::init( argc, argv, "face_server" );
     ros::NodeHandle nh;
@@ -23,8 +28,8 @@ int main( int argc, char **argv ) {
         face_detected_pub.publish( face_detected );
 
         // For publishing faces counted:
-        // face_count.data = face_detector.countFacesDetected();
-        // face_count_pub.publish( face_count );
+        face_count.data = face_detector.numberOfFaces();
+        face_count_pub.publish( face_count );
 
         // Can add visualization stuff here if you want...
 

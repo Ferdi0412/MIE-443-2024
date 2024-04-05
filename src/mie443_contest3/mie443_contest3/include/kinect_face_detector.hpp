@@ -14,6 +14,7 @@ public:
     KinectFaceDetector();
 
     bool isFaceDetected();
+    int numberOfFaces();
 
 private:
     void imageCallback(const sensor_msgs::ImageConstPtr& msg);
@@ -22,6 +23,7 @@ private:
     ros::Subscriber image_sub_;
     cv::CascadeClassifier face_cascade;
     bool face_detected_; // New member variable
+    int numFaces_; // New member variable
 };
 
 #endif /* KINECT_FACE_DETECTOR_HPP */
