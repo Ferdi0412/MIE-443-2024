@@ -18,6 +18,8 @@ void frustrated_move_backwards( SoundPlayer& sound_player, ImageHandler& image_h
  * rage_move_backwards - plays short sound then moves backwards quicker hoping to get past blockage
 */
 void rage_move_backwards( SoundPlayer& sound_player, ImageHandler& image_handler ) {
+    image_handler.display("rage.png");
+    sound_player.play("rage.wav");
     move_forwards(-4, 0.5);
     // *** Have a turn 45deg function to move back and turn and then move forward ***
     ros::Duration(4).sleep();
