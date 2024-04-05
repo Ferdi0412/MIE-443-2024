@@ -345,10 +345,22 @@ void faceDetectorCallback(const std_msgs::Bool::ConstPtr& msg){
 void faceCounterCallback(const std_msgs::Int32::ConstPtr& msg){
     face_count = msg->data;
 }
+
 void subscribe_to_faces(ros::NodeHandle& node_handler){
     face_counter = node_handler.subscribe("face_count", 1, &faceCounterCallback);
     face_detector = node_handler.subscribe("face_detected", 1, &faceDetectorCallback);
 }
+
+int numberOfFaces( ) {
+    return face_count;
+}
+
+bool isFaceDetected( ) {
+    return face_detected;
+}
+
+
+
 /**
  * =============
  * === SETUP ===

@@ -83,8 +83,8 @@ int main(int argc, char **argv)
 		*/
 		if ( check_raised() )
 			robot_state = LIFTED;
-		// else if ( face_detector.isFaceDetected() )
-		// 	robot_state = FAMILY_DETECTED;
+		else if ( numberOfFaces() >= 2 )
+		 	robot_state = FAMILY_DETECTED;
 		else if ( !get_target_available() )
 			robot_state = PERSON_LOST; 
 		else if ( check_bumpers() )
