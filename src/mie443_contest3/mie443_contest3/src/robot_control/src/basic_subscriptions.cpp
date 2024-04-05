@@ -107,13 +107,13 @@ static bool            wheeldrop_subscribed = false;
 static std::array<bool, 2> wheeldrop_states = {false, false};
 
 void wheeldrop_callback( const kobuki_msgs::WheelDropEvent::ConstPtr& msg ) {
-    switch ( msg->wheel ) {
+    switch ( msg->wheel ) { // The wheels seem to show RAISED when the wheels are raised - the robot is on the ground
         case kobuki_msgs::WheelDropEvent::LEFT:
-            wheeldrop_states[0] = (msg->state == kobuki_msgs::WheelDropEvent::RAISED);
+            wheeldrop_states[0] = (msg->state != kobuki_msgs::WheelDropEvent::RAISED);
             break;
 
         case kobuki_msgs::WheelDropEvent::RIGHT:
-            wheeldrop_states[1] = (msg->state == kobuki_msgs::WheelDropEvent::RAISED);
+            wheeldrop_states[1] = (msg->state != kobuki_msgs::WheelDropEvent::RAISED);
             break;
     }
 }
