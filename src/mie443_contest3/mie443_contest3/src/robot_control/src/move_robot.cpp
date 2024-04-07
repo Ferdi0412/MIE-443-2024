@@ -36,7 +36,7 @@ Robot& get_robot( ) {
 bool move_forwards( double distance, double speed ) {
     try {
         get_robot().moveForwards( speed, distance );
-    } except ( BumperException& exc ) {
+    } catch ( BumperException& exc ) {
         return false;
     }
     return true;
