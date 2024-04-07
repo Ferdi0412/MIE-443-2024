@@ -26,6 +26,13 @@ double deg_2_radian( double degree_angle );
 
 
 /**
+ * rad_rolloff - clamps angle between [0, M_PI] for angle comparisons
+*/
+double radian_rolloff( double radian_angle );
+
+
+
+/**
  * get_pitch_yaw_roll - returns {pitch, yaw, roll}
 */
 std::array<double, 3> get_pitch_yaw_roll( const geometry_msgs::Quaternion& input_quaternion );
