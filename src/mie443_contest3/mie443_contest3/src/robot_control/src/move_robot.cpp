@@ -3,6 +3,7 @@
 
 #include "../move_robot.h"
 #include "../misc_math.h"
+#include "../program_timer.h"
 
 #include <cmath>
 #include <geometry_msgs/Pose.h>
@@ -27,7 +28,7 @@ bool angular_move( bool is_cc, double angle_deg, double speed );
 */
 
 bool move_forwards( double distance, double speed ) {
-    if ( distance == 0. )
+    if ( distance == 0. || speed == 0. )
         return true;
 
     if ( distance > 0.  )
@@ -53,6 +54,8 @@ bool linear_move( bool is_fwd, double distance, double speed ) {
     double               prev_velocity;
     ros::Rate            loop_rate(10);
     bool                 movement_complete = false;
+    int start_time = seconds_elapsed();
+    int expected_duration = 3 * fabs( distance / speed ) + 2.;
 
     // Update robot values
     ros::spinOnce();
@@ -64,7 +67,7 @@ bool linear_move( bool is_fwd, double distance, double speed ) {
     target_velocity.linear.x = is_fwd ? fabs(speed) : -fabs(speed);
 
     // Iterate until one of exit conditions is met
-    while ( ros::ok() ) {
+    while ( ros::ok() && ((seconds_elapsed()) - start_time) <= expected_duration ) {
         double x_curr, y_curr;
         double curr_velocity;
 
@@ -80,14 +83,6 @@ bool linear_move( bool is_fwd, double distance, double speed ) {
             movement_complete = true;
             break;
         }
-
-        // If robot suddenly stops moving in the right direction OR accelerating in the right direction
-        if ( is_fwd && curr_velocity < (prev_velocity - LIN_VEL_DEVIATION) )
-            break;
-        else if ( !is_fwd && curr_velocity > (prev_velocity - LIN_VEL_DEVIATION) )
-            break;
-        else
-            prev_velocity = curr_velocity;
 
         // If robot bumps into something in front of it...
         if ( is_fwd && check_bumpers() )
