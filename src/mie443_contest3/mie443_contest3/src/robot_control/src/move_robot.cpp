@@ -13,11 +13,11 @@ Team1::Robot* robot = nullptr;
 
 void initialize_move_robot( ros::NodeHandle node_handler ) {
     if ( robot == nullptr )
-        robot = new Robot( node_handler, 10 );
+        robot = new Team1::Robot( node_handler, 10 );
 }
 
 
-Robot& get_robot( ) {
+Team1::Robot& get_robot( ) {
     if ( robot == nullptr ) {
         std::cout << "=== ROBOT NOT INITIALIZED ===\n";
         exit(-1);

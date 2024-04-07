@@ -21,12 +21,16 @@ double deg_2_radian( double degree_angle ) {
 
 
 double clamp_angle( double radian_angle ) {
-    if ( radian_angle < 0. )
-        return 0.;
-    else if ( radian_angle > 0. )
-        return M_PI;
-    else
-        return radian_angle;
+    radian_angle = fmod( radian_angle, 2 * M_PI );
+    if ( radian_angle > M_PI )
+        return radian_angle - M_PI;
+    return radian_angle;
+    // if ( radian_angle < 0. )
+    //     return 0.;
+    // else if ( radian_angle > 0. )
+    //     return M_PI;
+    // else
+    //     return radian_angle;
 }
 
 
