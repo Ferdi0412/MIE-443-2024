@@ -12,7 +12,7 @@
 #define ROT_ANGLE_BUFFER 1
 
 double get_curr_angle( ) {
-    return clamp_angle( get_odom_phi );
+    return clamp_angle( get_odom_phi() );
 }
 
 /**
