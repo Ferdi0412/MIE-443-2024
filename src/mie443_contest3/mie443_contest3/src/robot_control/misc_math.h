@@ -26,9 +26,9 @@ double deg_2_radian( double degree_angle );
 
 
 /**
- * rad_rolloff - clamps angle between [0, M_PI] for angle comparisons
+ * clamp_angle - clamps angle between [0, M_PI] for angle comparisons
 */
-double radian_rolloff( double radian_angle );
+double clamp_angle( double radian_angle );
 
 
 

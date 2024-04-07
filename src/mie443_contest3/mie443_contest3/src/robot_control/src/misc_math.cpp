@@ -20,7 +20,7 @@ double deg_2_radian( double degree_angle ) {
 
 
 
-double radian_rolloff( double radian_angle ) {
+double clamp_angle( double radian_angle ) {
     if ( radian_angle < 0. )
         return 0.;
     else if ( radian_angle > 0. )
