@@ -18,9 +18,9 @@
  * ============================
 */
 bool linear_move(       bool is_fwd, double distance,              double speed );
-bool angular_move(      bool is_cc,  double final_orientation_rad, double speed_deg );
-bool angular_move_to_0( bool is_cc,  double speed_deg );
-bool check_passes_0(    bool is_cc,  double final_orientation_rad );
+// bool angular_move(      bool is_cc,  double final_orientation_rad, double speed_deg );
+// bool angular_move_to_0( bool is_cc,  double speed_deg );
+// bool check_passes_0(    bool is_cc,  double final_orientation_rad );
 
 
 /**
@@ -41,22 +41,22 @@ bool move_forwards( double distance, double speed ) {
 
 
 
-bool rotate_clockwise( double angle_deg, double speed ) {
-    if ( angle_deg == 0. || speed == 0. )
-        return true;
+// bool rotate_clockwise( double angle_deg, double speed ) {
+//     if ( angle_deg == 0. || speed == 0. )
+//         return true;
 
-    bool is_cc = angle_deg < 0.;
+//     bool is_cc = angle_deg < 0.;
 
-    ros::spinOnce();
+//     ros::spinOnce();
 
-    double target_angle = radian_rolloff( get_odom_phi() + deg_2_radian( angle_deg ) );
-    bool   passes_0     = check_passes_0( is_cc, target_angle );
+//     double target_angle = radian_rolloff( get_odom_phi() + deg_2_radian( angle_deg ) );
+//     bool   passes_0     = check_passes_0( is_cc, target_angle );
 
-    if ( passes_0 )
-        return angular_move_to_0( is_cc, speed ) && angular_move( is_cc, target_angle, speed );
-    else
-        return angular_move( is_cc, target_angle, speed );
-}
+//     if ( passes_0 )
+//         return angular_move_to_0( is_cc, speed ) && angular_move( is_cc, target_angle, speed );
+//     else
+//         return angular_move( is_cc, target_angle, speed );
+// }
 
 
 
@@ -113,64 +113,64 @@ bool linear_move( bool is_fwd, double distance, double speed ) {
 /**
  * Rotate such that robot is aligned with angle_deg, but NEVER passes 0 orientation...
 */
-bool angular_move( bool is_cc, double final_orientation_rad, double speed_deg ) {
-    double phi_start;
-    geometry_msgs::Twist target_velocity;
-    ros::Rate            loop_rate(10);
-    bool                 movement_complete = false;
+// bool angular_move( bool is_cc, double final_orientation_rad, double speed_deg ) {
+//     double phi_start;
+//     geometry_msgs::Twist target_velocity;
+//     ros::Rate            loop_rate(10);
+//     bool                 movement_complete = false;
 
-    // Handling values...
-    double speed = radian_rolloff(fabs(deg_2_radian(speed)));
-    speed *= is_cc ? 1 : -1;
-    final_orientation_rad = radian_rolloff(final_orientation_rad)
+//     // Handling values...
+//     double speed = radian_rolloff(fabs(deg_2_radian(speed)));
+//     speed *= is_cc ? 1 : -1;
+//     final_orientation_rad = radian_rolloff(final_orientation_rad)
 
-    // Angle buffer
-    double buffer = fabs(speed) / 5;
+//     // Angle buffer
+//     double buffer = fabs(speed) / 5;
 
-    // Update robot orientation
-    ros::spinOnce();
+//     // Update robot orientation
+//     ros::spinOnce();
 
-    // Store orientation
-    phi_start = get_odom_phi();
-    target_velocity.angular.z = speed;
+//     // Store orientation
+//     phi_start = get_odom_phi();
+//     target_velocity.angular.z = speed;
 
-    // Keep an expected duration - in case it gets stuck somewhere, so it doesn't run forever...
-    int start_time = seconds_elapsed();
-    int expected_duration = 3 * fabs(final_orientation_rad - phi_start) + 2.;
+//     // Keep an expected duration - in case it gets stuck somewhere, so it doesn't run forever...
+//     int start_time = seconds_elapsed();
+//     int expected_duration = 3 * fabs(final_orientation_rad - phi_start) + 2.;
 
-    while ( ros::ok() && ((seconds_elapsed() - start_time) <= expected_duration)) {
-        double phi_curr;
+//     while ( ros::ok() && ((seconds_elapsed() - start_time) <= expected_duration)) {
+//         double phi_curr;
 
-        ros::spinOnce();
+//         ros::spinOnce();
 
-        phi_curr = get_odom_phi();
+//         phi_curr = get_odom_phi();
 
-        if ( is_cc && ( phi_curr + buffer > final_orientation_rad ) ) {
-            movement_complete = true;
-            break;
-        }
-        else if ( !is_cc && ( phi_curr - buffer < final_orientation_rad ) ) {
-            movement_complete = true;
-            break;
-        }
+//         if ( is_cc && ( phi_curr + buffer > final_orientation_rad ) ) {
+//             movement_complete = true;
+//             break;
+//         }
+//         else if ( !is_cc && ( phi_curr - buffer < final_orientation_rad ) ) {
+//             movement_complete = true;
+//             break;
+//         }
 
-        publish_velocity( target_velocity );
-        loop_rate.sleep();
-    }
+//         publish_velocity( target_velocity );
+//         loop_rate.sleep();
+//     }
 
-    publish_velocity( empty_twist() );
-    ros::spinOnce();
-    return movement_complete();
-}
+//     publish_velocity( empty_twist() );
+//     ros::spinOnce();
+//     return movement_complete();
+// }
 
 
 
-/**
- * Rotate such that robot is aligned with 0 orientation...
-*/
-bool angular_move_to_0( bool is_cc, double speed_deg ) {
+// /**
+//  * Rotate such that robot is aligned with 0 orientation...
+// */
+// bool angular_move_to_0( bool is_cc, double speed_deg ) {
 
-}
+// }
 
 
 #endif // ~ MOVE_ROBOT_CPP

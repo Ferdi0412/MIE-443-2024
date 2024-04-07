@@ -9,7 +9,7 @@ bool move_forwards( double distance, double speed = 0.2 );
 /**
  * rotate_clockwise - rotates robot clockwise on the spot
 */
-bool rotate_clockwise( double angle_deg, double speed = 30);
+// bool rotate_clockwise( double angle_deg, double speed = 30);
 
 /**
  * rotate_follow - rotates robot clockwise whilst following the follower node output
