@@ -41,22 +41,8 @@ bool move_forwards( double distance, double speed ) {
 
 
 
-// bool rotate_clockwise( double angle_deg, double speed ) {
-//     if ( angle_deg == 0. || speed == 0. )
-//         return true;
-
-//     bool is_cc = angle_deg < 0.;
-
-//     ros::spinOnce();
-
-//     double target_angle = radian_rolloff( get_odom_phi() + deg_2_radian( angle_deg ) );
-//     bool   passes_0     = check_passes_0( is_cc, target_angle );
-
-//     if ( passes_0 )
-//         return angular_move_to_0( is_cc, speed ) && angular_move( is_cc, target_angle, speed );
-//     else
-//         return angular_move( is_cc, target_angle, speed );
-// }
+bool rotate_clockwise( double angle_deg, double speed ) {
+}
 
 
 
