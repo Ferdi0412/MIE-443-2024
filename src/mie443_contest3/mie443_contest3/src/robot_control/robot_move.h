@@ -9,7 +9,7 @@
  * @param angle_deg [degree]        - for counter-clock, use LESS THAN 0
  * @param speed     [degree/second] - must be GREATER THAN 0
 */
-bool rotate_clockwise( double angle_deg, double speed );
+bool rotate_clockwise_2( double angle_deg, double speed = 30 );
 
 
 /**

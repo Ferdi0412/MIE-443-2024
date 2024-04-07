@@ -99,16 +99,17 @@ bool rotate_counter_clockwise_to( double velocity, double target_angle ) {
 
 
 
-bool rotate_clockwise( double angle_deg, double speed ) {
+bool rotate_clockwise_2( double angle_deg, double speed ) {
     if ( angle_deg == 0. || speed == 0. )
         return true;
 
     ros::spinOnce();
     if ( angle_deg > 0 )
-        speed = deg_2_radian(fabs(speed));
-    else
         speed = -deg_2_radian(fabs(speed));
-    return rotate_counter_clockwise_to( speed, clamp_angle(get_curr_angle() + angle_deg) );
+    else
+        speed = deg_2_radian(fabs(speed));
+    // Flip angle_deg (clock to counter-clock)
+    return rotate_counter_clockwise_to( speed, clamp_angle(get_curr_angle() - angle_deg) );
 }
 
 
