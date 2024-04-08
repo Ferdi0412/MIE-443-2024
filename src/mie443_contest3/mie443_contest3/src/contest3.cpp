@@ -47,10 +47,10 @@ int main(int argc, char **argv)
 	ImageHandler image_handler(nh);
 	ros::Duration(0.5).sleep(); // Give the sound_player time to connect to the sound_play node
 
-	initialize_robot_subscriptions( nh );
+	initialize_robot_subscriptions(    nh );
 	initialize_follower_subscriptions( nh );
-	initialize_basic_movers( nh );
-	initialize_move_robot(   nh );
+	initialize_basic_movers(           nh );
+	initialize_move_robot(             nh );
 
 	// Setup state trackers...
 	Stimuli robot_state = FOLLOWING;
@@ -76,24 +76,38 @@ int main(int argc, char **argv)
 		ros::spinOnce();
 		prev_state = robot_state; // To for example trigger reaction on first occurance - eg. play surprise sound once when lifted...
 
-		/* In order to set the state correctly, the order of the checks must be correct.
-		1. Check if lifted    - LIFTED
-		2. Check for faces    - FAMILY_DETECTED
-		3. Check if no target - PERSON_LOST/PERSON_FAR
-		4. Check if bumper    - PATH_BLOCKED
-		5. Check if normal    - FOLLOWING
+		/**
+		 * =================
+		 * === GET STATE ===
+		 * =================
 		*/
+		/* If robot was lifted off the ground... */
 		if ( check_raised() )
 			robot_state = LIFTED;
-		else if ( numberOfFaces() >= 2 )
+
+		/* If essentially stood still, count number of faces to trigger happy */
+		else if ( (get_odom_lin_velocity() < 0.015) && (numberOfFaces() >= 3) )
 		 	robot_state = FAMILY_DETECTED;
+
+		/* Target was lost... */
 		else if ( !get_target_available() )
 			robot_state = PERSON_LOST;
+
+		/* If bumpers triggered... */
 		else if ( check_bumpers() )
 			robot_state = PATH_BLOCKED;
+
+		/* Otherwise follow the target... */
 		else // get_target_available == True
 			robot_state = FOLLOWING;
 
+
+
+		/**
+		 * ====================
+		 * === ACT ON STATE ===
+		 * ====================
+		*/
 		/* Finite State Machine section - display emotions and/or detect higher level stimuli (if applicable) */
 		switch ( robot_state ) {
 			/* 1. FOLLOWING */
