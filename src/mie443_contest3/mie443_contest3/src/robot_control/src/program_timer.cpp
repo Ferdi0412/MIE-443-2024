@@ -17,6 +17,10 @@ inline long seconds_between( _sys_time_t begin_time, _sys_time_t end_time ) {
     return std::chrono::duration_cast<std::chrono::seconds>( end_time - begin_time ).count();
 }
 
+inline long nanoseconds_between( _sys_time_t begin_time, _sys_time_t end_time ) {
+    return std::chrono::duration_cast<std::chrono::nanoseconds>( end_time - begin_time ).count();
+}
+
 long seconds_elapsed( ) {
     if ( !is_started ) {
         start_time = get_time();
@@ -24,6 +28,15 @@ long seconds_elapsed( ) {
     }
 
     return seconds_between( start_time, get_time() );
+}
+
+long nanoseconds_elapsed( ) {
+    if ( !is_started ) {
+        start_time = get_time();
+        is_started = true;
+    }
+
+    return nanoseconds_between( start_time, get_time() );
 }
 
 bool within_time_limit( long time_limit ) {

@@ -1,6 +1,13 @@
 #ifndef MOVE_ROBOT_H
 #define MOVE_ROBOT_H
 
+#include <ros/ros.h>
+
+/**
+ * initialize_move_robot
+*/
+void initialize_move_robot( ros::NodeHandle node_handler );
+
 /**
  * move_forwards - moves robot forwards by a set amount at a given speed
 */

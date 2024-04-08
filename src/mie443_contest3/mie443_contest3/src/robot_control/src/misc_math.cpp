@@ -20,6 +20,21 @@ double deg_2_radian( double degree_angle ) {
 
 
 
+double clamp_angle( double radian_angle ) {
+    radian_angle = fmod( radian_angle, 2 * M_PI );
+    if ( radian_angle > M_PI )
+        return radian_angle - M_PI;
+    return radian_angle;
+    // if ( radian_angle < 0. )
+    //     return 0.;
+    // else if ( radian_angle > 0. )
+    //     return M_PI;
+    // else
+    //     return radian_angle;
+}
+
+
+
 std::array<double, 3> get_pitch_yaw_roll(  const geometry_msgs::Quaternion& input_quaternion ) {
     tf::Quaternion tf_quaternion;
     double tf_pitch, tf_yaw, tf_roll;

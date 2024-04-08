@@ -2,6 +2,7 @@
 #define MOVE_ROBOT_CPP
 
 #include "../move_robot.h"
+<<<<<<< HEAD
 #include "../misc_math.h"
 
 #include <cmath>
@@ -10,14 +11,31 @@
 #define LIN_VEL_DEVIATION 0.1
 #define ROT_VEL_DEVIATION 5
 
+=======
+#include "../robot.cpp"
+>>>>>>> 8107ab2434f6a90cf9ef2275867c3a54dd4da6f2
 
 /**
  * ============================
  * === SUPPORT DECLARATIONS ===
  * ============================
 */
-bool linear_move( bool is_fwd, double distance, double speed );
-bool angular_move( bool is_cc, double angle_deg, double speed );
+Team1::Robot* robot = nullptr;
+
+void initialize_move_robot( ros::NodeHandle node_handler ) {
+    if ( robot == nullptr )
+        robot = new Team1::Robot( node_handler, 10 );
+}
+
+
+Team1::Robot& get_robot( ) {
+    if ( robot == nullptr ) {
+        std::cout << "=== ROBOT NOT INITIALIZED ===\n";
+        exit(-1);
+    }
+
+    return *robot;
+}
 
 
 /**
@@ -27,18 +45,17 @@ bool angular_move( bool is_cc, double angle_deg, double speed );
 */
 
 bool move_forwards( double distance, double speed ) {
-    if ( distance == 0. )
-        return true;
-
-    if ( distance > 0.  )
-        return linear_move( true, fabs(distance), fabs(speed) );
-    else
-        return linear_move( false, fabs(distance), fabs(speed) );
+    try {
+        speed = distance > 0 ? fabs(speed) : -fabs(speed);
+        get_robot().moveForwards( speed, fabs(distance) );
+    } catch ( BumperException& exc ) {
+        return false;
+    }
+    return true;
 }
 
-
-
 bool rotate_clockwise( double angle_deg, double speed ) {
+<<<<<<< HEAD
     if ( angle_deg == 0. )
         return true;
 
@@ -99,15 +116,19 @@ bool linear_move( bool is_fwd, double distance, double speed ) {
         publish_velocity( target_velocity );
 
         loop_rate.sleep();
+=======
+    try {
+        get_robot().rotateClockwiseBy( speed, angle_deg );
+    } catch ( BumperException& exc ) {
+        return false;
+>>>>>>> 8107ab2434f6a90cf9ef2275867c3a54dd4da6f2
     }
-
-    publish_velocity( empty_twist() );
-    ros::spinOnce();
-    return movement_complete;
+    return true;
 }
 
 
 
+<<<<<<< HEAD
 bool angular_move( bool is_cc, double angle_deg, double speed ) {
     double               phi_start;
     geometry_msgs::Twist target_velocity; 
@@ -166,3 +187,6 @@ bool angular_move( bool is_cc, double angle_deg, double speed ) {
 
 
 #endif // ~ MOVE_ROBOT_CPP
+=======
+#endif // MOVE_ROBOT_CPP
+>>>>>>> 8107ab2434f6a90cf9ef2275867c3a54dd4da6f2

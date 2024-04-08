@@ -11,6 +11,11 @@
 long seconds_elapsed();
 
 /**
+ * nanoseconds_elapsed - same as seconds_elapsed but using nanoseconds
+*/
+long nanoseconds_elapsed();
+
+/**
  * within_time_limit - returns true if the program is within the time limit
  *
  * @param time_limit <long> Maximum number of seconds

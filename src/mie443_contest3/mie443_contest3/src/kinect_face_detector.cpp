@@ -1,5 +1,6 @@
 #include "kinect_face_detector.hpp"
 #include <opencv2/highgui.hpp>
+#include <iostream>
 
 KinectFaceDetector::KinectFaceDetector() : face_detected_(false) {
     // Specify the path to the XML file
@@ -22,20 +23,23 @@ void KinectFaceDetector::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
     try {
         cv_bridge::CvImagePtr cv_ptr;
         cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
-        
+
         cv::Mat frame_gray;
         cv::cvtColor(cv_ptr->image, frame_gray, cv::COLOR_BGR2GRAY);
         cv::equalizeHist(frame_gray, frame_gray);
 
         std::vector<cv::Rect> faces;
-        face_cascade.detectMultiScale(frame_gray, faces, 1.1, 2, 0|cv::CASCADE_SCALE_IMAGE, cv::Size(30, 30));
+        // 55 by 55 is bigger than MOST false positives - I have seen ONE instance where it was 58 by 58...
+        face_cascade.detectMultiScale(frame_gray, faces, 1.1, 2, 0|cv::CASCADE_SCALE_IMAGE, cv::Size(55, 55));
 
         face_detected_ = !faces.empty(); // Update the face_detected_ flag
 
         for(size_t i = 0; i < faces.size(); i++) {
             cv::Point center(faces[i].x + faces[i].width/2, faces[i].y + faces[i].height/2);
             cv::ellipse(cv_ptr->image, center, cv::Size(faces[i].width/2, faces[i].height/2), 0, 0, 360, cv::Scalar(255, 0, 255), 4);
+            std::cout << "Face: " << i << " has Size: " << faces[i].width << " by " << faces[i].height << " high!\n";
         }
+        std::cout << std::endl;
 
         numFaces_ = faces.size();
 
