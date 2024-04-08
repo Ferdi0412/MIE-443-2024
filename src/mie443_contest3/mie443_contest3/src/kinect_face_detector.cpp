@@ -29,7 +29,8 @@ void KinectFaceDetector::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
         cv::equalizeHist(frame_gray, frame_gray);
 
         std::vector<cv::Rect> faces;
-        face_cascade.detectMultiScale(frame_gray, faces, 1.1, 2, 0|cv::CASCADE_SCALE_IMAGE, cv::Size(30, 30));
+        // 55 by 55 is bigger than MOST false positives - I have seen ONE instance where it was 58 by 58...
+        face_cascade.detectMultiScale(frame_gray, faces, 1.1, 2, 0|cv::CASCADE_SCALE_IMAGE, cv::Size(55, 55));
 
         face_detected_ = !faces.empty(); // Update the face_detected_ flag
 
