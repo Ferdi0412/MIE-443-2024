@@ -86,7 +86,7 @@ int main(int argc, char **argv)
 			robot_state = LIFTED;
 
 		/* If essentially stood still, count number of faces to trigger happy */
-		else if ( (get_odom_lin_velocity() < 0.015) && (numberOfFaces() >= 3) )
+		else if ( (get_odom_lin_velocity() < 0.05) && (numberOfFaces() >= 3) )
 		 	robot_state = FAMILY_DETECTED;
 
 		/* Target was lost... */
