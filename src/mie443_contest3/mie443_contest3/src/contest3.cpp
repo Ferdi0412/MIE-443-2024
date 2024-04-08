@@ -4,6 +4,7 @@
 #include <chrono>
 
 // #include "kinect_face_detector.hpp" // added for face detection
+#include "robot_control/robot_control.h"
 #include "robot_control/basic_subscriptions.h"
 #include "robot_control/basic_publishers.h"
 #include "robot_control/program_timer.h"
@@ -49,6 +50,7 @@ int main(int argc, char **argv)
 	initialize_robot_subscriptions( nh );
 	initialize_follower_subscriptions( nh );
 	initialize_basic_movers( nh );
+	initialize_move_robot(   nh );
 
 	// Setup state trackers...
 	Stimuli robot_state = FOLLOWING;
@@ -86,7 +88,7 @@ int main(int argc, char **argv)
 		else if ( numberOfFaces() >= 2 )
 		 	robot_state = FAMILY_DETECTED;
 		else if ( !get_target_available() )
-			robot_state = PERSON_LOST; 
+			robot_state = PERSON_LOST;
 		else if ( check_bumpers() )
 			robot_state = PATH_BLOCKED;
 		else // get_target_available == True
@@ -121,10 +123,10 @@ int main(int argc, char **argv)
 				/* Fill in PERSON_LOST here... */
 				if ( prev_state != PERSON_LOST )
 					lost_time = seconds_elapsed();
-				
+
 				if ( (seconds_elapsed() - lost_time) > 3 ) {
 					display_confusion(sound_player, image_handler);
-				} 
+				}
 				if ((seconds_elapsed() - lost_time) > 7) {
 					display_sadness(sound_player, image_handler);
 				}
