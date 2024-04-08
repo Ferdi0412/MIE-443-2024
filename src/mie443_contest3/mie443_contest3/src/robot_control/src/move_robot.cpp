@@ -35,7 +35,8 @@ Team1::Robot& get_robot( ) {
 
 bool move_forwards( double distance, double speed ) {
     try {
-        get_robot().moveForwards( speed, distance );
+        speed = distance > 0 ? fabs(speed) : -fabs(speed);
+        get_robot().moveForwards( speed, fabs(distance) );
     } catch ( BumperException& exc ) {
         return false;
     }
