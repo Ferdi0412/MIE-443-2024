@@ -8,7 +8,7 @@
  * display_discontent - When being lifted off the ground
 */
 void display_discontent( SoundPlayer& sound_player, ImageHandler& image_handler ) {
-    image_handler.display("confused.png");
+    image_handler.display("scared.png");
     sound_player.play("surprised.wav");
     ros::Duration(4).sleep();
 }

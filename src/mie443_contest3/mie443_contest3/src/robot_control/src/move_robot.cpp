@@ -8,7 +8,7 @@
 #include <geometry_msgs/Pose.h>
 
 #define LIN_VEL_DEVIATION 0.1
-
+#define ROT_VEL_DEVIATION 5
 
 
 /**
@@ -39,10 +39,13 @@ bool move_forwards( double distance, double speed ) {
 
 
 bool rotate_clockwise( double angle_deg, double speed ) {
-    // if ( angle_deg == 0. )
-    //     return true;
+    if ( angle_deg == 0. )
+        return true;
 
-    // return angular_move( (angle_deg < 0.), deg_2_radian(fabs(angle_deg)), deg_2_radian(fabs(speed)) );
+    if (angle_deg > 0.)
+        return angular_move( true, deg_2_radian(fabs(angle_deg)), deg_2_radian(fabs(speed)) );
+    else    
+        return angular_move( false, deg_2_radian(fabs(angle_deg)), deg_2_radian(fabs(speed)) );
 }
 
 
@@ -106,10 +109,58 @@ bool linear_move( bool is_fwd, double distance, double speed ) {
 
 
 bool angular_move( bool is_cc, double angle_deg, double speed ) {
-    // double phi_curr;
-    // double curr_velocity;
+    double               phi_start;
+    geometry_msgs::Twist target_velocity; 
+    double               prev_velocity;
+    ros::Rate            loop_rate(10);
+    bool                 movement_complete = false;
 
-    // ros::spin
+    // Update robot values
+    ros::spinOnce();
+
+    // Store starting state of robot
+    phi_start = get_odom_phi();
+    prev_velocity = get_odom_rot_velocity(); // Add some way to check whether it is in the right direction or not
+    target_velocity.angular.z = is_cc ? fabs(angle_deg) : -fabs(angle_deg);
+
+    // Iterate until one of exit conditions is met
+    while ( ros::ok() ) {
+        double phi_curr;
+        double curr_velocity;
+
+        ros::spinOnce();
+
+        // Get up-to-date robot values
+        phi_curr = get_odom_phi();
+        curr_velocity = get_odom_rot_velocity();
+
+        // Check if target angle reached
+        if (fabs(phi_curr - phi_start) >= fabs(angle_deg)) {
+            movement_complete = true;
+            break;
+        }
+
+        // If robot suddenly stops moving in the right direction OR accelerating in the right direction
+        if ( is_cc && curr_velocity < (prev_velocity - ROT_VEL_DEVIATION) )
+            break;
+        else if ( !is_cc && curr_velocity > (prev_velocity - ROT_VEL_DEVIATION) )
+            break;
+        else
+            prev_velocity = curr_velocity;
+
+        // If robot bumps into something in front of it...
+        if ( is_cc && check_bumpers() )
+            break;
+
+        publish_velocity( target_velocity );
+
+        loop_rate.sleep();
+    }
+
+    publish_velocity( empty_twist() );
+    ros::spinOnce();
+    return movement_complete;
+
 }
 
 
