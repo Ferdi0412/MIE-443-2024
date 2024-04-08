@@ -1,3 +1,6 @@
+#ifndef ROBOT_CONTROL_H
+#define ROBOT_CONTROL_H
+
 // Includes all the robot_control files...
 #include <ros/ros.h>
 
@@ -12,3 +15,5 @@ void initialize_all( ros::NodeHandle node_handler ) {
     initialize_follower_subscriptions( node_handler );
     initialize_basic_movers(           node_handler );
 }
+
+#endif // ~ ROBOT_CONTROL_H
