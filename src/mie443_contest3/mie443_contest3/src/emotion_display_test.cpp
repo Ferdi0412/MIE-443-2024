@@ -19,7 +19,7 @@ int main ( int argc, char ** argv ) {
     initialize_all( nh );
 
     while ( 1 ) {
-        std::cout << "PLEASE INPUT A NUMBER FROM 0 TO 7 OR h FOR HELP:\n";
+        std::cout << "PLEASE INPUT A NUMBER FROM 0 TO 6 OR h FOR HELP:\n";
         std::string user_input;
         if ( std::cin.eof() )
             break;
@@ -28,7 +28,7 @@ int main ( int argc, char ** argv ) {
         if ( !user_input.empty() ) {
             switch( user_input[0] ) {
                 case 'h':
-                    std::cout << "Options:\n0: neutral\n1: confusion\n2: saddness\n3: happy\n4: scared\n 5: discontent!\n6: frustrated\n7: rage\n";
+                    std::cout << "Options:\n0: neutral\n1: confusion\n2: saddness\n3: happy\n4: surprised\n5: frustrated\n6: rage\n";
                     break;
 
                 case '0':
@@ -52,21 +52,16 @@ int main ( int argc, char ** argv ) {
                     break;
 
                 case '4':
-                    std::cout << "Scared!\n";
-                    display_scaredness( sound_player, image_handler );
+                    std::cout << "Surprised!\n";
+                    display_surprised( sound_player, image_handler );
                     break;
 
                 case '5':
-                    std::cout << "Discontent!\n";
-                    display_discontent( sound_player, image_handler );
-                    break;
-
-                case '6':
                     std::cout << "bumped few\n";
                     frustrated_move_backwards( sound_player, image_handler );
                     break;
 
-				case '7':
+				case '6':
                     std::cout << "Bumped MANY\n";
 					rage_move_backwards( sound_player, image_handler );
                     break;

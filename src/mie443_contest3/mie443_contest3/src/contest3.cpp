@@ -114,8 +114,7 @@ int main(int argc, char **argv)
 			case FOLLOWING:
 				if ( prev_state != FOLLOWING )
 					display_neutral( sound_player, image_handler );
-				/* Fill in FOLLOWING here... */
-				// eg.
+
 				publish_velocity( get_follower_cmd() ); // Follow the follower node's path to person
 				break;
 
@@ -126,6 +125,7 @@ int main(int argc, char **argv)
 				bump_count ++;
 				if ( bump_count < 3 )
 					frustrated_move_backwards( sound_player, image_handler );
+
 				else
 					rage_move_backwards( sound_player, image_handler ); // Rage
 				// Have a move_backwards function...
@@ -138,12 +138,11 @@ int main(int argc, char **argv)
 				if ( prev_state != PERSON_LOST )
 					lost_time = seconds_elapsed();
 
-				if ( (seconds_elapsed() - lost_time) > 3 ) {
+				if ( (seconds_elapsed() - lost_time) > 3 )
 					display_confusion(sound_player, image_handler);
-				}
-				if ((seconds_elapsed() - lost_time) > 7) {
+
+				else if ( (seconds_elapsed() - lost_time) > 7 )
 					display_sadness(sound_player, image_handler);
-				}
 				// Confused - look around - start timer?
 				// If long time yet not found - sad
 				break;
@@ -160,12 +159,8 @@ int main(int argc, char **argv)
 			/* 5. LIFTED */
 			case LIFTED:
 				/* Fill in LIFTED here... */
-				if ( (get_odom_z() - ground_z) > 0.2 )
-					display_scaredness( sound_player, image_handler );
-
-				else if ( prev_state != LIFTED )
-					display_discontent( sound_player, image_handler );
-
+				if ( prev_state != LIFTED )
+					display_surprised( sound_player, image_handler );
 				break;
 
 			// There should be no reason to add default....
