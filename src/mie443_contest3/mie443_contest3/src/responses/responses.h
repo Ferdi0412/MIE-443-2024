@@ -24,14 +24,9 @@ void rage_move_backwards( SoundPlayer& sound_player, ImageHandler& image_handler
 void display_confusion( SoundPlayer& sound_player, ImageHandler& image_handler );
 
 /**
- * display_sadness - Don't move, can rotate on spot, indicate sadness
+ * display_surprised - When being lifted off the ground
 */
-void display_sadness( SoundPlayer& sound_player, ImageHandler& image_handler );
-
-/**
- * display_discontent
-*/
-void display_disontent( SoundPlayer& sound_player, ImageHandler& image_handler );
+void display_surprised( SoundPlayer& sound_player, ImageHandler& image_handler );
 
 /**
  * display_neutral

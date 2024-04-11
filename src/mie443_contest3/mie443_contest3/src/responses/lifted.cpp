@@ -5,22 +5,14 @@
 #include <ros/ros.h>
 
 /**
- * display_discontent - When being lifted off the ground
+ * display_surprised - When being lifted off the ground
 */
-void display_discontent( SoundPlayer& sound_player, ImageHandler& image_handler ) {
-    image_handler.display("scared.png");
+void display_surprised( SoundPlayer& sound_player, ImageHandler& image_handler ) {
+    image_handler.display("surprised.png");
     sound_player.play("surprised.wav");
-    ros::Duration(4).sleep();
+    ros::Duration(0.4);
 }
 
-/**
- * display_scaredness - When lifted too high
-*/
-void display_scaredness( SoundPlayer& sound_player, ImageHandler& image_handler ) {
-    image_handler.display("scared.png");
-    sound_player.robot_speech( "I am now scared!" );
-    ros::Duration(2).sleep();
-}
 
 
 #endif
