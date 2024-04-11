@@ -9,8 +9,8 @@
 */
 void display_surprised( SoundPlayer& sound_player, ImageHandler& image_handler ) {
     image_handler.display("surprised.png");
-    sound_player.play("surprised.wav");
-    ros::Duration(0.4);
+    sound_player.play("surprised2.wav");
+    ros::Duration(0.8);
 }
 
 
