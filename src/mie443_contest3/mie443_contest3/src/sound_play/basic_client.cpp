@@ -11,9 +11,14 @@ class SoundPlayer {
             sc.playWave( path_to_sounds + wav_filename );
         }
 
-        void robot_speech( std::string text ) {
-            sc.say( text );
+
+        void stop( ) {
+            sc.stopAll( );
         }
+
+        // void robot_speech( std::string text ) {
+        //     sc.say( text );
+        // }
 
         SoundPlayer() {
             path_to_sounds = ros::package::getPath( "mie443_contest3" ) + "/sounds/";
