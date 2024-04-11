@@ -19,7 +19,7 @@ int main ( int argc, char ** argv ) {
     initialize_all( nh );
 
     while ( 1 ) {
-        std::cout << "PLEASE INPUT A NUMBER FROM 0 TO 5 OR h FOR HELP:\n";
+        std::cout << "PLEASE INPUT A NUMBER FROM 0 TO 7 OR h FOR HELP:\n";
         std::string user_input;
         if ( std::cin.eof() )
             break;
@@ -28,7 +28,7 @@ int main ( int argc, char ** argv ) {
         if ( !user_input.empty() ) {
             switch( user_input[0] ) {
                 case 'h':
-                    std::cout << "Options:\n0: neutral\n1: confusion\n2: saddness\n3: happy\n4: scared\n 5: discontent!";
+                    std::cout << "Options:\n0: neutral\n1: confusion\n2: saddness\n3: happy\n4: scared\n 5: discontent!\n6: frustrated\n7: rage\n";
                     break;
 
                 case '0':
@@ -59,6 +59,16 @@ int main ( int argc, char ** argv ) {
                 case '5':
                     std::cout << "Discontent!\n";
                     display_discontent( sound_player, image_handler );
+                    break;
+
+                case '6':
+                    std::cout << "bumped few\n";
+                    frustrated_move_backwards( sound_player, image_handler );
+                    break;
+
+				case '7':
+                    std::cout << "Bumped MANY\n";
+					rage_move_backwards( sound_player, image_handler );
                     break;
 
                 default:
