@@ -10,7 +10,7 @@
 
 void happy_family( SoundPlayer& sound_player, ImageHandler& image_handler ) {
     long long start_time = seconds_elapsed();
-    image_handler.display("family.png");
+    image_handler.display("family2.jpg");
     sound_player.play("family.wav");
     ros::Duration(2).sleep();
     rotate_clockwise(359);
